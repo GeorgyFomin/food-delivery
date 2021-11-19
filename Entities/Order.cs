@@ -11,6 +11,6 @@ namespace Entities
     {
         public int ID { get; set; }
         public int Number { get; set; }
-        public Product? Product { get; set; }
+        public ICollection<OrderElement>? OrderElements { get; set; }
     }
 }

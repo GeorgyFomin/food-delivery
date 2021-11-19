@@ -10,5 +10,6 @@ namespace Entities
     public class MenuElement:Entity<MenuElement>
     {
         public int ID { get; set; }
+        public Product? Product { get; set; }
     }
 }
