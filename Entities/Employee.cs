@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    internal class Employee : Entity<Employee>
+    public class Employee : Entity<int>
     {
-        public int ID { get; set; }
-        public string? Name { get; set; }
+        public string Name { get; set; }
     }
 }

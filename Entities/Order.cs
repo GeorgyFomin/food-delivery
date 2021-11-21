@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    internal class Order : Entity<Order>
+    public class Order : Entity<int>
     {
-        public int ID { get; set; }
-        public int Number { get; set; }
-        public ICollection<OrderElement>? OrderElements { get; set; }
+        public ICollection<Product> Products { get; set; }
+        public decimal Price { get; set; }
+        public Discount Discount { get; set; }
+        public Delivery Delivery { get; set; }
     }
 }

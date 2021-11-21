@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class OrderElement : Entity<OrderElement>
+    public class OrderElement : Entity<int>
     {
-        public int ID { get; set; }
     }
 }

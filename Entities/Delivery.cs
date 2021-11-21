@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    internal class Delivery : Entity<Delivery>
+    public class Delivery : Entity<int>
     {
-        public int ID { get; set; }
-
+        public string ServiceName { get; set; }
+        public decimal Price { get; set; }
+        public TimeSpan TimeSpan { get; set; }
     }
 }

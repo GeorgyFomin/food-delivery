@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    internal class Menu : Entity<Menu>
+    public class Menu : Entity<int>
     {
-        public int ID { get; set; }
-
-        public ICollection<MenuElement>? MenuElements { get; set; }
+        public ICollection<MenuElement> MenuElements { get; set; }
     }
 }
