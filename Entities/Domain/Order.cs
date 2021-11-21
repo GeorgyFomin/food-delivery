@@ -9,8 +9,7 @@ namespace Entities
 {
     public class Order : Entity<int>
     {
-        public ICollection<Product> Products { get; set; }
-        public decimal Price { get; set; }
+        public ICollection<OrderElement> OrderElements { get; set; }
         public Discount Discount { get; set; }
         public Delivery Delivery { get; set; }
     }
