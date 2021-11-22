@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class MenuElement:Entity<int>
+    public class MenuItem:Entity<int>
     {
         public Product Product { get; set; }
     }

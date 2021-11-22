@@ -7,7 +7,7 @@ namespace Persistence.MsSql
     {
         public DbSet<Order> Orders { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<OrderElement> OrderElements { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DataContext() { }
         public DataContext(DbContextOptions options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

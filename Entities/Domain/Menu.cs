@@ -9,6 +9,6 @@ namespace Entities
 {
     public class Menu : Entity<int>
     {
-        public ICollection<MenuElement> MenuElements { get; set; }
+        public ICollection<MenuItem> MenuItems { get; set; }
     }
 }
