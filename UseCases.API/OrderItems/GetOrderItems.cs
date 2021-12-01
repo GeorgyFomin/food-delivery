@@ -11,10 +11,8 @@ namespace UseCases.API.OrderItems
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<IEnumerable<OrderItem>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                return await _context.OrderItems.ToListAsync(cancellationToken);
-            }
+            public async Task<IEnumerable<OrderItem>> Handle(Query request, CancellationToken cancellationToken) =>
+                await _context.OrderItems.ToListAsync(cancellationToken);
         }
     }
 }

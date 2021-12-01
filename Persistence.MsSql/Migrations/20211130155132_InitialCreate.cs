@@ -80,7 +80,7 @@ namespace Persistence.MsSql.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ingredient",
+                name: "Ingredients",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -90,9 +90,9 @@ namespace Persistence.MsSql.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ingredient", x => x.Id);
+                    table.PrimaryKey("PK_Ingredients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Ingredient_Products_ProductId",
+                        name: "FK_Ingredients_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id");
@@ -126,8 +126,8 @@ namespace Persistence.MsSql.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ingredient_ProductId",
-                table: "Ingredient",
+                name: "IX_Ingredients_ProductId",
+                table: "Ingredients",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
@@ -154,7 +154,7 @@ namespace Persistence.MsSql.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Ingredient");
+                name: "Ingredients");
 
             migrationBuilder.DropTable(
                 name: "OrderItems");

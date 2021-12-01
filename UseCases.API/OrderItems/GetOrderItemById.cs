@@ -11,12 +11,10 @@ namespace UseCases.API.OrderItems
         }
         public class QueryHandler : IRequestHandler<Query, OrderItem>
         {
-            private readonly DataContext _db;
-            public QueryHandler(DataContext db) => _db = db;
-            public async Task<OrderItem> Handle(Query request, CancellationToken cancellationToken)
-            {
-                return await _db.OrderItems.FindAsync(request.Id);
-            }
+            private readonly DataContext _context;
+            public QueryHandler(DataContext context) => _context = context;
+            public async Task<OrderItem> Handle(Query request, CancellationToken cancellationToken) =>
+                await _context.OrderItems.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
         }
     }
 }

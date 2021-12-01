@@ -1,9 +1,10 @@
 ﻿using Entities;
 using MediatR;
 using Persistence.MsSql;
-namespace UseCases.API.Products
+
+namespace UseCases.API.Ingredients
 {
-    public class DeleteProduct
+    public class DeleteIngredient
     {
         public class Command : IRequest
         {
@@ -15,9 +16,9 @@ namespace UseCases.API.Products
             public CommandHandler(DataContext context) => _context = context;
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                Product product = await _context.Products.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                if (product == null) return Unit.Value;
-                _context.Products.Remove(product);
+                Ingredient Ingredient = await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                if (Ingredient == null) return Unit.Value;
+                _context.Ingredients.Remove(Ingredient);
                 await _context.SaveChangesAsync(cancellationToken);
                 return Unit.Value;
             }

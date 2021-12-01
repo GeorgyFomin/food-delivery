@@ -11,12 +11,10 @@ namespace UseCases.API.Products
         }
         public class QueryHandler : IRequestHandler<Query, Product>
         {
-            private readonly DataContext _db;
-            public QueryHandler(DataContext db) => _db = db;
-            public async Task<Product> Handle(Query request, CancellationToken cancellationToken)
-            {
-                return await _db.Products.FindAsync(request.Id);
-            }
+            private readonly DataContext _context;
+            public QueryHandler(DataContext context) => _context = context;
+            public async Task<Product> Handle(Query request, CancellationToken cancellationToken) => 
+                await _context.Products.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
         }
     }
 }

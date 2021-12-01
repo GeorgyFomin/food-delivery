@@ -15,7 +15,6 @@ namespace UseCases.API.Orders
         public class CommandHandler : IRequestHandler<Command, int>
         {
             private readonly DataContext _context;
-
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {

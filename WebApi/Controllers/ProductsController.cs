@@ -21,7 +21,6 @@ namespace WebApi.Controllers
             var createProductId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
-
         [HttpDelete]
         public async Task<ActionResult> DeleteProduct(int id)
         {

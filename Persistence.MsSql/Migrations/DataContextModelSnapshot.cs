@@ -83,7 +83,7 @@ namespace Persistence.MsSql.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Ingredient");
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("Entities.Order", b =>
