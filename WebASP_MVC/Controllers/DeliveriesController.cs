@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using RestSharp;
 using WebASP_MVC.Data;
+using WebASP_MVC.Helper;
 using WebASP_MVC.Models;
 
 namespace WebASP_MVC.Controllers
@@ -13,7 +16,8 @@ namespace WebASP_MVC.Controllers
     public class DeliveriesController : Controller
     {
         private readonly WebASP_MVCContext _context;
-
+        private readonly RestClient restClient = new("https://localhost:7234/");//"https://localhost:7234/");//http://localhost:5234/
+        //readonly ClientAPI api = new();
         public DeliveriesController(WebASP_MVCContext context)
         {
             _context = context;
@@ -22,7 +26,22 @@ namespace WebASP_MVC.Controllers
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Delivery.ToListAsync());
+            List<Entities.Delivery> deliveries = new();
+            IRestResponse response = restClient.Get(new RestRequest("api/Deliveries"));
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string content = response.Content;
+                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(content);
+            }
+            //HttpClient client = api.Init();
+            //HttpResponseMessage response = await client.GetAsync("api/Deliveries");
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var result = response.Content.ReadAsStringAsync().Result;
+            //    deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(result);
+            //}
+
+            return View(deliveries); //await _context.Delivery.ToListAsync());
         }
 
         // GET: Deliveries/Details/5
