@@ -42,7 +42,7 @@ namespace Persistence.MsSql.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Delivery");
+                    b.ToTable("Deliveries");
                 });
 
             modelBuilder.Entity("Entities.Discount", b =>

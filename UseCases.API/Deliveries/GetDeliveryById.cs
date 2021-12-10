@@ -14,8 +14,11 @@ namespace UseCases.API.Deliveries
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<Delivery> Handle(Query request, CancellationToken cancellationToken) =>
-                await _context.Deliveries.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+            public async Task<Delivery> Handle(Query request, CancellationToken cancellationToken)
+            {
+                Delivery? delivery= await _context.Deliveries.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken); ;
+                return delivery;
+            }
         }
     }
 }

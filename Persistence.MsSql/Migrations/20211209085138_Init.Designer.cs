@@ -12,8 +12,8 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211130155132_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20211209085138_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -44,7 +44,7 @@ namespace Persistence.MsSql.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Delivery");
+                    b.ToTable("Deliveries");
                 });
 
             modelBuilder.Entity("Entities.Discount", b =>

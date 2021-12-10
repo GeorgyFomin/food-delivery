@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RestSharp;
-using WebASP_MVC.Data;
+//using WebASP_MVC.Data;
 using WebASP_MVC.Helper;
 using WebASP_MVC.Models;
 
@@ -15,23 +15,17 @@ namespace WebASP_MVC.Controllers
 {
     public class DeliveriesController : Controller
     {
-        private readonly WebASP_MVCContext _context;
-        private readonly RestClient restClient = new("https://localhost:7234/");//"https://localhost:7234/");//http://localhost:5234/
-        //readonly ClientAPI api = new();
-        public DeliveriesController(WebASP_MVCContext context)
-        {
-            _context = context;
-        }
+        private readonly RestClient restClient = new("https://localhost:7234/");//http://localhost:5234/
+        readonly ClientAPI api = new();
 
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
-            List<Entities.Delivery> deliveries = new();
+            List<Entities.Delivery>? deliveries = new();
             IRestResponse response = restClient.Get(new RestRequest("api/Deliveries"));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                string content = response.Content;
-                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(content);
+                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(response.Content);
             }
             //HttpClient client = api.Init();
             //HttpResponseMessage response = await client.GetAsync("api/Deliveries");
@@ -43,25 +37,18 @@ namespace WebASP_MVC.Controllers
 
             return View(deliveries); //await _context.Delivery.ToListAsync());
         }
-
-        // GET: Deliveries/Details/5
-        public async Task<IActionResult> Details(int? id)
+        IActionResult GetResultById(int? id)
         {
-            if (id == null)
+            Entities.Delivery? GetDelivery()
             {
-                return NotFound();
+                IRestResponse response = restClient.Get(new RestRequest($"api/Deliveries/{id}"));
+                return response.StatusCode != System.Net.HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<Entities.Delivery>(response.Content);
             }
-
-            var delivery = await _context.Delivery
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (delivery == null)
-            {
-                return NotFound();
-            }
-
-            return View(delivery);
+            Entities.Delivery? delivery;
+            return id == null || (delivery = GetDelivery()) == null ? NotFound() : View(delivery);
         }
-
+        // GET: Deliveries/Details/5
+        public async Task<IActionResult> Details(int? id) => GetResultById(id);
         // GET: Deliveries/Create
         public IActionResult Create()
         {
@@ -73,39 +60,30 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Delivery delivery)
+        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(delivery);
-                await _context.SaveChangesAsync();
+                //IRestRequest request = new RestRequest("api/Deliveries");
+                //request.AddObject(delivery);
+                //IRestResponse response = restClient.Post(request);
+                HttpClient client = api.Init();
+                HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", delivery);
+                response.EnsureSuccessStatusCode();
                 return RedirectToAction(nameof(Index));
             }
             return View(delivery);
         }
 
         // GET: Deliveries/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var delivery = await _context.Delivery.FindAsync(id);
-            if (delivery == null)
-            {
-                return NotFound();
-            }
-            return View(delivery);
-        }
+        public async Task<IActionResult> Edit(int? id) => GetResultById(id);
 
         // POST: Deliveries/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ServiceName,Price,TimeSpan,Id")] Delivery delivery)
+        public async Task<IActionResult> Edit(int id, [Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
         {
             if (id != delivery.Id)
             {
@@ -116,8 +94,11 @@ namespace WebASP_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(delivery);
-                    await _context.SaveChangesAsync();
+                    HttpClient client = api.Init();
+                    HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", delivery);
+                    //response.EnsureSuccessStatusCode();
+                    //_context.Update(delivery);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -136,37 +117,25 @@ namespace WebASP_MVC.Controllers
         }
 
         // GET: Deliveries/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var delivery = await _context.Delivery
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (delivery == null)
-            {
-                return NotFound();
-            }
-
-            return View(delivery);
-        }
-
+        public async Task<IActionResult> Delete(int? id) => GetResultById(id);
         // POST: Deliveries/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var delivery = await _context.Delivery.FindAsync(id);
-            _context.Delivery.Remove(delivery);
-            await _context.SaveChangesAsync();
+            //var delivery = await _context.Delivery.FindAsync(id);
+            //_context.Delivery.Remove(delivery);
+            //await _context.SaveChangesAsync();
+            HttpClient client = api.Init();
+            HttpResponseMessage response = await client.DeleteAsync($"api/Deliveries/{id}");
+            response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }
 
         private bool DeliveryExists(int id)
         {
-            return _context.Delivery.Any(e => e.Id == id);
+            //return _context.Delivery.Any(e => e.Id == id);
+            return false;
         }
     }
 }

@@ -21,6 +21,16 @@ namespace WebApi.Controllers
             var createDeliveryId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetDelivery), new { id = createDeliveryId }, null);
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateDelivery(int id, [FromBody] EditDelivery.Command command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest();
+            }
+            //await _mediator.Send(new EditDelivery.Command() { Id = id });
+            return Ok(await _mediator.Send(command));
+        }
         [HttpDelete]
         public async Task<ActionResult> DeleteDelivery(int id)
         {

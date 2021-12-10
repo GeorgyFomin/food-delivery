@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
-using WebASP_MVC.Data;
+//using WebASP_MVC.Data;
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<WebASP_MVCContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WebASP_MVCContext")));
+//builder.Services.AddDbContext<WebASP_MVCContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("WebASP_MVCContext")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -28,6 +28,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+    app.UseDeveloperExceptionPage();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
