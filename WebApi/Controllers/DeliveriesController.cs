@@ -28,10 +28,10 @@ namespace WebApi.Controllers
             {
                 return BadRequest();
             }
-            //await _mediator.Send(new EditDelivery.Command() { Id = id });
             return Ok(await _mediator.Send(command));
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
+        //[HttpPut("{id}")]
         public async Task<ActionResult> DeleteDelivery(int id)
         {
             await _mediator.Send(new DeleteDelivery.Command { Id = id });

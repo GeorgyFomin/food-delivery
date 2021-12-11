@@ -64,9 +64,9 @@ namespace WebASP_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                //IRestRequest request = new RestRequest("api/Deliveries");
-                //request.AddObject(delivery);
-                //IRestResponse response = restClient.Post(request);
+                //IRestRequest request = new RestRequest("api/Deliveries", Method.POST);
+                //request.AddJsonBody(delivery);
+                //IRestResponse response = restClient.Execute(request);
                 HttpClient client = api.Init();
                 HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", delivery);
                 response.EnsureSuccessStatusCode();
@@ -94,9 +94,14 @@ namespace WebASP_MVC.Controllers
             {
                 try
                 {
+                    //IRestRequest request = new RestRequest($"api/Deliveries/{id}", Method.PUT);
+                    //request.AddJsonBody(delivery);
+                    //IRestResponse response = restClient.Execute(request);
                     HttpClient client = api.Init();
                     HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", delivery);
-                    //response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
+
+
                     //_context.Update(delivery);
                     //await _context.SaveChangesAsync();
                 }
@@ -126,9 +131,11 @@ namespace WebASP_MVC.Controllers
             //var delivery = await _context.Delivery.FindAsync(id);
             //_context.Delivery.Remove(delivery);
             //await _context.SaveChangesAsync();
-            HttpClient client = api.Init();
-            HttpResponseMessage response = await client.DeleteAsync($"api/Deliveries/{id}");
-            response.EnsureSuccessStatusCode();
+            IRestResponse response = restClient.Delete(new RestRequest($"api/Deliveries/{id}"));
+            // Или
+            //HttpClient client = api.Init();
+            //HttpResponseMessage response = await client.DeleteAsync($"api/Deliveries/{id}");
+            //response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }
 
