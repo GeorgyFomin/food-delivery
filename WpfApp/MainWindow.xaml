@@ -3,10 +3,30 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:WpfApp"
+        xmlns:local1="clr-namespace:WpfApp.View"
+        xmlns:viewmodels="clr-namespace:WpfApp.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <DockPanel>
+        <Grid DockPanel.Dock="Left" Width="300" Style="{StaticResource ResourceKey=BlackNavy}">
+            <DockPanel>
+                <Menu Name="menu1" DockPanel.Dock="Top" Margin="10,10,10,10" Background="Transparent" Foreground="Yellow">
+                    <MenuItem Header="Deliveries"  Command="{Binding DeliveriesCommand}"/>
+                </Menu>
+            </DockPanel>
+        </Grid>
+        <Grid>
+            <ContentControl Content="{Binding ViewModel}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type viewmodels:DeliveriesViewModel}">
+                        <local1:DeliveriesControl/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </Grid>
 
-    </Grid>
+    </DockPanel>
 </Window>

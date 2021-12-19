@@ -12,8 +12,8 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211209085138_Init")]
-    partial class Init
+    [Migration("20211216192511_First")]
+    partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

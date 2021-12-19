@@ -1,40 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RestSharp;
-//using WebASP_MVC.Data;
-using WebASP_MVC.Helper;
-using WebASP_MVC.Models;
 
 namespace WebASP_MVC.Controllers
 {
     public class DeliveriesController : Controller
     {
-        private readonly RestClient restClient = new("https://localhost:7234/");//http://localhost:5234/
-        readonly ClientAPI api = new();
+        static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
+        private readonly RestClient restClient = new(apiAddress);
 
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
             List<Entities.Delivery>? deliveries = new();
+            // Одня из версий кода
             IRestResponse response = restClient.Get(new RestRequest("api/Deliveries"));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(response.Content);
             }
-            //HttpClient client = api.Init();
+            // Или
+            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             //HttpResponseMessage response = await client.GetAsync("api/Deliveries");
             //if (response.IsSuccessStatusCode)
             //{
             //    var result = response.Content.ReadAsStringAsync().Result;
             //    deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(result);
             //}
-
             return View(deliveries); //await _context.Delivery.ToListAsync());
         }
         IActionResult GetResultById(int? id)
@@ -64,12 +57,17 @@ namespace WebASP_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                //IRestRequest request = new RestRequest("api/Deliveries", Method.POST);
-                //request.AddJsonBody(delivery);
-                //IRestResponse response = restClient.Execute(request);
-                HttpClient client = api.Init();
-                HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", delivery);
-                response.EnsureSuccessStatusCode();
+                IRestRequest request = new RestRequest("api/Deliveries", Method.POST)
+                {
+                    RequestFormat = DataFormat.Json
+                };
+                request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+                //IRestResponse response = 
+                restClient.Execute(request);
+                // Или
+                //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+                //HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", delivery);
+                //response.EnsureSuccessStatusCode();
                 return RedirectToAction(nameof(Index));
             }
             return View(delivery);
@@ -94,14 +92,19 @@ namespace WebASP_MVC.Controllers
             {
                 try
                 {
-                    //IRestRequest request = new RestRequest($"api/Deliveries/{id}", Method.PUT);
-                    //request.AddJsonBody(delivery);
-                    //IRestResponse response = restClient.Execute(request);
-                    HttpClient client = api.Init();
-                    HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", delivery);
-                    response.EnsureSuccessStatusCode();
+                    IRestRequest request = new RestRequest($"api/Deliveries/{id}", Method.PUT)
+                    {
+                        RequestFormat = DataFormat.Json
+                    };
+                    request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+                    //IRestResponse response = 
+                    restClient.Execute(request);
+                    // Или
+                    //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+                    //HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", delivery);
+                    //response.EnsureSuccessStatusCode();
 
-
+                    // Old
                     //_context.Update(delivery);
                     //await _context.SaveChangesAsync();
                 }
@@ -128,12 +131,14 @@ namespace WebASP_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // Old
             //var delivery = await _context.Delivery.FindAsync(id);
             //_context.Delivery.Remove(delivery);
             //await _context.SaveChangesAsync();
+
             IRestResponse response = restClient.Delete(new RestRequest($"api/Deliveries/{id}"));
             // Или
-            //HttpClient client = api.Init();
+            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             //HttpResponseMessage response = await client.DeleteAsync($"api/Deliveries/{id}");
             //response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));

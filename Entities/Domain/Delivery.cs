@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class Delivery //: Entity<int>
+    public class Delivery// : Entity<int>
     {
         public int Id { get; set; }
         public string ServiceName { get; set; }
