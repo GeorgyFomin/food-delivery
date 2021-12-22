@@ -7,7 +7,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController:ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
         public ProductsController(IMediator mediator) => _mediator = mediator;
@@ -21,7 +21,17 @@ namespace WebApi.Controllers
             var createProductId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
-        [HttpDelete]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, Product product)
+        {
+            if (id != product.Id)
+            {
+                return BadRequest();
+            }
+            return Ok(await _mediator.Send(
+                new EditProduct.Command { Id = product.Id, Name = product.Name, Weight = product.Weight, Price = product.Price, Ingredients = product.Ingredients }));
+        }
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             await _mediator.Send(new DeleteProduct.Command { Id = id });

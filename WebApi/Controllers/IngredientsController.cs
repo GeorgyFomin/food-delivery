@@ -22,7 +22,7 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDelivery(int id, Ingredient ingredient)
+        public async Task<IActionResult> UpdateIngredient(int id, Ingredient ingredient)
         {
             if (id != ingredient.Id)
             {

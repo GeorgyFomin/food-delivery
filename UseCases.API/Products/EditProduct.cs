@@ -2,14 +2,17 @@
 using MediatR;
 using Persistence.MsSql;
 
-namespace UseCases.API.Ingredients
+namespace UseCases.API.Products
 {
-    public class EditIngredient
+    public class EditProduct
     {
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
+            public decimal Price { get; set; }
             public string Name { get; set; }
+            public double Weight { get; set; }
+            public ICollection<Ingredient> Ingredients { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {
@@ -18,12 +21,15 @@ namespace UseCases.API.Ingredients
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                Ingredient? ingredient = await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                if (ingredient == null)
+                Product? product = await _context.Products.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                if (product == null)
                     return default;
-                ingredient.Name = request.Name;
+                product.Name = request.Name;
+                product.Price = request.Price;
+                product.Weight = request.Weight;
+                product.Ingredients = request.Ingredients;
                 await _context.SaveChangesAsync(cancellationToken);
-                return ingredient.Id;
+                return product.Id;
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-#nullable disable
+//#nullable disable
 namespace Entities
 {
     public class Product //: Entity<int>
