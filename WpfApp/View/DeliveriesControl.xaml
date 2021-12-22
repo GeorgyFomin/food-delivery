@@ -31,21 +31,9 @@
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction Command="{Binding ItemSelectionCommand}" CommandParameter="{Binding ElementName=deliveriesGridView}"/>
                 </i:EventTrigger>
-                <!--<i:EventTrigger EventName="CurrentCellChanged">
-                    <i:InvokeCommandAction Command="{Binding ItemCurrCellChangedCommand}" CommandParameter="{Binding ElementName=deliveriesGridView}"/>
-                </i:EventTrigger>-->
-                <!--<i:EventTrigger EventName="CellEditEnding">
-                    <i:InvokeCommandAction Command="{Binding ItemCellEditEndCommand}" CommandParameter="{Binding ElementName=deliveriesGridView}"/>
-                </i:EventTrigger>-->
-                <!--<i:EventTrigger EventName="BeginningEdit">
-                    <i:InvokeCommandAction Command="{Binding ItemBeginEditCommand}" CommandParameter="{Binding ElementName=deliveriesGridView}"/>
-                </i:EventTrigger>-->
                 <i:EventTrigger EventName="RowEditEnding">
                     <i:InvokeCommandAction Command="{Binding ItemRowEditEndCommand}" CommandParameter="{Binding ElementName=deliveriesGridView}"/>
                 </i:EventTrigger>
-                <!--<i:EventTrigger EventName="AddingNewItem">
-                    <i:InvokeCommandAction Command="{Binding ItemAddingNewCommand}" CommandParameter="{Binding ElementName=deliveriesGridView}"/>
-                </i:EventTrigger>-->
             </i:Interaction.Triggers>
         </DataGrid>
     </Grid>

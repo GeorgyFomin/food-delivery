@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,39 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\**" />
-    <Compile Remove="Migrations\**" />
-    <Compile Remove="Views\FoodDelivery\**" />
-    <Compile Remove="Views\HelloWorld\**" />
-    <Content Remove="Data\**" />
-    <Content Remove="Migrations\**" />
-    <Content Remove="Views\FoodDelivery\**" />
-    <Content Remove="Views\HelloWorld\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <EmbeddedResource Remove="Migrations\**" />
-    <EmbeddedResource Remove="Views\FoodDelivery\**" />
-    <EmbeddedResource Remove="Views\HelloWorld\**" />
-    <None Remove="Data\**" />
-    <None Remove="Migrations\**" />
-    <None Remove="Views\FoodDelivery\**" />
-    <None Remove="Views\HelloWorld\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\HelloWorldController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="Web.config" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.24.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

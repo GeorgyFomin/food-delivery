@@ -1,16 +1,20 @@
 ﻿using Entities;
 using MediatR;
 using Persistence.MsSql;
-namespace UseCases.API.Deliveries
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace UseCases.API.Ingredients
 {
-    public class EditDelivery
+    public class EditIngredient
     {
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public string ServiceName { get; set; }
-            public decimal Price { get; set; }
-            public TimeSpan TimeSpan { get; set; }
+            public string Name { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {
@@ -19,14 +23,12 @@ namespace UseCases.API.Deliveries
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                Delivery? delivery = await _context.Deliveries.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                if (delivery == null)
+                Ingredient? ingredient = await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                if (ingredient == null)
                     return default;
-                delivery.ServiceName = request.ServiceName;
-                delivery.Price = request.Price;
-                delivery.TimeSpan = request.TimeSpan;
+                ingredient.Name = request.Name;
                 await _context.SaveChangesAsync(cancellationToken);
-                return delivery.Id;
+                return ingredient.Id;
             }
         }
     }

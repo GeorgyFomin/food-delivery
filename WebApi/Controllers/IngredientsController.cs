@@ -21,7 +21,17 @@ namespace WebApi.Controllers
             var createIngredientId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
-        [HttpDelete]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateDelivery(int id, Ingredient ingredient)
+        {
+            if (id != ingredient.Id)
+            {
+                return BadRequest();
+            }
+            return Ok(await _mediator.Send(
+                new EditIngredient.Command { Id = ingredient.Id, Name = ingredient.Name }));
+        }
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteIngredient(int id)
         {
             await _mediator.Send(new DeleteIngredient.Command { Id = id });

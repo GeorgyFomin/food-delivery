@@ -23,10 +23,8 @@ namespace WpfApp.ViewModels
         }
         private ViewModelBase? viewModel;
         public ViewModelBase? ViewModel { get => viewModel; set { viewModel = value; RaisePropertyChanged(nameof(ViewModel)); } }
-
         private RelayCommand? deliveriesCommand;
         public ICommand DeliveriesCommand => deliveriesCommand ??= new RelayCommand(Deliveries);
-
         private void Deliveries(object e)
         {
             ViewModel = new DeliveriesViewModel();

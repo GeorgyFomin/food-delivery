@@ -1,8 +1,6 @@
-﻿using CSharpFunctionalExtensions;
-#nullable disable
-namespace Entities
+﻿namespace WebASP_MVC.Models
 {
-    public class Product //: Entity<int>
+    public class Product
     {
         public int Id { get; set; }
         public decimal Price { get; set; }

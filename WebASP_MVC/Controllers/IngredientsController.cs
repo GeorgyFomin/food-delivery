@@ -5,21 +5,21 @@ using RestSharp;
 
 namespace WebASP_MVC.Controllers
 {
-    public class DeliveriesController : Controller
+    public class IngredientsController : Controller
     {
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         private readonly RestClient restClient = new(apiAddress);
-        private static readonly string path = "api/Deliveries";
+        private static readonly string path = "api/Ingredients";
 
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
-            List<Entities.Delivery>? deliveries = new();
+            List<Entities.Ingredient>? ingredients = new();
             // Одня из версий кода
             IRestResponse response = restClient.Get(new RestRequest(path));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(response.Content);
+                ingredients = JsonConvert.DeserializeObject<List<Entities.Ingredient>>(response.Content);
             }
             // Или
             //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
@@ -27,19 +27,19 @@ namespace WebASP_MVC.Controllers
             //if (response.IsSuccessStatusCode)
             //{
             //    var result = response.Content.ReadAsStringAsync().Result;
-            //    deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(result);
+            //    deliveries = JsonConvert.DeserializeObject<List<Entities.Ingredient>>(result);
             //}
-            return View(deliveries); //await _context.Delivery.ToListAsync());
+            return View(ingredients); //await _context.Ingredient.ToListAsync());
         }
         IActionResult GetResultById(int? id)
         {
-            Entities.Delivery? GetDelivery()
+            Entities.Ingredient? GetIngredient()
             {
                 IRestResponse response = restClient.Get(new RestRequest(path + $"/{id}"));
-                return response.StatusCode != System.Net.HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<Entities.Delivery>(response.Content);
+                return response.StatusCode != System.Net.HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<Entities.Ingredient>(response.Content);
             }
-            Entities.Delivery? delivery;
-            return id == null || (delivery = GetDelivery()) == null ? NotFound() : View(delivery);
+            Entities.Ingredient? ingredient;
+            return id == null || (ingredient = GetIngredient()) == null ? NotFound() : View(ingredient);
         }
         // GET: Deliveries/Details/5
         public async Task<IActionResult> Details(int? id) => GetResultById(id);
@@ -54,7 +54,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
+        public async Task<IActionResult> Create([Bind("Name,Id")] Entities.Ingredient ingredient)
         {
             if (ModelState.IsValid)
             {
@@ -62,16 +62,16 @@ namespace WebASP_MVC.Controllers
                 {
                     RequestFormat = DataFormat.Json
                 };
-                request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+                request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(ingredient), ParameterType.RequestBody);
                 //IRestResponse response = 
                 restClient.Execute(request);
                 // Или
                 //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                //HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", delivery);
+                //HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", ingredient);
                 //response.EnsureSuccessStatusCode();
                 return RedirectToAction(nameof(Index));
             }
-            return View(delivery);
+            return View(ingredient);
         }
 
         // GET: Deliveries/Edit/5
@@ -82,9 +82,9 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
+        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Entities.Ingredient ingredient)
         {
-            if (id != delivery.Id)
+            if (id != ingredient.Id)
             {
                 return NotFound();
             }
@@ -97,21 +97,21 @@ namespace WebASP_MVC.Controllers
                     {
                         RequestFormat = DataFormat.Json
                     };
-                    request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+                    request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(ingredient), ParameterType.RequestBody);
                     //IRestResponse response = 
                     restClient.Execute(request);
                     // Или
                     //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                    //HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", delivery);
+                    //HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", ingredient);
                     //response.EnsureSuccessStatusCode();
 
                     // Old
-                    //_context.Update(delivery);
+                    //_context.Update(ingredient);
                     //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DeliveryExists(delivery.Id))
+                    if (!IngredientExists(ingredient.Id))
                     {
                         return NotFound();
                     }
@@ -122,7 +122,7 @@ namespace WebASP_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(delivery);
+            return View(ingredient);
         }
 
         // GET: Deliveries/Delete/5
@@ -133,21 +133,20 @@ namespace WebASP_MVC.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             // Old
-            //var delivery = await _context.Delivery.FindAsync(id);
-            //_context.Delivery.Remove(delivery);
+            //var Ingredient = await _context.Ingredient.FindAsync(id);
+            //_context.Ingredient.Remove(Ingredient);
             //await _context.SaveChangesAsync();
 
             IRestResponse response = restClient.Delete(new RestRequest(path + $"/{id}"));
             // Или
             //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            //HttpResponseMessage response = await client.DeleteAsync($"api/Deliveries/{id}");
+            //HttpResponseMessage response = await client.DeleteAsync(path+ $"/{id}");
             //response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }
-
-        private bool DeliveryExists(int id)
+        private bool IngredientExists(int id)
         {
-            //return _context.Delivery.Any(e => e.Id == id);
+            //return _context.Ingredient.Any(e => e.Id == id);
             return false;
         }
     }

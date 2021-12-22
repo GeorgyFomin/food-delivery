@@ -4,10 +4,8 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,7 +24,6 @@ namespace WpfApp.ViewModels
         /// Хранит ссылку на объект клиента, связанного со службой API.
         /// </summary>
         private readonly RestClient restClient = new(apiAddress);
-        public string ControllerPath { get; set; } = "api/Deliveries";
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
@@ -53,6 +50,7 @@ namespace WpfApp.ViewModels
         private RelayCommand? itemRowEditEndCommand;
         #endregion
         #region Properties
+        public string ControllerPath { get; set; } = "api/Deliveries";
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
