@@ -16,9 +16,9 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<Ingredient> GetIngredient(int id) => await _mediator.Send(new GetIngredientById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateIngredient([FromBody] AddIngredient.Command command)
+        public async Task<ActionResult> CreateIngredient(Ingredient ingredient)// [FromBody] AddIngredient.Command command)
         {
-            var createIngredientId = await _mediator.Send(command);
+            var createIngredientId = await _mediator.Send(new AddIngredient.Command { Name = ingredient.Name });// command);
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
         [HttpPut("{id}")]

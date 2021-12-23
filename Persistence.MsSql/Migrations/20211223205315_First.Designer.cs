@@ -12,7 +12,7 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211216192511_First")]
+    [Migration("20211223205315_First")]
     partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,6 +149,7 @@ namespace Persistence.MsSql.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")

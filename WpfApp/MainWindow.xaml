@@ -11,10 +11,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
-        <Grid DockPanel.Dock="Left" Width="300" Style="{StaticResource ResourceKey=BlackNavy}">
+        <Grid DockPanel.Dock="Left" Width="100" Style="{StaticResource ResourceKey=BlackNavy}">
             <DockPanel>
-                <Menu Name="menu1" DockPanel.Dock="Top" Margin="10,10,10,10" Background="Transparent" Foreground="Yellow">
+                <Menu Name="menu1" DockPanel.Dock="Left"  Margin="10,10,10,10" Background="Transparent" Foreground="Yellow">
                     <MenuItem Header="Deliveries"  Command="{Binding DeliveriesCommand}"/>
+                    <MenuItem Header="Ingredients"  Command="{Binding IngredientsCommand}"/>
+                    <MenuItem Header="Products"  Command="{Binding ProductsCommand}"/>
                 </Menu>
             </DockPanel>
         </Grid>
@@ -23,6 +25,12 @@
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type viewmodels:DeliveriesViewModel}">
                         <local1:DeliveriesControl/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:IngredientsViewModel}">
+                        <local1:IngredientsControl/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:ProductsViewModel }">
+                        <local1:ProductsControl/>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

@@ -16,9 +16,11 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<Product> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateProduct([FromBody] AddProduct.Command command)
+        public async Task<ActionResult> CreateProduct([FromBody] Product product)// AddProduct.Command command)
         {
-            var createProductId = await _mediator.Send(command);
+            var createProductId = await _mediator.Send(new AddProduct.Command
+            { Name = product.Name, Price = product.Price, Weight = product.Weight, Ingredients = product.Ingredients });
+            //command);
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
         [HttpPut("{id}")]

@@ -13,7 +13,7 @@ using WpfApp.Commands;
 
 namespace WpfApp.ViewModels
 {
-    class DeliveriesViewModel:ViewModelBase
+    class IngredientsViewModel:ViewModelBase
     {
         #region Fields
         /// <summary>
@@ -21,9 +21,9 @@ namespace WpfApp.ViewModels
         /// </summary>
         private static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         /// <summary>
-        /// Хранит маршрут к контроллеру Deliveries.
+        /// Хранит маршрут к контроллеру Ingredients.
         /// </summary>
-        private readonly string controllerPath = "api/Deliveries";
+        private readonly string controllerPath = "api/Ingredients";
         /// <summary>
         /// Хранит ссылку на объект клиента, связанного со службой API.
         /// </summary>
@@ -31,11 +31,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
-        private Delivery? delivery;
+        private Ingredient? ingredient;
         /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
-        private ObservableCollection<Delivery>? deliveries = new();
+        private ObservableCollection<Ingredient>? ingredients = new();
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -57,11 +57,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
-        public ObservableCollection<Delivery>? Deliveries { get => deliveries; set { deliveries = value; RaisePropertyChanged(nameof(Deliveries)); } }
+        public ObservableCollection<Ingredient>? Ingredients { get => ingredients; set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Delivery? Delivery { get => delivery; set { delivery = value; RaisePropertyChanged(nameof(Delivery)); } }
+        public Ingredient? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
         /// </summary>
@@ -79,36 +79,36 @@ namespace WpfApp.ViewModels
         /// </summary>
         public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEnd);
         #endregion
-        public DeliveriesViewModel()
+        public IngredientsViewModel()
         {
-            GetDeliveries();
+            GetIngredients();
         }
-        public void GetDeliveries()
+        public void GetIngredients()
         {
             IRestResponse response = restClient.Get(new RestRequest(controllerPath));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                List<Delivery>? deliveries = JsonConvert.DeserializeObject<List<Delivery>>(response.Content);
-                if (deliveries == null)
+                List<Ingredient>? ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(response.Content);
+                if (ingredients == null)
                     return;
-                Deliveries = new ObservableCollection<Delivery>(deliveries);
-                DataSource = Deliveries;
+                Ingredients = new ObservableCollection<Ingredient>(ingredients);
+                DataSource = Ingredients;
             }
         }
         private void ItemRemove(object e)
         {
-            if (delivery == null)
+            if (ingredient == null)
                 return;
-            restClient.Delete(new RestRequest(controllerPath + $"/{delivery.Id}"));
-            if (Deliveries != null)
-                _ = Deliveries.Remove(delivery);
+            restClient.Delete(new RestRequest(controllerPath + $"/{ingredient.Id}"));
+            if (Ingredients != null)
+                _ = Ingredients.Remove(ingredient);
         }
         private void ItemSelection(object e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Delivery = grid.SelectedItem is Delivery dlv ? dlv : null;
-            //MessageBox.Show($"Select {(delivery != null ? delivery.Id : "null")}");
+            Ingredient = grid.SelectedItem is Ingredient dlv ? dlv : null;
+            //MessageBox.Show($"Select {(ingredient != null ? ingredient.Id : "null")}");
         }
         public async Task Create()
         {
@@ -116,11 +116,11 @@ namespace WpfApp.ViewModels
             //{
             //    RequestFormat = DataFormat.Json
             //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(ingredient), ParameterType.RequestBody);
             ////IRestResponse response = 
             //    restClient.Execute(request);
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, delivery);
+            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, ingredient);
             response.EnsureSuccessStatusCode();
         }
         public async Task Edit(int id)
@@ -129,34 +129,34 @@ namespace WpfApp.ViewModels
             //{
             //    RequestFormat = DataFormat.Json
             //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(ingredient), ParameterType.RequestBody);
             ////IRestResponse response = 
             //restClient.Execute(request);
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", delivery);
+            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", ingredient);
             response.EnsureSuccessStatusCode();
         }
         private async Task Commit(int id)
         {
-            if (Delivery != null && (string.IsNullOrEmpty(Delivery.ServiceName) || string.IsNullOrEmpty(Delivery.ServiceName.Trim())))
+            if (Ingredient != null && (string.IsNullOrEmpty(Ingredient.Name) || string.IsNullOrEmpty(Ingredient.Name.Trim())))
             {
-                Delivery.ServiceName = "Noname";
+                Ingredient.Name = "Noname";
             }
             if (id == 0)
             {
                 await Create();
-                GetDeliveries();
+                GetIngredients();
             }
             else
                 await Edit(id);
         }
         private async void ItemRowEditEnd(object e)
         {
-            if (Delivery == null || e == null || e is not DataGrid grid)
+            if (Ingredient == null || e == null || e is not DataGrid grid)
             {
                 return;
             }
-            await Commit(Delivery.Id);
+            await Commit(Ingredient.Id);
             grid.Items.Refresh();
         }
     }

@@ -4,8 +4,10 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,7 +15,7 @@ using WpfApp.Commands;
 
 namespace WpfApp.ViewModels
 {
-    class DeliveriesViewModel:ViewModelBase
+    class ProductsViewModel : ViewModelBase
     {
         #region Fields
         /// <summary>
@@ -21,9 +23,9 @@ namespace WpfApp.ViewModels
         /// </summary>
         private static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         /// <summary>
-        /// Хранит маршрут к контроллеру Deliveries.
+        /// Хранит маршрут к контроллеру Products.
         /// </summary>
-        private readonly string controllerPath = "api/Deliveries";
+        private readonly string controllerPath = "api/Products";
         /// <summary>
         /// Хранит ссылку на объект клиента, связанного со службой API.
         /// </summary>
@@ -31,11 +33,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
-        private Delivery? delivery;
+        private Product? product;
         /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
-        private ObservableCollection<Delivery>? deliveries = new();
+        private ObservableCollection<Product>? products = new();
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -57,11 +59,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
-        public ObservableCollection<Delivery>? Deliveries { get => deliveries; set { deliveries = value; RaisePropertyChanged(nameof(Deliveries)); } }
+        public ObservableCollection<Product>? Products { get => products; set { products = value; RaisePropertyChanged(nameof(Products)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Delivery? Delivery { get => delivery; set { delivery = value; RaisePropertyChanged(nameof(Delivery)); } }
+        public Product? Product { get => product; set { product = value; RaisePropertyChanged(nameof(Product)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
         /// </summary>
@@ -79,84 +81,83 @@ namespace WpfApp.ViewModels
         /// </summary>
         public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEnd);
         #endregion
-        public DeliveriesViewModel()
+        public ProductsViewModel()
         {
-            GetDeliveries();
+            GetProducts();
         }
-        public void GetDeliveries()
+        public void GetProducts()
         {
             IRestResponse response = restClient.Get(new RestRequest(controllerPath));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                List<Delivery>? deliveries = JsonConvert.DeserializeObject<List<Delivery>>(response.Content);
-                if (deliveries == null)
+                List<Product>? products = JsonConvert.DeserializeObject<List<Product>>(response.Content);
+                if (products == null)
                     return;
-                Deliveries = new ObservableCollection<Delivery>(deliveries);
-                DataSource = Deliveries;
+                Products = new ObservableCollection<Product>(products);
+                DataSource = Products;
             }
         }
         private void ItemRemove(object e)
         {
-            if (delivery == null)
+            if (product == null)
                 return;
-            restClient.Delete(new RestRequest(controllerPath + $"/{delivery.Id}"));
-            if (Deliveries != null)
-                _ = Deliveries.Remove(delivery);
+            restClient.Delete(new RestRequest(controllerPath + $"/{product.Id}"));
+            if (Products != null)
+                _ = Products.Remove(product);
         }
         private void ItemSelection(object e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Delivery = grid.SelectedItem is Delivery dlv ? dlv : null;
-            //MessageBox.Show($"Select {(delivery != null ? delivery.Id : "null")}");
+            Product = grid.SelectedItem is Product product ? product : null;
+            //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
         public async Task Create()
         {
-            //IRestRequest request = new RestRequest(ControllerPath, Method.POST)
+            //IRestRequest request = new RestRequest(controllerPath, Method.POST)
             //{
             //    RequestFormat = DataFormat.Json
             //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
+            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(product), ParameterType.RequestBody);
             ////IRestResponse response = 
-            //    restClient.Execute(request);
+            //restClient.Execute(request);
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, delivery);
+            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, product);
             response.EnsureSuccessStatusCode();
         }
         public async Task Edit(int id)
         {
-            //IRestRequest request = new RestRequest(ControllerPath + $"/{id}", Method.PUT)
+            //IRestRequest request = new RestRequest(controllerPath + $"/{id}", Method.PUT)
             //{
             //    RequestFormat = DataFormat.Json
             //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
-            ////IRestResponse response = 
-            //restClient.Execute(request);
+            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(product), ParameterType.RequestBody);
+            //IRestResponse response = restClient.Execute(request);
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", delivery);
+            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", product);
             response.EnsureSuccessStatusCode();
         }
         private async Task Commit(int id)
         {
-            if (Delivery != null && (string.IsNullOrEmpty(Delivery.ServiceName) || string.IsNullOrEmpty(Delivery.ServiceName.Trim())))
+            if (Product != null && (string.IsNullOrEmpty(Product.Name) || string.IsNullOrEmpty(Product.Name.Trim())))
             {
-                Delivery.ServiceName = "Noname";
+                Product.Name = "Noname";
             }
             if (id == 0)
             {
                 await Create();
-                GetDeliveries();
+                GetProducts();
             }
             else
                 await Edit(id);
         }
         private async void ItemRowEditEnd(object e)
         {
-            if (Delivery == null || e == null || e is not DataGrid grid)
+            if (Product == null || e == null || e is not DataGrid grid)
             {
                 return;
             }
-            await Commit(Delivery.Id);
+            await Commit(Product.Id);
             grid.Items.Refresh();
         }
     }

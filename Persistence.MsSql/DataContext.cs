@@ -1,6 +1,7 @@
 ﻿using Entities;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace Persistence.MsSql
 {
     public class DataContext : DbContext

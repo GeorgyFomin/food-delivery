@@ -1,0 +1,41 @@
+﻿<ContentControl x:Class="WpfApp.View.ProductsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfApp.View" xmlns:viewmodels="clr-namespace:WpfApp.ViewModels" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:ProductsViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding DataSource}" 
+                  AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
+                  BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
+            <!--<DataGrid.ContextMenu>
+                <ContextMenu Style="{StaticResource contextMenu}">
+                    <MenuItem Header="Add Department" Visibility="{Binding MenuAddVisibility}" Command="{Binding ItemAddCommand}" 
+                              CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>-->
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Header="Id" Binding="{Binding Id}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" EditingElementStyle="{StaticResource EditingCellTextBox}"/>
+                <DataGridTextColumn Header="Price" Binding="{Binding Price}" EditingElementStyle="{StaticResource EditingCellTextBox}"/>
+                <DataGridTextColumn Header="Weight" Binding="{Binding Weight}" EditingElementStyle="{StaticResource EditingCellTextBox}"/>
+            </DataGrid.Columns>
+            <DataGrid.InputBindings>
+                <KeyBinding Key="Delete" Command="{Binding ItemRemoveCommand}" CommandParameter="{Binding ElementName=productsGridView}"/>
+            </DataGrid.InputBindings>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding ItemSelectionCommand}" CommandParameter="{Binding ElementName=productsGridView}"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="RowEditEnding">
+                    <i:InvokeCommandAction Command="{Binding ItemRowEditEndCommand}" CommandParameter="{Binding ElementName=productsGridView}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </DataGrid>
+
+    </Grid>
+</ContentControl>

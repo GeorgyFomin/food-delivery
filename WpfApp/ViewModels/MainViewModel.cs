@@ -1,14 +1,5 @@
-﻿using Entities;
-using Newtonsoft.Json;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
 using WpfApp.Commands;
 
@@ -24,10 +15,22 @@ namespace WpfApp.ViewModels
         private ViewModelBase? viewModel;
         public ViewModelBase? ViewModel { get => viewModel; set { viewModel = value; RaisePropertyChanged(nameof(ViewModel)); } }
         private RelayCommand? deliveriesCommand;
+        private RelayCommand? ingredientsCommand;
+        private RelayCommand? productsCommand;
         public ICommand DeliveriesCommand => deliveriesCommand ??= new RelayCommand(Deliveries);
+        public ICommand IngredientsCommand => ingredientsCommand ??= new RelayCommand(Ingredients);
+        public ICommand ProductsCommand => productsCommand ??= new RelayCommand(Products);
         private void Deliveries(object e)
         {
             ViewModel = new DeliveriesViewModel();
+        }
+        private void Ingredients(object e)
+        {
+            ViewModel = new IngredientsViewModel();
+        }
+        private void Products(object commandParameter)
+        {
+            ViewModel = new ProductsViewModel();
         }
     }
 }
