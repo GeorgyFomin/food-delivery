@@ -13,7 +13,7 @@ using WpfApp.Commands;
 
 namespace WpfApp.ViewModels
 {
-    class DeliveriesViewModel:ViewModelBase
+    class DeliveriesViewModel : ViewModelBase
     {
         #region Fields
         /// <summary>
@@ -24,10 +24,6 @@ namespace WpfApp.ViewModels
         /// Хранит маршрут к контроллеру Deliveries.
         /// </summary>
         private readonly string controllerPath = "api/Deliveries";
-        /// <summary>
-        /// Хранит ссылку на объект клиента, связанного со службой API.
-        /// </summary>
-        private readonly RestClient restClient = new(apiAddress);
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
@@ -73,35 +69,39 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду стирания записи в таблице UI.
         /// </summary>
-        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(ItemRemove);
+        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(ItemRemoveAsync);
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду завершения редактирования строки в таблице UI.
         /// </summary>
-        public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEnd);
+        public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEndAsync);
         #endregion
         public DeliveriesViewModel()
         {
             GetDeliveries();
         }
-        public void GetDeliveries()
+        public async void GetDeliveries()
         {
-            IRestResponse response = restClient.Get(new RestRequest(controllerPath));
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(controllerPath);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                List<Delivery>? deliveries = JsonConvert.DeserializeObject<List<Delivery>>(response.Content);
+                var result = response.Content.ReadAsStringAsync().Result;
+                List<Delivery>? deliveries = JsonConvert.DeserializeObject<List<Delivery>>(result);
                 if (deliveries == null)
                     return;
                 Deliveries = new ObservableCollection<Delivery>(deliveries);
                 DataSource = Deliveries;
             }
         }
-        private void ItemRemove(object e)
+        private async void ItemRemoveAsync(object e)
         {
-            if (delivery == null)
+            if (Delivery == null)
                 return;
-            restClient.Delete(new RestRequest(controllerPath + $"/{delivery.Id}"));
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.DeleteAsync(controllerPath + $"/{Delivery.Id}");
+            response.EnsureSuccessStatusCode();
             if (Deliveries != null)
-                _ = Deliveries.Remove(delivery);
+                _ = Deliveries.Remove(Delivery);
         }
         private void ItemSelection(object e)
         {
@@ -110,47 +110,19 @@ namespace WpfApp.ViewModels
             Delivery = grid.SelectedItem is Delivery dlv ? dlv : null;
             //MessageBox.Show($"Select {(delivery != null ? delivery.Id : "null")}");
         }
-        public async Task Create()
-        {
-            //IRestRequest request = new RestRequest(ControllerPath, Method.POST)
-            //{
-            //    RequestFormat = DataFormat.Json
-            //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
-            ////IRestResponse response = 
-            //    restClient.Execute(request);
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, delivery);
-            response.EnsureSuccessStatusCode();
-        }
-        public async Task Edit(int id)
-        {
-            //IRestRequest request = new RestRequest(ControllerPath + $"/{id}", Method.PUT)
-            //{
-            //    RequestFormat = DataFormat.Json
-            //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
-            ////IRestResponse response = 
-            //restClient.Execute(request);
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", delivery);
-            response.EnsureSuccessStatusCode();
-        }
         private async Task Commit(int id)
         {
             if (Delivery != null && (string.IsNullOrEmpty(Delivery.ServiceName) || string.IsNullOrEmpty(Delivery.ServiceName.Trim())))
             {
                 Delivery.ServiceName = "Noname";
             }
-            if (id == 0)
-            {
-                await Create();
-                GetDeliveries();
-            }
-            else
-                await Edit(id);
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Delivery) : await client.PutAsJsonAsync(controllerPath, Delivery);
+            //+$"/{id}"
+            response.EnsureSuccessStatusCode();
+            GetDeliveries();
         }
-        private async void ItemRowEditEnd(object e)
+        private async void ItemRowEditEndAsync(object e)
         {
             if (Delivery == null || e == null || e is not DataGrid grid)
             {

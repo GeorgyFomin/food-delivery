@@ -1,48 +1,45 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using RestSharp;
 
 namespace WebASP_MVC.Controllers
 {
     public class DeliveriesController : Controller
     {
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
-        private readonly RestClient restClient = new(apiAddress);
         private static readonly string path = "api/Deliveries";
 
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
             List<Entities.Delivery>? deliveries = new();
-            // Одня из версий кода
-            IRestResponse response = restClient.Get(new RestRequest(path));
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(path);
+            if (response.IsSuccessStatusCode)
             {
-                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(response.Content);
+                var result = response.Content.ReadAsStringAsync().Result;
+                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(result);
             }
-            // Или
-            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            //HttpResponseMessage response = await client.GetAsync("api/Deliveries");
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    var result = response.Content.ReadAsStringAsync().Result;
-            //    deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(result);
-            //}
-            return View(deliveries); //await _context.Delivery.ToListAsync());
+            return View(deliveries);
         }
-        IActionResult GetResultById(int? id)
+        async Task<IActionResult> GetDeliveryById(int? id)
         {
-            Entities.Delivery? GetDelivery()
+            if (id == null)
             {
-                IRestResponse response = restClient.Get(new RestRequest(path + $"/{id}"));
-                return response.StatusCode != System.Net.HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<Entities.Delivery>(response.Content);
+                return NotFound();
             }
-            Entities.Delivery? delivery;
-            return id == null || (delivery = GetDelivery()) == null ? NotFound() : View(delivery);
+            Entities.Delivery? delivery = null;
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var result = response.Content.ReadAsStringAsync().Result;
+                delivery = JsonConvert.DeserializeObject<Entities.Delivery>(result);
+            }
+            return delivery == null ? NotFound() : View(delivery);
         }
         // GET: Deliveries/Details/5
-        public async Task<IActionResult> Details(int? id) => GetResultById(id);
+        public async Task<IActionResult> Details(int? id) => await GetDeliveryById(id);
         // GET: Deliveries/Create
         public IActionResult Create()
         {
@@ -56,99 +53,61 @@ namespace WebASP_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                IRestRequest request = new RestRequest(path, Method.POST)
-                {
-                    RequestFormat = DataFormat.Json
-                };
-                request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
-                //IRestResponse response = 
-                restClient.Execute(request);
-                // Или
-                //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                //HttpResponseMessage response = await client.PostAsJsonAsync("api/Deliveries", delivery);
-                //response.EnsureSuccessStatusCode();
-                return RedirectToAction(nameof(Index));
+                return View(delivery);
             }
-            return View(delivery);
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.PostAsJsonAsync(path, delivery);
+            response.EnsureSuccessStatusCode();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Deliveries/Edit/5
-        public async Task<IActionResult> Edit(int? id) => GetResultById(id);
+        public async Task<IActionResult> Edit(int? id) => await GetDeliveryById(id);
 
         // POST: Deliveries/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
+        public async Task<IActionResult> Edit([Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
         {
-            if (id != delivery.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return View(delivery);
             }
-
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    IRestRequest request = new RestRequest(path + $"/{id}", Method.PUT)
-                    {
-                        RequestFormat = DataFormat.Json
-                    };
-                    request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(delivery), ParameterType.RequestBody);
-                    //IRestResponse response = 
-                    restClient.Execute(request);
-                    // Или
-                    //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                    //HttpResponseMessage response = await client.PutAsJsonAsync($"api/Deliveries/{id}", delivery);
-                    //response.EnsureSuccessStatusCode();
-
-                    // Old
-                    //_context.Update(delivery);
-                    //await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DeliveryExists(delivery.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+                HttpResponseMessage response = await client.PutAsJsonAsync(path, delivery);
+                response.EnsureSuccessStatusCode();
             }
-            return View(delivery);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (GetDeliveryById(delivery.Id).IsFaulted)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Deliveries/Delete/5
-        public async Task<IActionResult> Delete(int? id) => GetResultById(id);
+        public async Task<IActionResult> Delete(int? id) => await GetDeliveryById(id);
         // POST: Deliveries/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // Old
-            //var delivery = await _context.Delivery.FindAsync(id);
-            //_context.Delivery.Remove(delivery);
-            //await _context.SaveChangesAsync();
-
-            IRestResponse response = restClient.Delete(new RestRequest(path + $"/{id}"));
-            // Или
-            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            //HttpResponseMessage response = await client.DeleteAsync($"api/Deliveries/{id}");
-            //response.EnsureSuccessStatusCode();
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.DeleteAsync(path + $"/{id}"); 
+            response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool DeliveryExists(int id)
-        {
-            //return _context.Delivery.Any(e => e.Id == id);
-            return false;
         }
     }
 }

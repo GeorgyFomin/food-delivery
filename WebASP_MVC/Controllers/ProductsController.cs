@@ -7,7 +7,6 @@ namespace WebASP_MVC.Controllers
     public class ProductsController : Controller
     {
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
-        //private readonly RestClient restClient = new(apiAddress);
         private static readonly string path = "api/Products";
 
         // GET: Products

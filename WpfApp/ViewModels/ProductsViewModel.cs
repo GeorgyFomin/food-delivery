@@ -85,7 +85,7 @@ namespace WpfApp.ViewModels
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                List<Entities.Product>? products = JsonConvert.DeserializeObject<List<Entities.Product>>(result);
+                List<Product>? products = JsonConvert.DeserializeObject<List<Product>>(result);
                 if (products == null)
                     return;
                 Products = new ObservableCollection<Product>(products);
