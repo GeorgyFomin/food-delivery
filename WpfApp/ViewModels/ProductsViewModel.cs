@@ -1,13 +1,10 @@
 ﻿using Entities;
 using Newtonsoft.Json;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,10 +23,6 @@ namespace WpfApp.ViewModels
         /// Хранит маршрут к контроллеру Products.
         /// </summary>
         private readonly string controllerPath = "api/Products";
-        /// <summary>
-        /// Хранит ссылку на объект клиента, связанного со службой API.
-        /// </summary>
-        private readonly RestClient restClient = new(apiAddress);
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
@@ -75,35 +68,39 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду стирания записи в таблице UI.
         /// </summary>
-        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(ItemRemove);
+        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(ItemRemoveAsync);
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду завершения редактирования строки в таблице UI.
         /// </summary>
-        public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEnd);
+        public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEndAsync);
         #endregion
         public ProductsViewModel()
         {
             GetProducts();
         }
-        public void GetProducts()
+        public async void GetProducts()
         {
-            IRestResponse response = restClient.Get(new RestRequest(controllerPath));
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(controllerPath);
+            if (response.IsSuccessStatusCode)
             {
-                List<Product>? products = JsonConvert.DeserializeObject<List<Product>>(response.Content);
+                var result = response.Content.ReadAsStringAsync().Result;
+                List<Entities.Product>? products = JsonConvert.DeserializeObject<List<Entities.Product>>(result);
                 if (products == null)
                     return;
                 Products = new ObservableCollection<Product>(products);
                 DataSource = Products;
             }
         }
-        private void ItemRemove(object e)
+        private async void ItemRemoveAsync(object e)
         {
-            if (product == null)
+            if (Product == null)
                 return;
-            restClient.Delete(new RestRequest(controllerPath + $"/{product.Id}"));
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.DeleteAsync(controllerPath + $"/{Product.Id}");
+            response.EnsureSuccessStatusCode();
             if (Products != null)
-                _ = Products.Remove(product);
+                _ = Products.Remove(Product);
         }
         private void ItemSelection(object e)
         {
@@ -112,46 +109,19 @@ namespace WpfApp.ViewModels
             Product = grid.SelectedItem is Product product ? product : null;
             //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
-        public async Task Create()
-        {
-            //IRestRequest request = new RestRequest(controllerPath, Method.POST)
-            //{
-            //    RequestFormat = DataFormat.Json
-            //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(product), ParameterType.RequestBody);
-            ////IRestResponse response = 
-            //restClient.Execute(request);
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, product);
-            response.EnsureSuccessStatusCode();
-        }
-        public async Task Edit(int id)
-        {
-            //IRestRequest request = new RestRequest(controllerPath + $"/{id}", Method.PUT)
-            //{
-            //    RequestFormat = DataFormat.Json
-            //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(product), ParameterType.RequestBody);
-            //IRestResponse response = restClient.Execute(request);
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", product);
-            response.EnsureSuccessStatusCode();
-        }
         private async Task Commit(int id)
         {
             if (Product != null && (string.IsNullOrEmpty(Product.Name) || string.IsNullOrEmpty(Product.Name.Trim())))
             {
                 Product.Name = "Noname";
             }
-            if (id == 0)
-            {
-                await Create();
-                GetProducts();
-            }
-            else
-                await Edit(id);
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Product) : await client.PutAsJsonAsync(controllerPath, Product);
+            //+$"/{id}"
+            response.EnsureSuccessStatusCode();
+            GetProducts();
         }
-        private async void ItemRowEditEnd(object e)
+        private async void ItemRowEditEndAsync(object e)
         {
             if (Product == null || e == null || e is not DataGrid grid)
             {

@@ -16,21 +16,15 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<Ingredient> GetIngredient(int id) => await _mediator.Send(new GetIngredientById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateIngredient(Ingredient ingredient)// [FromBody] AddIngredient.Command command)
+        public async Task<ActionResult> CreateIngredient([FromBody] AddIngredient.Command command)
+            //Ingredient ingredient)
         {
-            var createIngredientId = await _mediator.Send(new AddIngredient.Command { Name = ingredient.Name });// command);
+            var createIngredientId = await _mediator.Send(command);
+                //new AddIngredient.Command { Name = ingredient.Name });
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateIngredient(int id, Ingredient ingredient)
-        {
-            if (id != ingredient.Id)
-            {
-                return BadRequest();
-            }
-            return Ok(await _mediator.Send(
-                new EditIngredient.Command { Id = ingredient.Id, Name = ingredient.Name }));
-        }
+        [HttpPut]
+        public async Task<IActionResult> UpdateIngredient([FromBody] EditIngredient.Command command) => Ok(await _mediator.Send(command));
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteIngredient(int id)
         {

@@ -1,6 +1,5 @@
 ﻿using Entities;
 using Newtonsoft.Json;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,7 +12,7 @@ using WpfApp.Commands;
 
 namespace WpfApp.ViewModels
 {
-    class IngredientsViewModel:ViewModelBase
+    class IngredientsViewModel : ViewModelBase
     {
         #region Fields
         /// <summary>
@@ -24,10 +23,6 @@ namespace WpfApp.ViewModels
         /// Хранит маршрут к контроллеру Ingredients.
         /// </summary>
         private readonly string controllerPath = "api/Ingredients";
-        /// <summary>
-        /// Хранит ссылку на объект клиента, связанного со службой API.
-        /// </summary>
-        private readonly RestClient restClient = new(apiAddress);
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
@@ -73,7 +68,7 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду стирания записи в таблице UI.
         /// </summary>
-        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(ItemRemove);
+        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(ItemRemoveAsync);
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду завершения редактирования строки в таблице UI.
         /// </summary>
@@ -83,25 +78,29 @@ namespace WpfApp.ViewModels
         {
             GetIngredients();
         }
-        public void GetIngredients()
+        public async void GetIngredients()
         {
-            IRestResponse response = restClient.Get(new RestRequest(controllerPath));
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(controllerPath);
+            if (response.IsSuccessStatusCode)
             {
-                List<Ingredient>? ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(response.Content);
+                var result = response.Content.ReadAsStringAsync().Result;
+                List<Ingredient>?  ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
                 if (ingredients == null)
                     return;
                 Ingredients = new ObservableCollection<Ingredient>(ingredients);
                 DataSource = Ingredients;
             }
         }
-        private void ItemRemove(object e)
+        private async void ItemRemoveAsync(object e)
         {
-            if (ingredient == null)
+            if (Ingredient == null)
                 return;
-            restClient.Delete(new RestRequest(controllerPath + $"/{ingredient.Id}"));
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.DeleteAsync(controllerPath + $"/{Ingredient.Id}");
+            response.EnsureSuccessStatusCode();
             if (Ingredients != null)
-                _ = Ingredients.Remove(ingredient);
+                _ = Ingredients.Remove(Ingredient);
         }
         private void ItemSelection(object e)
         {
@@ -110,45 +109,16 @@ namespace WpfApp.ViewModels
             Ingredient = grid.SelectedItem is Ingredient dlv ? dlv : null;
             //MessageBox.Show($"Select {(ingredient != null ? ingredient.Id : "null")}");
         }
-        public async Task Create()
-        {
-            //IRestRequest request = new RestRequest(ControllerPath, Method.POST)
-            //{
-            //    RequestFormat = DataFormat.Json
-            //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(ingredient), ParameterType.RequestBody);
-            ////IRestResponse response = 
-            //    restClient.Execute(request);
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PostAsJsonAsync(controllerPath, ingredient);
-            response.EnsureSuccessStatusCode();
-        }
-        public async Task Edit(int id)
-        {
-            //IRestRequest request = new RestRequest(ControllerPath + $"/{id}", Method.PUT)
-            //{
-            //    RequestFormat = DataFormat.Json
-            //};
-            //request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(ingredient), ParameterType.RequestBody);
-            ////IRestResponse response = 
-            //restClient.Execute(request);
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = await client.PutAsJsonAsync(controllerPath + $"/{id}", ingredient);
-            response.EnsureSuccessStatusCode();
-        }
         private async Task Commit(int id)
         {
             if (Ingredient != null && (string.IsNullOrEmpty(Ingredient.Name) || string.IsNullOrEmpty(Ingredient.Name.Trim())))
             {
                 Ingredient.Name = "Noname";
             }
-            if (id == 0)
-            {
-                await Create();
-                GetIngredients();
-            }
-            else
-                await Edit(id);
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Ingredient) : await client.PutAsJsonAsync(controllerPath, Ingredient);
+            response.EnsureSuccessStatusCode();
+            GetIngredients();
         }
         private async void ItemRowEditEnd(object e)
         {

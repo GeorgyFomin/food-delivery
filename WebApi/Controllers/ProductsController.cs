@@ -16,23 +16,32 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<Product> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateProduct([FromBody] Product product)// AddProduct.Command command)
+        public async Task<ActionResult> CreateProduct(
+            //Product product)
+            [FromBody] AddProduct.Command command)
         {
-            var createProductId = await _mediator.Send(new AddProduct.Command
-            { Name = product.Name, Price = product.Price, Weight = product.Weight, Ingredients = product.Ingredients });
-            //command);
+            //var createProductId = await _mediator.Send(new AddProduct.Command { Name = product.Name,
+            //    Price = product.Price,
+            //    Weight = product.Weight,
+            //    Ingredients = product.Ingredients
+            //});
+            var createProductId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product)
+        [HttpPut]//("{id}")
+        public async Task<IActionResult> UpdateProduct(//int id, 
+            //Product product)
+            [FromBody] EditProduct.Command command)
         {
-            if (id != product.Id)
-            {
-                return BadRequest();
-            }
-            return Ok(await _mediator.Send(
-                new EditProduct.Command { Id = product.Id, Name = product.Name, Weight = product.Weight, Price = product.Price, Ingredients = product.Ingredients }));
+            //if (id != product.Id)
+            //{
+            //    return BadRequest();
+            //}
+            //return Ok(await _mediator.Send(
+            //new EditProduct.Command { Id = product.Id, Name = product.Name }));//  Price = product.Price, Name = product.Name, Weight = product.Weight, Ingredients = product.Ingredients 
+            return Ok(await _mediator.Send(command));
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {

@@ -1,48 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using RestSharp;
 
 namespace WebASP_MVC.Controllers
 {
     public class ProductsController : Controller
     {
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
-        private readonly RestClient restClient = new(apiAddress);
+        //private readonly RestClient restClient = new(apiAddress);
         private static readonly string path = "api/Products";
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
             List<Entities.Product>? products = new();
-            // Одня из версий кода
-            IRestResponse response = restClient.Get(new RestRequest(path));
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(path);
+            if (response.IsSuccessStatusCode)
             {
-                products = JsonConvert.DeserializeObject<List<Entities.Product>>(response.Content);
+                var result = response.Content.ReadAsStringAsync().Result;
+                products = JsonConvert.DeserializeObject<List<Entities.Product>>(result);
             }
-            // Или
-            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            //HttpResponseMessage response = await client.GetAsync(path);
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    var result = response.Content.ReadAsStringAsync().Result;
-            //    deliveries = JsonConvert.DeserializeObject<List<Entities.Product>>(result);
-            //}
-            return View(products); //await _context.Product.ToListAsync());
+            return View(products);
         }
-        IActionResult GetResultById(int? id)
+        async Task<IActionResult> GetProductById(int? id)
         {
-            Entities.Product? GetProduct()
+            if (id == null)
+                return NotFound();
+            Entities.Product? product = null;
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
+            if (response.IsSuccessStatusCode)
             {
-                IRestResponse response = restClient.Get(new RestRequest(path + $"/{id}"));
-                return response.StatusCode != System.Net.HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<Entities.Product>(response.Content);
+                var result = response.Content.ReadAsStringAsync().Result;
+                product = JsonConvert.DeserializeObject<Entities.Product>(result);
             }
-            Entities.Product? product;
-            return id == null || (product = GetProduct()) == null ? NotFound() : View(product);
+            return product == null ? NotFound() : View(product);
         }
         // GET: Products/Products/5
-        public async Task<IActionResult> Details(int? id) => GetResultById(id);
+        public async Task<IActionResult> Details(int? id) => await GetProductById(id);
         // GET: Products/Create
         public IActionResult Create()
         {
@@ -54,101 +50,63 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Price,Weight,Id")] Entities.Product product)
+        public async Task<IActionResult> Create([Bind("Name,Price,Weight,Ingredients")] Entities.Product product)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                IRestRequest request = new RestRequest(path, Method.POST)
-                {
-                    RequestFormat = DataFormat.Json
-                };
-                request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(product), ParameterType.RequestBody);
-                //IRestResponse response = 
-                restClient.Execute(request);
-                // Или
-                //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                //HttpResponseMessage response = await client.PostAsJsonAsync(path, product);
-                //response.EnsureSuccessStatusCode();
-                return RedirectToAction(nameof(Index));
+                return View(product);
             }
-            return View(product);
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.PostAsJsonAsync(path, product);
+            response.EnsureSuccessStatusCode();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id) => GetResultById(id);
+        public async Task<IActionResult> Edit(int? id) => await GetProductById(id);
 
         // POST: Products/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Price,Weight,Id")] Entities.Product product)
+        public async Task<IActionResult> Edit( [Bind("Name,Price,Weight,Ingredients,Id")] Entities.Product product)
         {
-            if (id != product.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return View(product);
             }
-
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    IRestRequest request = new RestRequest(path + $"/{id}", Method.PUT)
-                    {
-                        RequestFormat = DataFormat.Json
-                    };
-                    request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(product), ParameterType.RequestBody);
-                    //IRestResponse response = 
-                    restClient.Execute(request);
-                    // Или
-                    //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                    //HttpResponseMessage response = await client.PutAsJsonAsync(path+$"/{id}", product);
-                    //response.EnsureSuccessStatusCode();
-
-                    // Old
-                    //_context.Update(product);
-                    //await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+                HttpResponseMessage response = await client.PutAsJsonAsync(path, product);
+                response.EnsureSuccessStatusCode();
             }
-            return View(product);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (GetProductById(product.Id).IsFaulted)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id) => GetResultById(id);
+        public async Task<IActionResult> Delete(int? id) => await GetProductById(id);
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // Old
-            //var product = await _context.Product.FindAsync(id);
-            //_context.Product.Remove(product);
-            //await _context.SaveChangesAsync();
-
-            IRestResponse response = restClient.Delete(new RestRequest(path + $"/{id}"));
-            // Или
-            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            //HttpResponseMessage response = await client.DeleteAsync(path+$"/{id}");
-            //response.EnsureSuccessStatusCode();
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.DeleteAsync(path + $"/{id}");
+            response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
-        }
-
-        private static bool ProductExists(int id)
-        {
-            //return _context.Product.Any(e => e.Id == id);
-            return false;
         }
     }
 }
