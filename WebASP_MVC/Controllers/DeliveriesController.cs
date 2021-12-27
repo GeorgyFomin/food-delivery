@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Entities.Domain;
 
 namespace WebASP_MVC.Controllers
 {
@@ -12,13 +13,13 @@ namespace WebASP_MVC.Controllers
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
-            List<Entities.Delivery>? deliveries = new();
+            List<Delivery>? deliveries = new();
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path);
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                deliveries = JsonConvert.DeserializeObject<List<Entities.Delivery>>(result);
+                deliveries = JsonConvert.DeserializeObject<List<Delivery>>(result);
             }
             return View(deliveries);
         }
@@ -28,13 +29,13 @@ namespace WebASP_MVC.Controllers
             {
                 return NotFound();
             }
-            Entities.Delivery? delivery = null;
+            Delivery? delivery = null;
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                delivery = JsonConvert.DeserializeObject<Entities.Delivery>(result);
+                delivery = JsonConvert.DeserializeObject<Delivery>(result);
             }
             return delivery == null ? NotFound() : View(delivery);
         }
@@ -51,7 +52,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
+        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Delivery delivery)
         {
             if (!ModelState.IsValid)
             {
@@ -71,7 +72,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("ServiceName,Price,TimeSpan,Id")] Entities.Delivery delivery)
+        public async Task<IActionResult> Edit([Bind("ServiceName,Price,TimeSpan,Id")] Delivery delivery)
         {
             if (!ModelState.IsValid)
             {
@@ -105,7 +106,7 @@ namespace WebASP_MVC.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.DeleteAsync(path + $"/{id}"); 
+            HttpResponseMessage response = await client.DeleteAsync(path + $"/{id}");
             response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }

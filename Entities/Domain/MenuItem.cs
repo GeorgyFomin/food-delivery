@@ -1,8 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 
-namespace Entities
+namespace Entities.Domain
 {
-    public class MenuItem:Entity<int>
+    public class MenuItem:Ided //:Entity<int>
     {
         public Product Product { get; set; }
     }

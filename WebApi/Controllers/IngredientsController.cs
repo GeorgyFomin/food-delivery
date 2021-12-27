@@ -1,4 +1,4 @@
-﻿using Entities;
+﻿using Entities.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.API.Ingredients;

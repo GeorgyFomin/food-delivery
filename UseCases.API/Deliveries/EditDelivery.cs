@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Entities.Domain;
 using MediatR;
 using Persistence.MsSql;
 namespace UseCases.API.Deliveries

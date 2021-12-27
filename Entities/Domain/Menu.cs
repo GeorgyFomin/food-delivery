@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 
-namespace Entities
+namespace Entities.Domain
 {
-    public class Menu : Entity<int>
+    public class Menu : Ided// : Entity<int>
     {
-        public ICollection<MenuItem> MenuItems { get; set; }
+        public ICollection<MenuItem>? MenuItems { get; set; }
     }
 }

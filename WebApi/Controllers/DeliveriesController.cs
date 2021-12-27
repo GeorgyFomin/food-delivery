@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Entities;
+using Entities.Domain;
 using UseCases.API.Deliveries;
 
 namespace WebApi.Controllers

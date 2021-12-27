@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Entities;
 using UseCases.API.Products;
+using Entities.Domain;
 
 namespace WebApi.Controllers
 {

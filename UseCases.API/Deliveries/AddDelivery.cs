@@ -1,6 +1,7 @@
 ﻿using Entities;
 using MediatR;
 using Persistence.MsSql;
+using Entities.Domain;
 
 namespace UseCases.API.Deliveries
 {

@@ -1,4 +1,4 @@
-﻿using Entities;
+﻿using Entities.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -20,7 +20,7 @@ namespace WebASP_MVC.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                ingredients = JsonConvert.DeserializeObject<List<Entities.Ingredient>>(result);
+                ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
             }
             return View(ingredients);
         }
@@ -34,7 +34,7 @@ namespace WebASP_MVC.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                ingredient = JsonConvert.DeserializeObject<Entities.Ingredient>(result);
+                ingredient = JsonConvert.DeserializeObject<Ingredient>(result);
             }
             return ingredient == null ? NotFound() : View(ingredient);
         }

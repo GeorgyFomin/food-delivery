@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Entities.Domain;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
