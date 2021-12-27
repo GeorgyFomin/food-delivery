@@ -114,9 +114,9 @@ namespace WpfApp.ViewModels
         public ProductsViewModel()
         {
             GetProducts();
-            GetIngredients();
+            ResetIngredients();
         }
-        public async void GetIngredients()
+        public async void ResetIngredients()
         {
             List<Ingredient>? ingredients = null;
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
@@ -127,7 +127,8 @@ namespace WpfApp.ViewModels
                 ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
             }
             AllIngredients = ingredients ?? new();
-            Ingredients = Product == null ? new() : new ObservableCollection<Ingredient>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
+            Ingredients = Product == null || ingredients == null ? new ObservableCollection<Ingredient>() :
+                new ObservableCollection<Ingredient>(ingredients.Where(ingr => ingr.ProductId == Product.Id));
         }
         public async void GetProducts()
         {
@@ -160,7 +161,8 @@ namespace WpfApp.ViewModels
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
             Product = grid.SelectedItem is Product product ? product : null;
-            Ingredients = Product == null ? new() : new ObservableCollection<Ingredient>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
+            if (Product != null)
+                Ingredients = new ObservableCollection<Ingredient>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
         private async Task Commit(int id)
@@ -192,10 +194,12 @@ namespace WpfApp.ViewModels
             HttpResponseMessage response = await client.DeleteAsync(ingredientControllerPath + $"/{Ingredient.Id}");
             response.EnsureSuccessStatusCode();
             if (Ingredients != null)
+            {
                 _ = Ingredients.Remove(Ingredient);
+                Ingredient = null;
+                ResetIngredients();
+            }
         }
-
-
         private void IngrSelection(object e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
@@ -209,11 +213,11 @@ namespace WpfApp.ViewModels
             HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(ingredientControllerPath, Ingredient) :
                 await client.PutAsJsonAsync(ingredientControllerPath, Ingredient);
             response.EnsureSuccessStatusCode();
-            GetIngredients();
+            ResetIngredients();
         }
         private async void IngrRowEditEndAsync(object e)
         {
-            if (Ingredient == null || e == null || e is not DataGrid grid)
+            if (Ingredient == null || e == null)// || e is not DataGrid grid
             {
                 return;
             }
