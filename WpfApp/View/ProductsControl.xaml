@@ -8,7 +8,22 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:ProductsViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Background="{StaticResource mainBckgr}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Products" FontSize="20" Foreground="Yellow" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Column="1" x:Name="panel" Orientation="Horizontal">
+            <TextBlock Text="Ingredients Of " FontSize="20" Foreground="Yellow" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding ProductName}" FontSize="20" Margin="5,0,0,0" FontStyle="Italic" FontWeight="Medium" 
+                     Foreground="#FF68B252" />
+        </StackPanel>
+        <!--<TextBlock Text="Ingredients" Grid.Column="1" Foreground="Yellow" HorizontalAlignment="Center"/>-->
         <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding DataSource}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
@@ -36,6 +51,27 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
+        <DataGrid Grid.Column="1" x:Name="ingredientsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
+                  ItemsSource="{Binding Ingredients}" 
+                  AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
+                  BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Header="Id" Binding="{Binding Id}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" EditingElementStyle="{StaticResource EditingCellTextBox}"/>
+                <DataGridTextColumn IsReadOnly="True" Header="ProductId" Binding="{Binding ProductId}" />
+            </DataGrid.Columns>
+            <DataGrid.InputBindings>
+                <KeyBinding Key="Delete" Command="{Binding IngrRemoveCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
+            </DataGrid.InputBindings>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding IngrSelectionCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="RowEditEnding">
+                    <i:InvokeCommandAction Command="{Binding IngrRowEditEndCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
 
+        </DataGrid>
     </Grid>
 </ContentControl>

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using WpfApp.Commands;
+using System.Linq;
 
 namespace WpfApp.ViewModels
 {
@@ -22,7 +23,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Хранит маршрут к контроллеру Products.
         /// </summary>
-        private readonly string controllerPath = "api/Products";
+        private readonly string productControllerPath = "api/Products";
+        /// <summary>
+        /// Хранит маршрут к контроллеру Ingredients.
+        /// </summary>
+        private readonly string ingredientControllerPath = "api/Ingredients";
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
@@ -31,6 +36,10 @@ namespace WpfApp.ViewModels
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
         private ObservableCollection<Product>? products = new();
+        /// <summary>
+        /// Хранит ссылку на текущий выделенный объект модели.
+        /// </summary>
+        private Ingredient? ingredient;
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -47,6 +56,9 @@ namespace WpfApp.ViewModels
         /// Хранит ссылку на команду завершения редактирования записи или создания новой записию
         /// </summary>
         private RelayCommand? itemRowEditEndCommand;
+        private RelayCommand? ingrRemoveCommand;
+        private RelayCommand? ingrSelectionCommand;
+        private RelayCommand? ingrRowEditEndCommand;
         #endregion
         #region Properties
         /// <summary>
@@ -56,7 +68,29 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Product? Product { get => product; set { product = value; RaisePropertyChanged(nameof(Product)); } }
+        public Product? Product
+        {
+            get => product; set
+            {
+                product = value;
+                RaisePropertyChanged(nameof(Product));
+                ProductName = Product == null ? string.Empty : Product.Name;
+            }
+        }
+        /// <summary>
+        /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
+        /// </summary>
+        public Ingredient? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
+        private List<Ingredient> allIngredients = new();
+        public List<Ingredient> AllIngredients { get => allIngredients; set { allIngredients = value; RaisePropertyChanged(nameof(AllIngredients)); } }
+        private ObservableCollection<Ingredient> ingredients = new();
+        public ObservableCollection<Ingredient> Ingredients
+        {
+            get => ingredients;
+            set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); }
+        }
+        private string productName = string.Empty;
+        public string ProductName { get => productName; set { productName = value ?? string.Empty; RaisePropertyChanged(nameof(ProductName)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
         /// </summary>
@@ -73,15 +107,32 @@ namespace WpfApp.ViewModels
         /// Устанавливает и возвращает ссылку на команду завершения редактирования строки в таблице UI.
         /// </summary>
         public ICommand ItemRowEditEndCommand => itemRowEditEndCommand ??= new RelayCommand(ItemRowEditEndAsync);
+        public ICommand IngrSelectionCommand => ingrSelectionCommand ??= new RelayCommand(IngrSelection);
+        public ICommand IngrRemoveCommand => ingrRemoveCommand ??= new RelayCommand(IngrRemoveAsync);
+        public ICommand IngrRowEditEndCommand => ingrRowEditEndCommand ??= new RelayCommand(IngrRowEditEndAsync);
         #endregion
         public ProductsViewModel()
         {
             GetProducts();
+            GetIngredients();
+        }
+        public async void GetIngredients()
+        {
+            List<Ingredient>? ingredients = null;
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(ingredientControllerPath);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = response.Content.ReadAsStringAsync().Result;
+                ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
+            }
+            AllIngredients = ingredients ?? new();
+            Ingredients = Product == null ? new() : new ObservableCollection<Ingredient>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
         }
         public async void GetProducts()
         {
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(controllerPath);
+            HttpResponseMessage response = await client.GetAsync(productControllerPath);
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
@@ -97,16 +148,19 @@ namespace WpfApp.ViewModels
             if (Product == null)
                 return;
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.DeleteAsync(controllerPath + $"/{Product.Id}");
+            HttpResponseMessage response = await client.DeleteAsync(productControllerPath + $"/{Product.Id}");
             response.EnsureSuccessStatusCode();
             if (Products != null)
                 _ = Products.Remove(Product);
+            Product = null;
+            Ingredients.Clear();
         }
         private void ItemSelection(object e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
             Product = grid.SelectedItem is Product product ? product : null;
+            Ingredients = Product == null ? new() : new ObservableCollection<Ingredient>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
         private async Task Commit(int id)
@@ -116,7 +170,7 @@ namespace WpfApp.ViewModels
                 Product.Name = "Noname";
             }
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Product) : await client.PutAsJsonAsync(controllerPath, Product);
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(productControllerPath, Product) : await client.PutAsJsonAsync(productControllerPath, Product);
             //+$"/{id}"
             response.EnsureSuccessStatusCode();
             GetProducts();
@@ -129,6 +183,46 @@ namespace WpfApp.ViewModels
             }
             await Commit(Product.Id);
             grid.Items.Refresh();
+        }
+        private async void IngrRemoveAsync(object commandParameter)
+        {
+            if (Ingredient == null)
+                return;
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.DeleteAsync(ingredientControllerPath + $"/{Ingredient.Id}");
+            response.EnsureSuccessStatusCode();
+            if (Ingredients != null)
+                _ = Ingredients.Remove(Ingredient);
+        }
+
+
+        private void IngrSelection(object e)
+        {
+            if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
+                return;
+            Ingredient = grid.SelectedItem is Ingredient ingredient ? ingredient : null;
+            //MessageBox.Show($"Select {(Ingredient != null ? Ingredient.Id : "null")}");
+        }
+        private async Task CommitIngr(int id)
+        {
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(ingredientControllerPath, Ingredient) :
+                await client.PutAsJsonAsync(ingredientControllerPath, Ingredient);
+            response.EnsureSuccessStatusCode();
+            GetIngredients();
+        }
+        private async void IngrRowEditEndAsync(object e)
+        {
+            if (Ingredient == null || e == null || e is not DataGrid grid)
+            {
+                return;
+            }
+            if (Ingredient.Id == 0 && Product != null)
+            {
+                Ingredient.ProductId = Product.Id;
+            }
+            await CommitIngr(Ingredient.Id);
+            //grid.Items.Refresh();
         }
     }
 }

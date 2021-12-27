@@ -51,7 +51,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name")] Ingredient ingredient)
+        public async Task<IActionResult> Create([Bind("Name, ProductId")] Ingredient ingredient)
         {
             if (!ModelState.IsValid)
             {
@@ -71,7 +71,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("Name,Id")] Ingredient ingredient)
+        public async Task<IActionResult> Edit([Bind("ProductId, Name, Id")] Ingredient ingredient)
         {
             if (!ModelState.IsValid)
             {

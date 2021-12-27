@@ -14,13 +14,11 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IEnumerable<Ingredient>> GetIngredients() => await _mediator.Send(new GetIngredients.Query());
         [HttpGet("{id}")]
-        public async Task<Ingredient> GetIngredient(int id) => await _mediator.Send(new GetIngredientById.Query() { Id = id });
+        public async Task<Ingredient?> GetIngredient(int id) => await _mediator.Send(new GetIngredientById.Query() { Id = id });
         [HttpPost]
         public async Task<ActionResult> CreateIngredient([FromBody] AddIngredient.Command command)
-            //Ingredient ingredient)
         {
             var createIngredientId = await _mediator.Send(command);
-                //new AddIngredient.Command { Name = ingredient.Name });
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
         [HttpPut]

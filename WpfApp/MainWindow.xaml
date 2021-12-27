@@ -15,7 +15,7 @@
             <DockPanel>
                 <Menu Name="menu1" DockPanel.Dock="Left"  Margin="10,10,10,10" Background="Transparent" Foreground="Yellow">
                     <MenuItem Header="Deliveries"  Command="{Binding DeliveriesCommand}"/>
-                    <MenuItem Header="Ingredients"  Command="{Binding IngredientsCommand}"/>
+                    <!--<MenuItem Header="Ingredients"  Command="{Binding IngredientsCommand}"/>-->
                     <MenuItem Header="Products"  Command="{Binding ProductsCommand}"/>
                 </Menu>
             </DockPanel>

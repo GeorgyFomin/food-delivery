@@ -11,7 +11,10 @@ namespace UseCases.API.Products
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<IEnumerable<Product>> Handle(Query request, CancellationToken cancellationToken) => await _context.Products.ToListAsync(cancellationToken);
+            public async Task<IEnumerable<Product>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                return await _context.Products.ToListAsync(cancellationToken);
+            }
         }
     }
 }
