@@ -2,7 +2,7 @@
 
 namespace Entities.Domain
 {
-    public class MenuItem:Ided //:Entity<int>
+    public class MenuItem : Entity<int>
     {
         public Product Product { get; set; }
     }

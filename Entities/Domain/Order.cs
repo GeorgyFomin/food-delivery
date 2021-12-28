@@ -3,7 +3,7 @@
 
 namespace Entities.Domain
 {
-    public class Order : Ided //Entity<int>
+    public class Order : Entity<int>
     {
         public ICollection<OrderItem> OrderElements { get; set; }
         public Discount Discount { get; set; }

@@ -3,6 +3,7 @@ using Entities.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
+using UseCases.API.Deliveries.Dto;
 
 namespace UseCases.API.Deliveries
 {
@@ -13,8 +14,10 @@ namespace UseCases.API.Deliveries
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<IEnumerable<Delivery>> Handle(Query request, CancellationToken cancellationToken) =>
-                await _context.Deliveries.ToListAsync(cancellationToken);
+            public async Task<IEnumerable<Delivery>> Handle(Query request, CancellationToken cancellationToken)
+            {
+              return await _context.Deliveries.ToListAsync(cancellationToken);
+            }
         }
     }
 }

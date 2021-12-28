@@ -2,7 +2,7 @@
 
 namespace Entities.Domain
 {
-    public class Menu : Ided// : Entity<int>
+    public class Menu : Entity<int>
     {
         public ICollection<MenuItem>? MenuItems { get; set; }
     }

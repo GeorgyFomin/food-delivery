@@ -3,10 +3,10 @@
 
 namespace Entities.Domain
 {
-    public class Ingredient : Named //:Entity<int>
+    public class Ingredient : Entity<int>
     {
-        //public int Id { get; set; }
+        private string name = "Noname";
+        public string Name { get => name; set { name = string.IsNullOrEmpty(value) || string.IsNullOrEmpty(value.Trim()) ? "Noname" : value; } }
         public int ProductId { get; set; }
-        public virtual Product? Product { get; set; }
     }
 }
