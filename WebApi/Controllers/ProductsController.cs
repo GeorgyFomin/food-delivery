@@ -2,6 +2,7 @@
 using MediatR;
 using UseCases.API.Products;
 using Entities.Domain;
+using UseCases.API.Deliveries.Dto;
 
 namespace WebApi.Controllers
 {
@@ -14,7 +15,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IEnumerable<Product>> GetProducts() => await _mediator.Send(new GetProducts.Query());
         [HttpGet("{id}")]
-        public async Task<Product> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
+        public async Task<ProductDto> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
         public async Task<ActionResult> CreateProduct([FromBody] AddProduct.Command command)
         {
