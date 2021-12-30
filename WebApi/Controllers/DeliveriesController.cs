@@ -13,13 +13,11 @@ namespace WebApi.Controllers
         private readonly IMediator _mediator;
         public DeliveriesController(IMediator mediator) => _mediator = mediator;
         [HttpGet]
-        public async Task<IEnumerable<Delivery>> GetDeliveries() => await _mediator.Send(new GetDeliveries.Query());
+        public async Task<IEnumerable<DeliveryDto>> GetDeliveries() => await _mediator.Send(new GetDeliveries.Query());
         [HttpGet("{id}")]
         public async Task<DeliveryDto> GetDelivery(int id)
         {
-            //DeliveryDto deliveryDto = 
              return   await _mediator.Send(new GetDeliveryById.Query() { Id = id });
-            //return new Delivery() { Id = deliveryDto.Id, Price = deliveryDto.Price, ServiceName = deliveryDto.ServiceName };
         }
 
         [HttpPost]

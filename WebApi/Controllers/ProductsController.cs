@@ -13,7 +13,7 @@ namespace WebApi.Controllers
         private readonly IMediator _mediator;
         public ProductsController(IMediator mediator) => _mediator = mediator;
         [HttpGet]
-        public async Task<IEnumerable<Product>> GetProducts() => await _mediator.Send(new GetProducts.Query());
+        public async Task<IEnumerable<ProductDto>> GetProducts() => await _mediator.Send(new GetProducts.Query());
         [HttpGet("{id}")]
         public async Task<ProductDto> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]

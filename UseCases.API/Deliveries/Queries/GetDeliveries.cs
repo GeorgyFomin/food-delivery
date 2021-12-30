@@ -9,14 +9,22 @@ namespace UseCases.API.Deliveries
 {
     public class GetDeliveries
     {
-        public class Query : IRequest<IEnumerable<Delivery>> { }
-        public class QueryHandler : IRequestHandler<Query, IEnumerable<Delivery>>
+        public class Query : IRequest<IEnumerable<DeliveryDto>> { }
+        public class QueryHandler : IRequestHandler<Query, IEnumerable<DeliveryDto>>
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<IEnumerable<Delivery>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<IEnumerable<DeliveryDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-              return await _context.Deliveries.ToListAsync(cancellationToken);
+                var deliveries = await _context.Deliveries.ToListAsync(cancellationToken);
+                return from d in deliveries
+                       select new DeliveryDto()
+                       {
+                           Id = d.Id,
+                           Price = d.Price,
+                           ServiceName = d.ServiceName,
+                           TimeSpan = d.TimeSpan
+                       };
             }
         }
     }
