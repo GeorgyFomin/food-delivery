@@ -19,7 +19,7 @@ namespace UseCases.API.Ingredients
             public async Task<IngredientDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 Ingredient ingredient= await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                return new IngredientDto() { Name = ingredient.Name, Id = ingredient.Id, ProductId = ingredient.ProductId };
+                return new IngredientDto() { Name = ingredient.Name, Id = ingredient.Id };
             }
         }
     }

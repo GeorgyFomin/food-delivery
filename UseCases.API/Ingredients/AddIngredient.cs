@@ -19,7 +19,7 @@ namespace UseCases.API.Ingredients
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                Ingredient Ingredient = new() { Name = request.Name, ProductId = request.ProductId };
+                Ingredient Ingredient = new() { Name = request.Name };
                 await _context.Ingredients.AddAsync(Ingredient, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
                 return Ingredient.Id;

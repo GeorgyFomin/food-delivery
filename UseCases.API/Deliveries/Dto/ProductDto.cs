@@ -11,8 +11,7 @@ namespace UseCases.API.Deliveries.Dto
     public class ProductDto
     {
         public int Id { get; set; }
-        private string name = "Noname";
-        public string Name { get => name; set { name = string.IsNullOrEmpty(value) || string.IsNullOrEmpty(value.Trim()) ? "Noname" : value; } }
+        public string Name { get; set; }
         [DisplayFormat(DataFormatString = "{0:n0}", ApplyFormatInEditMode = true)]
         public decimal Price { get; set; }
         [DisplayFormat(DataFormatString = "{0:n0}", ApplyFormatInEditMode = true)]
