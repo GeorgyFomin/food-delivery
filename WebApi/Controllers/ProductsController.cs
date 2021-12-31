@@ -17,13 +17,35 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ProductDto> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateProduct([FromBody] AddProduct.Command command)
+        public async Task<ActionResult> CreateProduct(Product product) //[FromBody] AddProduct.Command command)
         {
-            var createProductId = await _mediator.Send(command);
+            var createProductId = await _mediator.Send(new AddProduct.Command()
+            {
+                Name = product.Name,
+                Ingredients = product.Ingredients,
+                Price = product.Price,
+                Weight = product.Weight
+            }); //command);
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
-        [HttpPut]
-        public async Task<IActionResult> UpdateProduct([FromBody] EditProduct.Command command) => Ok(await _mediator.Send(command));
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, Product product) //[FromBody] EditProduct.Command command)
+        {
+            if (id != product.Id)
+            {
+                return BadRequest();
+            }
+            return Ok(await _mediator.Send(
+                new EditProduct.Command
+                {
+                    Id = product.Id,
+                    Weight = product.Weight,
+                    Ingredients = product.Ingredients,
+                    Name = product.Name,
+                    Price = product.Price
+                }));
+            //command));
+        }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)

@@ -21,7 +21,8 @@ namespace UseCases.API.Ingredients
                        select new IngredientDto()
                        {
                            Id = ingr.Id,
-                           Name = ingr.Name
+                           Name = ingr.Name,
+                           ProductId = ingr.ProductId
                        };
             }
         }

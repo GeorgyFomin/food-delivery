@@ -19,7 +19,7 @@ namespace UseCases.API.Products
             public async Task<ProductDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 Product? product = await _context.Products.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                return new ProductDto { Id = product.Id, Price = product.Price, Name = product.Name, Weight = product.Weight };
+                return new ProductDto { Id = product.Id, Price = product.Price, Name = product.Name, Weight = product.Weight, Ingredients = product.Ingredients };
             }
         }
     }
