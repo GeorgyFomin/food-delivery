@@ -3,8 +3,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -34,6 +36,10 @@ namespace WpfApp.ViewModels
         /// </summary>
         private Product? product;
         /// <summary>
+        /// Хранит имя текущего Product.
+        /// </summary>
+        private string productName = string.Empty;
+        /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
         private ObservableCollection<Product>? products = new();
@@ -41,6 +47,14 @@ namespace WpfApp.ViewModels
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
         private Ingredient? ingredient;
+        /// <summary>
+        /// Хранит ссылку на список элементов Ingredients текущего Product.
+        /// </summary>
+        private ObservableCollection<Ingredient> ingredients = new();
+        /// <summary>
+        /// Хранит ссылку на список всех элементов таблицы Ingredients.
+        /// </summary>
+        private List<Ingredient> allIngredients = new();
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -75,22 +89,29 @@ namespace WpfApp.ViewModels
             {
                 product = value;
                 RaisePropertyChanged(nameof(Product));
-                ProductName = Product == null ? string.Empty : Product.Name;
+                if (Product == null || Product.Id == 0 || Product.Ingredients == null)
+                {
+                    ProductName = string.Empty;
+                    IngrEnabled = false;
+                    Ingredients.Clear();
+                }
+                else
+                {
+                    ProductName = Product.Name;
+                    IngrEnabled = true;
+                }
             }
         }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
         public Ingredient? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
-        private List<Ingredient> allIngredients = new();
         public List<Ingredient> AllIngredients { get => allIngredients; set { allIngredients = value; RaisePropertyChanged(nameof(AllIngredients)); } }
-        private ObservableCollection<Ingredient> ingredients = new();
         public ObservableCollection<Ingredient> Ingredients
         {
             get => ingredients;
             set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); }
         }
-        private string productName = string.Empty;
         public string ProductName { get => productName; set { productName = value ?? string.Empty; RaisePropertyChanged(nameof(ProductName)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
@@ -114,7 +135,7 @@ namespace WpfApp.ViewModels
         #endregion
         public ProductsViewModel()
         {
-            GetProducts();
+            ResetProducts();
             ResetIngredients();
         }
         public async void ResetIngredients()
@@ -131,7 +152,7 @@ namespace WpfApp.ViewModels
             Ingredients = Product == null || ingredients == null ? new ObservableCollection<Ingredient>() :
                 new ObservableCollection<Ingredient>(ingredients.Where(ingr => ingr.ProductId == Product.Id));
         }
-        public async void GetProducts()
+        public async void ResetProducts()
         {
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(productControllerPath);
@@ -153,7 +174,10 @@ namespace WpfApp.ViewModels
             HttpResponseMessage response = await client.DeleteAsync(productControllerPath + $"/{Product.Id}");
             response.EnsureSuccessStatusCode();
             if (Products != null)
+            {
                 _ = Products.Remove(Product);
+                ResetProducts();
+            }
             Product = null;
             Ingredients.Clear();
         }
@@ -168,15 +192,11 @@ namespace WpfApp.ViewModels
         }
         private async Task Commit(int id)
         {
-            if (Product != null && (string.IsNullOrEmpty(Product.Name) || string.IsNullOrEmpty(Product.Name.Trim())))
-            {
-                Product.Name = "Noname";
-            }
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(productControllerPath, Product) : await client.PutAsJsonAsync(productControllerPath, Product);
             //+$"/{id}"
             response.EnsureSuccessStatusCode();
-            GetProducts();
+            ResetProducts();
         }
         private async void ItemRowEditEndAsync(object e)
         {
@@ -187,7 +207,7 @@ namespace WpfApp.ViewModels
             await Commit(Product.Id);
             grid.Items.Refresh();
         }
-        private async void IngrRemoveAsync(object commandParameter)
+        private async void IngrRemoveAsync(object e)
         {
             if (Ingredient == null)
                 return;
@@ -218,7 +238,7 @@ namespace WpfApp.ViewModels
         }
         private async void IngrRowEditEndAsync(object e)
         {
-            if (Ingredient == null || e == null)// || e is not DataGrid grid
+            if (Ingredient == null || e == null)// || e is not DataGrid grid)
             {
                 return;
             }
@@ -229,5 +249,8 @@ namespace WpfApp.ViewModels
             await CommitIngr(Ingredient.Id);
             //grid.Items.Refresh();
         }
+        private bool ingrEnabled;
+
+        public bool IngrEnabled { get => ingrEnabled; set { ingrEnabled = value; RaisePropertyChanged(nameof(IngrEnabled)); } }
     }
 }

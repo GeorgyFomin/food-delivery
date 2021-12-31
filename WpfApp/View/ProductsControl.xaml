@@ -54,7 +54,7 @@
         <DataGrid Grid.Column="1" x:Name="ingredientsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding Ingredients}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
-                  BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
+                  BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" IsEnabled="{Binding IngrEnabled}">
             <DataGrid.Columns>
                 <DataGridTextColumn IsReadOnly="True" Header="Id" Binding="{Binding Id}" />
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" EditingElementStyle="{StaticResource EditingCellTextBox}"/>

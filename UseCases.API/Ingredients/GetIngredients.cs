@@ -13,8 +13,12 @@ namespace UseCases.API.Ingredients
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<IEnumerable<Ingredient>> Handle(Query request, CancellationToken cancellationToken) => 
-                await _context.Ingredients.ToListAsync(cancellationToken);
+            public async Task<IEnumerable<Ingredient>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                List<Ingredient> ingredients = await _context.Ingredients.ToListAsync(cancellationToken);
+                //var product = ingredients[0].Product;
+                return ingredients;
+            }
         }
     }
 }
