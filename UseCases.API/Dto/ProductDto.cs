@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UseCases.API.Deliveries.Dto
+namespace UseCases.API.Dto
 {
     public class ProductDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public decimal Price { get; set; }
         public double Weight { get; set; }
         public virtual ICollection<Ingredient>? Ingredients { get; set; }

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UseCases.API.Deliveries.Dto
+namespace UseCases.API.Dto
 {
     public class IngredientDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int ProductId { get; set; }
     }
 }

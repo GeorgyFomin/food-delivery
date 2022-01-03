@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Entities.Domain;
 using UseCases.API.Deliveries;
-using UseCases.API.Deliveries.Dto;
+using UseCases.API.Dto;
 
 namespace WebApi.Controllers
 {
@@ -21,29 +20,29 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateDelivery(Delivery delivery) //[FromBody] AddDelivery.Command command)
+        public async Task<ActionResult> CreateDelivery(DeliveryDto deliveryDto) //[FromBody] AddDelivery.Command command)
         {
             int createDeliveryId = await _mediator.Send(new AddDelivery.Command
             {
-                Price = delivery.Price,
-                ServiceName = delivery.ServiceName,
-                TimeSpan = delivery.TimeSpan
+                Price = deliveryDto.Price,
+                ServiceName = deliveryDto.ServiceName,
+                TimeSpan = deliveryDto.TimeSpan
             }); //command);
             return CreatedAtAction(nameof(GetDelivery), new { id = createDeliveryId }, null);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDelivery(int id, Delivery delivery) //[FromBody] EditDelivery.Command command)
+        public async Task<IActionResult> UpdateDelivery(int id, DeliveryDto deliveryDto) //[FromBody] EditDelivery.Command command)
         {
-            if (id != delivery.Id)
+            if (id != deliveryDto.Id)
             {
                 return BadRequest();
             }
             return Ok(await _mediator.Send(new EditDelivery.Command()
             {
-                Id = delivery.Id,
-                Price = delivery.Price,
-                ServiceName = delivery.ServiceName,
-                TimeSpan = delivery.TimeSpan
+                Id = deliveryDto.Id,
+                Price = deliveryDto.Price,
+                ServiceName = deliveryDto.ServiceName,
+                TimeSpan = deliveryDto.TimeSpan
             })); //command));
         }
 

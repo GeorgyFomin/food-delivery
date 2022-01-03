@@ -1,9 +1,7 @@
-﻿using Entities;
-using Entities.Domain;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
-using UseCases.API.Deliveries.Dto;
+using UseCases.API.Dto;
 
 namespace UseCases.API.Ingredients
 {

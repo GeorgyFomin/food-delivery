@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using UseCases.API.Products;
-using Entities.Domain;
-using UseCases.API.Deliveries.Dto;
+using UseCases.API.Dto;
 
 namespace WebApi.Controllers
 {
@@ -17,32 +16,32 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ProductDto> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateProduct(Product product) //[FromBody] AddProduct.Command command)
+        public async Task<ActionResult> CreateProduct(ProductDto productDto) //[FromBody] AddProduct.Command command)
         {
             var createProductId = await _mediator.Send(new AddProduct.Command()
             {
-                Name = product.Name,
-                Ingredients = product.Ingredients,
-                Price = product.Price,
-                Weight = product.Weight
+                Name = productDto.Name,
+                Ingredients = productDto.Ingredients,
+                Price = productDto.Price,
+                Weight = productDto.Weight
             }); //command);
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product) //[FromBody] EditProduct.Command command)
+        public async Task<IActionResult> UpdateProduct(int id, ProductDto productDto) //[FromBody] EditProduct.Command command)
         {
-            if (id != product.Id)
+            if (id != productDto.Id)
             {
                 return BadRequest();
             }
             return Ok(await _mediator.Send(
                 new EditProduct.Command
                 {
-                    Id = product.Id,
-                    Weight = product.Weight,
-                    Ingredients = product.Ingredients,
-                    Name = product.Name,
-                    Price = product.Price
+                    Id = productDto.Id,
+                    Weight = productDto.Weight,
+                    Ingredients = productDto.Ingredients,
+                    Name = productDto.Name,
+                    Price = productDto.Price
                 }));
             //command));
         }

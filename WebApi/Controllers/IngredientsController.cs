@@ -1,7 +1,6 @@
-﻿using Entities.Domain;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using UseCases.API.Deliveries.Dto;
+using UseCases.API.Dto;
 using UseCases.API.Ingredients;
 
 namespace WebApi.Controllers
@@ -17,26 +16,26 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IngredientDto> GetIngredient(int id) => await _mediator.Send(new GetIngredientById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateIngredient(Ingredient ingredient) //[FromBody] AddIngredient.Command command)
+        public async Task<ActionResult> CreateIngredient(IngredientDto ingredientDto) //[FromBody] AddIngredient.Command command)
         {
             var createIngredientId = await _mediator.Send(new AddIngredient.Command()
             {
-                Name = ingredient.Name,
-                ProductId = ingredient.ProductId
+                Name = ingredientDto.Name,
+                ProductId = ingredientDto.ProductId
             }); // command);
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateIngredient(int id, Ingredient ingredient) //[FromBody] EditIngredient.Command command)
+        public async Task<IActionResult> UpdateIngredient(int id, IngredientDto ingredientDto) //[FromBody] EditIngredient.Command command)
         {
-            if (id != ingredient.Id)
+            if (id != ingredientDto.Id)
             {
                 return BadRequest();
             }
             return Ok(await _mediator.Send(new EditIngredient.Command()
             {
-                Id = ingredient.Id,
-                Name = ingredient.Name
+                Id = ingredientDto.Id,
+                Name = ingredientDto.Name
             })); //command));
         }
 

@@ -1,8 +1,9 @@
-﻿using Entities;
+﻿using AutoMapper;
 using Entities.Domain;
 using MediatR;
 using Persistence.MsSql;
-using UseCases.API.Deliveries.Dto;
+using UseCases.API.Dto;
+using UseCases.API.Exceptions;
 
 namespace UseCases.API.Deliveries
 {
@@ -15,17 +16,23 @@ namespace UseCases.API.Deliveries
         public class QueryHandler : IRequestHandler<Query, DeliveryDto>
         {
             private readonly DataContext _context;
-            public QueryHandler(DataContext context) => _context = context;
+            private readonly IMapper _mapper;
+            public QueryHandler(DataContext context, IMapper mapper)
+            {
+                _context = context;
+                _mapper = mapper;
+            }
+
             public async Task<DeliveryDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 Delivery? delivery = await _context.Deliveries.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                return new DeliveryDto()
+                if (delivery == null)
                 {
-                    TimeSpan = delivery.TimeSpan,
-                    Price = delivery.Price,
-                    ServiceName = delivery.ServiceName,
-                    Id = delivery.Id
-                };
+                    throw new EntityNotFoundException("Delivery not found");
+                }
+                DeliveryDto deliveryDto = new();
+                _mapper.Map(delivery, deliveryDto);
+                return deliveryDto;
             }
         }
     }
