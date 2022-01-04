@@ -12,8 +12,8 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20211228063224_EntityAdded")]
-    partial class EntityAdded
+    [Migration("20220104183051_First")]
+    partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -165,13 +165,11 @@ namespace Persistence.MsSql.Migrations
 
             modelBuilder.Entity("Entities.Domain.Ingredient", b =>
                 {
-                    b.HasOne("Entities.Domain.Product", "Product")
+                    b.HasOne("Entities.Domain.Product", null)
                         .WithMany("Ingredients")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Entities.Domain.Order", b =>

@@ -163,13 +163,11 @@ namespace Persistence.MsSql.Migrations
 
             modelBuilder.Entity("Entities.Domain.Ingredient", b =>
                 {
-                    b.HasOne("Entities.Domain.Product", "Product")
+                    b.HasOne("Entities.Domain.Product", null)
                         .WithMany("Ingredients")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Entities.Domain.Order", b =>
