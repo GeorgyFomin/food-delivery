@@ -1,7 +1,9 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 using UseCases.API.Dto;
+using UseCases.API.Exceptions;
 
 namespace UseCases.API.Ingredients
 {
@@ -11,17 +13,31 @@ namespace UseCases.API.Ingredients
         public class QueryHandler : IRequestHandler<Query, IEnumerable<IngredientDto>>
         {
             private readonly DataContext _context;
-            public QueryHandler(DataContext context) => _context = context;
+            private readonly IMapper _mapper;
+
+            public QueryHandler(DataContext context, IMapper mapper)
+            {
+                _context = context;
+                _mapper = mapper;
+            }
+
             public async Task<IEnumerable<IngredientDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var ingredients = await _context.Ingredients.ToListAsync(cancellationToken);
-                return from ingr in ingredients
-                       select new IngredientDto()
-                       {
-                           Id = ingr.Id,
-                           Name = ingr.Name,
-                           ProductId = ingr.ProductId
-                       };
+                if (ingredients == null)
+                {
+                    throw new EntityNotFoundException("Ingredients not found");
+                }
+                List<IngredientDto> ingredientDtos = new();
+                _mapper.Map(ingredients, ingredientDtos);
+                return ingredientDtos;
+                //return from ingr in ingredients
+                //       select new IngredientDto()
+                //       {
+                //           Id = ingr.Id,
+                //           Name = ingr.Name,
+                //           ProductId = ingr.ProductId
+                //       };
             }
         }
     }

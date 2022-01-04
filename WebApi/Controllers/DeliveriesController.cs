@@ -2,6 +2,7 @@
 using MediatR;
 using UseCases.API.Deliveries;
 using UseCases.API.Dto;
+using UseCases.API.Exceptions;
 
 namespace WebApi.Controllers
 {
@@ -22,10 +23,14 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateDelivery(DeliveryDto deliveryDto) //[FromBody] AddDelivery.Command command)
         {
+            if (deliveryDto == null)
+            {
+                throw new EntityNotFoundException("DeliveryDto not found");
+            }
             int createDeliveryId = await _mediator.Send(new AddDelivery.Command
             {
                 Price = deliveryDto.Price,
-                ServiceName = deliveryDto.ServiceName,
+                ServiceName = deliveryDto.ServiceName ?? "Noname",
                 TimeSpan = deliveryDto.TimeSpan
             }); //command);
             return CreatedAtAction(nameof(GetDelivery), new { id = createDeliveryId }, null);
@@ -41,7 +46,7 @@ namespace WebApi.Controllers
             {
                 Id = deliveryDto.Id,
                 Price = deliveryDto.Price,
-                ServiceName = deliveryDto.ServiceName,
+                ServiceName = deliveryDto.ServiceName ?? "Noname",
                 TimeSpan = deliveryDto.TimeSpan
             })); //command));
         }

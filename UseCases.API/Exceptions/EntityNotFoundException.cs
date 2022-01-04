@@ -3,7 +3,7 @@
 namespace UseCases.API.Exceptions
 {
     [Serializable]
-    internal class EntityNotFoundException : Exception
+    public class EntityNotFoundException : Exception
     {
         public EntityNotFoundException()
         {

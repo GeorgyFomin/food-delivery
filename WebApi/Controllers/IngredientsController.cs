@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.API.Dto;
+using UseCases.API.Exceptions;
 using UseCases.API.Ingredients;
 
 namespace WebApi.Controllers
@@ -18,9 +19,13 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateIngredient(IngredientDto ingredientDto) //[FromBody] AddIngredient.Command command)
         {
+            if (ingredientDto == null)
+            {
+                throw new EntityNotFoundException("IngredientDto not found");
+            }
             var createIngredientId = await _mediator.Send(new AddIngredient.Command()
             {
-                Name = ingredientDto.Name,
+                Name = ingredientDto.Name ?? "Noname",
                 ProductId = ingredientDto.ProductId
             }); // command);
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
@@ -35,7 +40,7 @@ namespace WebApi.Controllers
             return Ok(await _mediator.Send(new EditIngredient.Command()
             {
                 Id = ingredientDto.Id,
-                Name = ingredientDto.Name
+                Name = ingredientDto.Name ?? "Noname"
             })); //command));
         }
 

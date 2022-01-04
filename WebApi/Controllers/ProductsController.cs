@@ -2,6 +2,7 @@
 using MediatR;
 using UseCases.API.Products;
 using UseCases.API.Dto;
+using UseCases.API.Exceptions;
 
 namespace WebApi.Controllers
 {
@@ -18,9 +19,13 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateProduct(ProductDto productDto) //[FromBody] AddProduct.Command command)
         {
+            if (productDto == null)
+            {
+                throw new EntityNotFoundException("ProductDto not found");
+            }
             var createProductId = await _mediator.Send(new AddProduct.Command()
             {
-                Name = productDto.Name,
+                Name = productDto.Name ?? "Noname",
                 Ingredients = productDto.Ingredients,
                 Price = productDto.Price,
                 Weight = productDto.Weight
@@ -40,7 +45,7 @@ namespace WebApi.Controllers
                     Id = productDto.Id,
                     Weight = productDto.Weight,
                     Ingredients = productDto.Ingredients,
-                    Name = productDto.Name,
+                    Name = productDto.Name ?? "Noname",
                     Price = productDto.Price
                 }));
             //command));
