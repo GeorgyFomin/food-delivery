@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
+using UseCases.API.Dto;
 using WpfApp.Commands;
 
 namespace WpfApp.ViewModels
@@ -27,11 +28,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
-        private Ingredient? ingredient;
+        private IngredientDto? ingredient;
         /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
-        private ObservableCollection<Ingredient>? ingredients = new();
+        private ObservableCollection<IngredientDto>? ingredients = new();
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -53,11 +54,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
-        public ObservableCollection<Ingredient>? Ingredients { get => ingredients; set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); } }
+        public ObservableCollection<IngredientDto>? Ingredients { get => ingredients; set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Ingredient? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
+        public IngredientDto? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
         /// </summary>
@@ -86,10 +87,10 @@ namespace WpfApp.ViewModels
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                List<Ingredient>?  ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
+                List<IngredientDto>? ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(result);
                 if (ingredients == null)
                     return;
-                Ingredients = new ObservableCollection<Ingredient>(ingredients);
+                Ingredients = new ObservableCollection<IngredientDto>(ingredients);
                 DataSource = Ingredients;
             }
         }
@@ -107,7 +108,7 @@ namespace WpfApp.ViewModels
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Ingredient = grid.SelectedItem is Ingredient dlv ? dlv : null;
+            Ingredient = grid.SelectedItem is IngredientDto dlv ? dlv : null;
             //MessageBox.Show($"Select {(ingredient != null ? ingredient.Id : "null")}");
         }
         private async Task Commit(int id)
@@ -117,7 +118,8 @@ namespace WpfApp.ViewModels
                 Ingredient.Name = "Noname";
             }
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Ingredient) : await client.PutAsJsonAsync(controllerPath, Ingredient);
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Ingredient) : 
+                await client.PutAsJsonAsync(controllerPath + $"/{id}", Ingredient);
             response.EnsureSuccessStatusCode();
             GetIngredients();
         }
@@ -128,7 +130,7 @@ namespace WpfApp.ViewModels
                 return;
             }
             await Commit(Ingredient.Id);
-            grid.Items.Refresh();
+            //grid.Items.Refresh();
         }
     }
 }

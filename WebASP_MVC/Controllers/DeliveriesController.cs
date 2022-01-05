@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Entities.Domain;
+using UseCases.API.Dto;
 
 namespace WebASP_MVC.Controllers
 {
@@ -13,15 +14,15 @@ namespace WebASP_MVC.Controllers
         // GET: Deliveries
         public async Task<IActionResult> Index()
         {
-            List<Delivery>? deliveries = new();
+            List<DeliveryDto>? deliveryDtos = new();
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path);
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                deliveries = JsonConvert.DeserializeObject<List<Delivery>>(result);
+                deliveryDtos = JsonConvert.DeserializeObject<List<DeliveryDto>>(result);
             }
-            return View(deliveries);
+            return View(deliveryDtos);
         }
         async Task<IActionResult> GetDeliveryById(int? id)
         {
@@ -29,15 +30,15 @@ namespace WebASP_MVC.Controllers
             {
                 return NotFound();
             }
-            Delivery? delivery = null;
+            DeliveryDto? deliveryDto = null;
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                delivery = JsonConvert.DeserializeObject<Delivery>(result);
+                deliveryDto = JsonConvert.DeserializeObject<DeliveryDto>(result);
             }
-            return delivery == null ? NotFound() : View(delivery);
+            return deliveryDto == null ? NotFound() : View(deliveryDto);
         }
         // GET: Deliveries/Details/5
         public async Task<IActionResult> Details(int? id) => await GetDeliveryById(id);
@@ -52,14 +53,14 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] Delivery delivery)
+        public async Task<IActionResult> Create([Bind("ServiceName,Price,TimeSpan,Id")] DeliveryDto deliveryDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(delivery);
+                return View(deliveryDto);
             }
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.PostAsJsonAsync(path, delivery);
+            HttpResponseMessage response = await client.PostAsJsonAsync(path, deliveryDto);
             response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }
@@ -72,21 +73,21 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("ServiceName,Price,TimeSpan,Id")] Delivery delivery)
+        public async Task<IActionResult> Edit([Bind("ServiceName,Price,TimeSpan,Id")] DeliveryDto deliveryDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(delivery);
+                return View(deliveryDto);
             }
             try
             {
                 HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                HttpResponseMessage response = await client.PutAsJsonAsync(path, delivery);
+                HttpResponseMessage response = await client.PutAsJsonAsync(path + $"/{deliveryDto.Id}", deliveryDto);
                 response.EnsureSuccessStatusCode();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (GetDeliveryById(delivery.Id).IsFaulted)
+                if (GetDeliveryById(deliveryDto.Id).IsFaulted)
                 {
                     return NotFound();
                 }

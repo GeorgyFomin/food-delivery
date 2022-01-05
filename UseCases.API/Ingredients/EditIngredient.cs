@@ -10,7 +10,7 @@ namespace UseCases.API.Ingredients
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {

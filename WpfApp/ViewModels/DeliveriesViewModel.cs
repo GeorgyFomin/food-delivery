@@ -10,6 +10,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
+using UseCases.API.Dto;
 using WpfApp.Commands;
 
 namespace WpfApp.ViewModels
@@ -28,11 +29,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
-        private Delivery? delivery;
+        private DeliveryDto? delivery;
         /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
-        private ObservableCollection<Delivery>? deliveries = new();
+        private ObservableCollection<DeliveryDto>? deliveries = new();
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -54,11 +55,11 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
-        public ObservableCollection<Delivery>? Deliveries { get => deliveries; set { deliveries = value; RaisePropertyChanged(nameof(Deliveries)); } }
+        public ObservableCollection<DeliveryDto>? Deliveries { get => deliveries; set { deliveries = value; RaisePropertyChanged(nameof(Deliveries)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Delivery? Delivery { get => delivery; set { delivery = value; RaisePropertyChanged(nameof(Delivery)); } }
+        public DeliveryDto? Delivery { get => delivery; set { delivery = value; RaisePropertyChanged(nameof(Delivery)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
         /// </summary>
@@ -87,10 +88,10 @@ namespace WpfApp.ViewModels
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                List<Delivery>? deliveries = JsonConvert.DeserializeObject<List<Delivery>>(result);
+                List<DeliveryDto>? deliveries = JsonConvert.DeserializeObject<List<DeliveryDto>>(result);
                 if (deliveries == null)
                     return;
-                Deliveries = new ObservableCollection<Delivery>(deliveries);
+                Deliveries = new ObservableCollection<DeliveryDto>(deliveries);
                 DataSource = Deliveries;
             }
         }
@@ -108,7 +109,7 @@ namespace WpfApp.ViewModels
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Delivery = grid.SelectedItem is Delivery dlv ? dlv : null;
+            Delivery = grid.SelectedItem is DeliveryDto dlv ? dlv : null;
             //MessageBox.Show($"Select {(delivery != null ? delivery.Id : "null")}");
         }
         private async Task Commit(int id)
@@ -118,7 +119,8 @@ namespace WpfApp.ViewModels
                 Delivery.ServiceName = "Noname";
             }
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Delivery) : await client.PutAsJsonAsync(controllerPath, Delivery);
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(controllerPath, Delivery) :
+                await client.PutAsJsonAsync(controllerPath + $"/{id}", Delivery);
             //+$"/{id}"
             response.EnsureSuccessStatusCode();
             GetDeliveries();

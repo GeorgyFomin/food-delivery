@@ -81,7 +81,7 @@ namespace WebASP_MVC.Controllers
             try
             {
                 HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                HttpResponseMessage response = await client.PutAsJsonAsync(path, ingredientDto);// + $"/{id}"
+                HttpResponseMessage response = await client.PutAsJsonAsync(path + $"/{ingredientDto.Id}", ingredientDto);// 
                 response.EnsureSuccessStatusCode();
             }
             catch (DbUpdateConcurrencyException)

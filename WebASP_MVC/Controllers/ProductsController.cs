@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Entities.Domain;
+using UseCases.API.Dto;
 
 namespace WebASP_MVC.Controllers
 {
@@ -13,13 +14,13 @@ namespace WebASP_MVC.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            List<Product>? products = new();
+            List<ProductDto>? products = new();
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path);
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                products = JsonConvert.DeserializeObject<List<Product>>(result);
+                products = JsonConvert.DeserializeObject<List<ProductDto>>(result);
             }
             return View(products);
         }
@@ -27,13 +28,13 @@ namespace WebASP_MVC.Controllers
         {
             if (id == null)
                 return NotFound();
-            Product? product = null;
+            ProductDto? product = null;
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                product = JsonConvert.DeserializeObject<Product>(result);
+                product = JsonConvert.DeserializeObject<ProductDto>(result);
             }
             return product == null ? NotFound() : View(product);
         }
@@ -50,7 +51,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Price,Weight,Ingredients")] Product product)
+        public async Task<IActionResult> Create([Bind("Name,Price,Weight,Ingredients")] ProductDto product)
         {
             if (!ModelState.IsValid)
             {
@@ -70,7 +71,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("Name,Price,Weight,Ingredients,Id")] Product product)
+        public async Task<IActionResult> Edit([Bind("Name,Price,Weight,Ingredients,Id")] ProductDto product)
         {
             if (!ModelState.IsValid)
             {
@@ -79,7 +80,7 @@ namespace WebASP_MVC.Controllers
             try
             {
                 HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                HttpResponseMessage response = await client.PutAsJsonAsync(path, product);
+                HttpResponseMessage response = await client.PutAsJsonAsync(path + $"/{product.Id}", product);
                 response.EnsureSuccessStatusCode();
             }
             catch (DbUpdateConcurrencyException)

@@ -10,7 +10,7 @@ namespace UseCases.API.Products
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public decimal Price { get; set; }
             public double Weight { get; set; }
             public ICollection<Ingredient>? Ingredients { get; set; }

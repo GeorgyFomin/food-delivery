@@ -11,6 +11,7 @@ using System.Windows.Input;
 using WpfApp.Commands;
 using System.Linq;
 using Entities.Domain;
+using UseCases.API.Dto;
 
 namespace WpfApp.ViewModels
 {
@@ -32,15 +33,15 @@ namespace WpfApp.ViewModels
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
-        private Product? product;
+        private ProductDto? product;
         /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
-        private ObservableCollection<Product>? products = new();
+        private ObservableCollection<ProductDto>? products = new();
         /// <summary>
         /// Хранит ссылку на текущий выделенный объект модели.
         /// </summary>
-        private Ingredient? ingredient;
+        private IngredientDto? ingredient;
         /// <summary>
         /// Хранит ссылку на объект-источник данных в таблице UI.
         /// </summary>
@@ -60,38 +61,51 @@ namespace WpfApp.ViewModels
         private RelayCommand? ingrRemoveCommand;
         private RelayCommand? ingrSelectionCommand;
         private RelayCommand? ingrRowEditEndCommand;
+        private bool ingrEnabled;
         #endregion
         #region Properties
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
-        public ObservableCollection<Product>? Products { get => products; set { products = value; RaisePropertyChanged(nameof(Products)); } }
+        public ObservableCollection<ProductDto>? Products { get => products; set { products = value; RaisePropertyChanged(nameof(Products)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Product? Product
+        public ProductDto? Product
         {
             get => product; set
             {
                 product = value;
                 RaisePropertyChanged(nameof(Product));
-                ProductName = Product == null ? string.Empty : Product.Name;
+                if (Product == null || Product.Id == 0 || Product.Ingredients == null)
+                {
+                    ProductName = string.Empty;
+                    IngrEnabled = false;
+                    Ingredients.Clear();
+                }
+                else
+                {
+                    ProductName = Product.Name;
+                    IngrEnabled = true;
+                }
             }
         }
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
         /// </summary>
-        public Ingredient? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
-        private List<Ingredient> allIngredients = new();
-        public List<Ingredient> AllIngredients { get => allIngredients; set { allIngredients = value; RaisePropertyChanged(nameof(AllIngredients)); } }
-        private ObservableCollection<Ingredient> ingredients = new();
-        public ObservableCollection<Ingredient> Ingredients
+        public IngredientDto? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
+        private List<IngredientDto> allIngredients = new();
+        public List<IngredientDto> AllIngredients { get => allIngredients; set { allIngredients = value; RaisePropertyChanged(nameof(AllIngredients)); } }
+        private ObservableCollection<IngredientDto> ingredients = new();
+        public ObservableCollection<IngredientDto> Ingredients
         {
             get => ingredients;
             set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); }
         }
         private string productName = string.Empty;
         public string ProductName { get => productName; set { productName = value ?? string.Empty; RaisePropertyChanged(nameof(ProductName)); } }
+        public bool IngrEnabled { get => ingrEnabled; set { ingrEnabled = value; RaisePropertyChanged(nameof(IngrEnabled)); } }
+
         /// <summary>
         /// Устанавливает и возвращает ссылку на текущий источник данных в таблице. 
         /// </summary>
@@ -119,17 +133,17 @@ namespace WpfApp.ViewModels
         }
         public async void ResetIngredients()
         {
-            List<Ingredient>? ingredients = null;
+            List<IngredientDto>? ingredients = null;
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(ingredientControllerPath);
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
+                ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(result);
             }
             AllIngredients = ingredients ?? new();
-            Ingredients = Product == null || ingredients == null ? new ObservableCollection<Ingredient>() :
-                new ObservableCollection<Ingredient>(ingredients.Where(ingr => ingr.ProductId == Product.Id));
+            Ingredients = Product == null || ingredients == null ? new ObservableCollection<IngredientDto>() :
+                new ObservableCollection<IngredientDto>(ingredients.Where(ingr => ingr.ProductId == Product.Id));
         }
         public async void GetProducts()
         {
@@ -138,10 +152,10 @@ namespace WpfApp.ViewModels
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                List<Product>? products = JsonConvert.DeserializeObject<List<Product>>(result);
+                List<ProductDto>? products = JsonConvert.DeserializeObject<List<ProductDto>>(result);
                 if (products == null)
                     return;
-                Products = new ObservableCollection<Product>(products);
+                Products = new ObservableCollection<ProductDto>(products);
                 DataSource = Products;
             }
         }
@@ -161,9 +175,9 @@ namespace WpfApp.ViewModels
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Product = grid.SelectedItem is Product product ? product : null;
+            Product = grid.SelectedItem is ProductDto product ? product : null;
             if (Product != null)
-                Ingredients = new ObservableCollection<Ingredient>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
+                Ingredients = new ObservableCollection<IngredientDto>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
         private async Task Commit(int id)
@@ -173,8 +187,8 @@ namespace WpfApp.ViewModels
                 Product.Name = "Noname";
             }
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(productControllerPath, Product) : await client.PutAsJsonAsync(productControllerPath, Product);
-            //+$"/{id}"
+            HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(productControllerPath, Product) :
+                await client.PutAsJsonAsync(productControllerPath + $"/{id}", Product);
             response.EnsureSuccessStatusCode();
             GetProducts();
         }
@@ -205,14 +219,14 @@ namespace WpfApp.ViewModels
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Ingredient = grid.SelectedItem is Ingredient ingredient ? ingredient : null;
+            Ingredient = grid.SelectedItem is IngredientDto ingredient ? ingredient : null;
             //MessageBox.Show($"Select {(Ingredient != null ? Ingredient.Id : "null")}");
         }
         private async Task CommitIngr(int id)
         {
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(ingredientControllerPath, Ingredient) :
-                await client.PutAsJsonAsync(ingredientControllerPath, Ingredient);
+                await client.PutAsJsonAsync(ingredientControllerPath + $"/{id}", Ingredient);
             response.EnsureSuccessStatusCode();
             ResetIngredients();
         }
