@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-
+using UseCases.API.Dto;
 
 namespace WebASP_MVC.Controllers
 {
@@ -14,29 +14,30 @@ namespace WebASP_MVC.Controllers
         // GET: Ingredients
         public async Task<IActionResult> Index()
         {
-            List<Ingredient>? ingredients = new();
+            List<IngredientDto>? ingredientDtos = new();
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path);
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(result);
+                ingredientDtos = JsonConvert.DeserializeObject<List<IngredientDto>>(result);
             }
-            return View(ingredients);
+            return View(ingredientDtos);
         }
         async Task<IActionResult> GetIngredientById(int? id)
         {
             if (id == null)
                 return NotFound();
-            Ingredient? ingredient = null;
+            IngredientDto? ingredientDto = null;
+
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
             if (response.IsSuccessStatusCode)
             {
                 var result = response.Content.ReadAsStringAsync().Result;
-                ingredient = JsonConvert.DeserializeObject<Ingredient>(result);
+                ingredientDto = JsonConvert.DeserializeObject<IngredientDto>(result);
             }
-            return ingredient == null ? NotFound() : View(ingredient);
+            return ingredientDto == null ? NotFound() : View(ingredientDto);
         }
         // GET: Ingredients/Details/5
         public async Task<IActionResult> Details(int? id) => await GetIngredientById(id);
@@ -51,14 +52,14 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name, ProductId")] Ingredient ingredient)
+        public async Task<IActionResult> Create([Bind("Name, ProductId")] IngredientDto ingredientDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(ingredient);
+                return View(ingredientDto);
             }
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.PostAsJsonAsync(path, ingredient);
+            HttpResponseMessage response = await client.PostAsJsonAsync(path, ingredientDto);
             response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }
@@ -71,21 +72,21 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("ProductId, Name, Id")] Ingredient ingredient)
+        public async Task<IActionResult> Edit([Bind("ProductId, Name, Id")] IngredientDto ingredientDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(ingredient);
+                return View(ingredientDto);
             }
             try
             {
                 HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-                HttpResponseMessage response = await client.PutAsJsonAsync(path, ingredient);// + $"/{id}"
+                HttpResponseMessage response = await client.PutAsJsonAsync(path, ingredientDto);// + $"/{id}"
                 response.EnsureSuccessStatusCode();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (GetIngredientById(ingredient.Id).IsFaulted)
+                if (GetIngredientById(ingredientDto.Id).IsFaulted)
                 {
                     return NotFound();
                 }
