@@ -1,15 +1,10 @@
-﻿using Entities.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CSharpFunctionalExtensions;
 
 namespace UseCases.API.Dto
 {
-    public class IngredientDto
+    public class IngredientDto : Entity<int>
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public string? Name { get; set; }
         public int ProductId { get; set; }
     }

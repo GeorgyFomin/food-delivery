@@ -1,16 +1,11 @@
-﻿using Entities.Domain;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CSharpFunctionalExtensions;
+using Entities.Domain;
 
 namespace UseCases.API.Dto
 {
-    public class ProductDto
+    public class ProductDto : Entity<int>
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public string? Name { get; set; }
         public decimal Price { get; set; }
         public double Weight { get; set; }
