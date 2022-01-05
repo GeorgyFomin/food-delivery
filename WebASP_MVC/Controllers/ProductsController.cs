@@ -14,6 +14,18 @@ namespace WebASP_MVC.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
+            //List<ProductDto>? products = new();
+            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            //HttpResponseMessage response = await client.GetAsync(path);
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var result = response.Content.ReadAsStringAsync().Result;
+            //    products = JsonConvert.DeserializeObject<List<ProductDto>>(result);
+            //}
+            return View(await GetProductsAsync()); //View(products);
+        }
+        static async Task<List<ProductDto>?> GetProductsAsync()
+        {
             List<ProductDto>? products = new();
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(path);
@@ -22,21 +34,25 @@ namespace WebASP_MVC.Controllers
                 var result = response.Content.ReadAsStringAsync().Result;
                 products = JsonConvert.DeserializeObject<List<ProductDto>>(result);
             }
-            return View(products);
+            return products;
         }
+
         async Task<IActionResult> GetProductById(int? id)
         {
             if (id == null)
                 return NotFound();
-            ProductDto? product = null;
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                product = JsonConvert.DeserializeObject<ProductDto>(result);
-            }
-            return product == null ? NotFound() : View(product);
+            ProductDto? productDto = null;
+            List<ProductDto>? productDtos = await GetProductsAsync();
+            if (productDtos != null)
+                productDto = productDtos.SingleOrDefault(p => p.Id == id);
+            //HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            //HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var result = response.Content.ReadAsStringAsync().Result;
+            //    product = JsonConvert.DeserializeObject<ProductDto>(result);
+            //}
+            return productDto == null ? NotFound() : View(productDto);
         }
         // GET: Products/Products/5
         public async Task<IActionResult> Details(int? id) => await GetProductById(id);

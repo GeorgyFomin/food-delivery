@@ -26,7 +26,7 @@ namespace UseCases.API.Products
 
             public async Task<ProductDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                Product? product = await _context.Products.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                Product? product = await _context.Products .FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (product == null)
                 {
                     throw new EntityNotFoundException("Product not found");
