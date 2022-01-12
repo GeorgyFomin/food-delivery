@@ -85,7 +85,7 @@ namespace WpfApp.ViewModels
                 }
                 else
                 {
-                    ProductName = Product.Name;
+                    ProductName = Product == null || Product.Name == null ? string.Empty : Product.Name;
                     IngrEnabled = true;
                 }
             }
@@ -142,8 +142,13 @@ namespace WpfApp.ViewModels
                 ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(result);
             }
             AllIngredients = ingredients ?? new();
-            Ingredients = Product == null || ingredients == null ? new ObservableCollection<IngredientDto>() :
-                new ObservableCollection<IngredientDto>(ingredients.Where(ingr => ingr.ProductId == Product.Id));
+            Ingredients = Product == null ||
+                //Product.Ingredients == null
+                ingredients == null
+                ? new ObservableCollection<IngredientDto>() :
+            new ObservableCollection<IngredientDto>(
+            //(IEnumerable<IngredientDto>)Product.Ingredients);
+            ingredients.Where(ingr => ingr.ProductId == Product.Id));
         }
         public async void GetProducts()
         {
@@ -176,8 +181,11 @@ namespace WpfApp.ViewModels
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
             Product = grid.SelectedItem is ProductDto product ? product : null;
-            if (Product != null)
-                Ingredients = new ObservableCollection<IngredientDto>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
+            if (Product != null)// && Product.Ingredients != null)
+                Ingredients =
+                new ObservableCollection<IngredientDto>(
+//(IEnumerable<IngredientDto>)Product.Ingredients);
+AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
         private async Task Commit(int id)
@@ -224,6 +232,10 @@ namespace WpfApp.ViewModels
         }
         private async Task CommitIngr(int id)
         {
+            //if (Ingredient != null && (string.IsNullOrEmpty(Ingredient.Name) || string.IsNullOrEmpty(Ingredient.Name.Trim())))
+            //{
+            //    Ingredient.Name = "Noname";
+            //}
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(ingredientControllerPath, Ingredient) :
                 await client.PutAsJsonAsync(ingredientControllerPath + $"/{id}", Ingredient);
@@ -232,7 +244,7 @@ namespace WpfApp.ViewModels
         }
         private async void IngrRowEditEndAsync(object e)
         {
-            if (Ingredient == null || e == null)// || e is not DataGrid grid
+            if (Ingredient == null || e == null)// || e is not DataGrid grid)
             {
                 return;
             }

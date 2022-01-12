@@ -31,13 +31,6 @@ namespace UseCases.API.Ingredients
                 List<IngredientDto> ingredientDtos = new();
                 _mapper.Map(ingredients, ingredientDtos);
                 return ingredientDtos;
-                //return from ingr in ingredients
-                //       select new IngredientDto()
-                //       {
-                //           Id = ingr.Id,
-                //           Name = ingr.Name,
-                //           ProductId = ingr.ProductId
-                //       };
             }
         }
     }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UseCases.API.Dto
 {
-    public class DeliveryDto //: Entity<int>
+    public class DeliveryDto 
     {
         public int Id { get; set; }
         public string? ServiceName { get; set; }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UseCases.API.Dto
 {
-    public class ProductDto //: Entity<int>
+    public class ProductDto
     {
         public int Id { get; set; }
         public string? Name { get; set; }

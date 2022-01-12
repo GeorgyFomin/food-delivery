@@ -11,7 +11,22 @@ namespace WebApi.Data
         /// Хранит ссылку на генератор случайных чисел.
         /// </summary>
         static public readonly Random random = new();
-        private static readonly List<Product> Products = GetRandomProducts(random.Next(1, 5), random);
+        //private static readonly List<Ingredient> ingredients = new()
+        //{
+        //    new() { Name = "one", ProductId = null },
+        //    new() { Name = "two", ProductId = null }
+        //}; //GetRandomIngredients(random.Next(3, 6), random);
+        private static readonly List<Product> products = GetRandomProducts(random.Next(3, 5), random);
+        //static List<Ingredient> GetIngredients()
+        //{
+        //    List<Ingredient> list = new();
+        //    for (int i = 0; i < (random.NextDouble() < .5 ? 1 : 2); i++)
+        //    {
+        //        list.Add(ingredients[i]);
+        //    }
+        //    return list;
+        //    //return new(Enumerable.Range(0, ingredients.Count).Select(index => ingredients[random.Next(0, ingredients.Count - 1)]).ToList());
+        //}
         /// <summary>
         /// Возвращает список случайных продуктов.
         /// </summary>
@@ -24,7 +39,8 @@ namespace WebApi.Data
                 Price = random.Next(1, 100),
                 Weight = random.Next(1, 100),
                 Name = GetRandomString(random.Next(1, 6), random),
-                Ingredients = GetRandomIngredients(random.Next(1, 20), random)
+                Ingredients = //GetIngredients()
+                GetRandomIngredients(random.Next(1, 10), random)
             }).ToList());
         /// <summary>
         /// Возвращает список случайных ингредиентов.
@@ -32,10 +48,12 @@ namespace WebApi.Data
         /// <param name="v">Число ингредиентов.</param>
         /// <param name="random">Генератор случайных чисел.</param>
         /// <returns></returns>
-        private static List<Ingredient> GetRandomIngredients(int v, Random random) => new(Enumerable.Range(0, v).Select(index => new Ingredient()
-        {
-            Name = GetRandomString(random.Next(3, 6), random)
-        }).ToList());
+        private static List<Ingredient> GetRandomIngredients(int v, Random random) =>
+                new(Enumerable.Range(0, v).Select(index => new Ingredient()
+                {
+                    Name = GetRandomString(random.Next(3, 6), random)
+                }
+            ).ToList());
         /// <summary>
         /// Генерирует случайную строку из латинских букв нижнего регистра..
         /// </summary>
@@ -66,7 +84,13 @@ namespace WebApi.Data
             {
                 context.Products.Remove(product);
             }
-            context.Products.AddRange(Products);
+            context.Products.AddRange(products);
+            //context.Ingredients.AddRange(ingredients);
+            //foreach (Product product in products)
+            //{
+            //    List<Ingredient> ingredients1 = new(Enumerable.Range(0, ingredients.Count).Select(index => ingredients[random.Next(0, ingredients.Count - 1)]).ToList());
+            //    product.Ingredients.AddRange(ingredients1);
+            //}
             context.SaveChanges();
         }
     }

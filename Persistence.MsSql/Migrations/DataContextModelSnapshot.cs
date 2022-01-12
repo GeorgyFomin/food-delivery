@@ -76,7 +76,7 @@ namespace Persistence.MsSql.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -165,9 +165,7 @@ namespace Persistence.MsSql.Migrations
                 {
                     b.HasOne("Entities.Domain.Product", null)
                         .WithMany("Ingredients")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("Entities.Domain.Order", b =>

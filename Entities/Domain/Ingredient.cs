@@ -9,6 +9,6 @@ namespace Entities.Domain
         [Required]
         public string? Name { get; set; }
         // Foreign Key
-        public int ProductId { get; set; }
+        public int? ProductId { get; set; }
     }
 }
