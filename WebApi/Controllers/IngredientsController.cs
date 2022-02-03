@@ -25,10 +25,9 @@ namespace WebApi.Controllers
             }
             var createIngredientId = await _mediator.Send(new AddIngredient.Command()
             {
-                Name = ingredientDto.Name ?? "Noname"
-                ,
+                Name = ingredientDto.Name ?? "Noname",
                 ProductId = ingredientDto.ProductId
-            }); // command);
+            });
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
         [HttpPut("{id}")]
@@ -41,7 +40,8 @@ namespace WebApi.Controllers
             return Ok(await _mediator.Send(new EditIngredient.Command()
             {
                 Id = ingredientDto.Id,
-                Name = ingredientDto.Name ?? "Noname"
+                Name = ingredientDto.Name ?? "Noname",
+                ProductId = ingredientDto.ProductId
             })); //command));
         }
 

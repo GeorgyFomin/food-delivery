@@ -6,7 +6,6 @@ namespace Entities.Domain
 {
     public class Product : Entity<int>
     {
-        //public int Id { get; set; }
         [Required]
         public string? Name { get; set; }
         [DisplayFormat(DataFormatString = "{0:n0}", ApplyFormatInEditMode = true)]

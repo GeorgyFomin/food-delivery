@@ -81,7 +81,8 @@ namespace WpfApp.ViewModels
                 {
                     ProductName = string.Empty;
                     IngrEnabled = false;
-                    Ingredients.Clear();
+                    if (Ingredients != null)
+                        Ingredients.Clear();
                 }
                 else
                 {
@@ -96,8 +97,8 @@ namespace WpfApp.ViewModels
         public IngredientDto? Ingredient { get => ingredient; set { ingredient = value; RaisePropertyChanged(nameof(Ingredient)); } }
         private List<IngredientDto> allIngredients = new();
         public List<IngredientDto> AllIngredients { get => allIngredients; set { allIngredients = value; RaisePropertyChanged(nameof(AllIngredients)); } }
-        private ObservableCollection<IngredientDto> ingredients = new();
-        public ObservableCollection<IngredientDto> Ingredients
+        private ObservableCollection<IngredientDto>? ingredients = new();
+        public ObservableCollection<IngredientDto>? Ingredients
         {
             get => ingredients;
             set { ingredients = value; RaisePropertyChanged(nameof(Ingredients)); }
@@ -128,7 +129,7 @@ namespace WpfApp.ViewModels
         #endregion
         public ProductsViewModel()
         {
-            GetProducts();
+            ResetProducts();
             ResetIngredients();
         }
         public async void ResetIngredients()
@@ -142,15 +143,10 @@ namespace WpfApp.ViewModels
                 ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(result);
             }
             AllIngredients = ingredients ?? new();
-            Ingredients = Product == null ||
-                //Product.Ingredients == null
-                ingredients == null
-                ? new ObservableCollection<IngredientDto>() :
-            new ObservableCollection<IngredientDto>(
-            //(IEnumerable<IngredientDto>)Product.Ingredients);
-            ingredients.Where(ingr => ingr.ProductId == Product.Id));
+            Ingredients = Product == null || ingredients == null ? new ObservableCollection<IngredientDto>() :
+                new ObservableCollection<IngredientDto>(ingredients.Where(ingr => ingr.ProductId == Product.Id));
         }
-        public async void GetProducts()
+        public async void ResetProducts()
         {
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.GetAsync(productControllerPath);
@@ -174,42 +170,32 @@ namespace WpfApp.ViewModels
             if (Products != null)
                 _ = Products.Remove(Product);
             Product = null;
-            Ingredients.Clear();
         }
         private void ItemSelection(object e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
             Product = grid.SelectedItem is ProductDto product ? product : null;
-            if (Product != null)// && Product.Ingredients != null)
-                Ingredients =
-                new ObservableCollection<IngredientDto>(
-//(IEnumerable<IngredientDto>)Product.Ingredients);
-AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
+            if (Product != null)
+                Ingredients = new ObservableCollection<IngredientDto>(AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             //MessageBox.Show($"Select {(product != null ? product.Id : "null")}");
         }
-        private async Task Commit(int id)
+        private async Task CreateOrUpdateProduct(int id)
         {
             if (Product != null && (string.IsNullOrEmpty(Product.Name) || string.IsNullOrEmpty(Product.Name.Trim())))
-            {
                 Product.Name = "Noname";
-            }
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage? response = id == 0 ? await client.PostAsJsonAsync(productControllerPath, Product) :
                 await client.PutAsJsonAsync(productControllerPath + $"/{id}", Product);
             response.EnsureSuccessStatusCode();
-            GetProducts();
+            ResetProducts();
         }
         private async void ItemRowEditEndAsync(object e)
         {
-            if (Product == null || e == null || e is not DataGrid grid)
-            {
-                return;
-            }
-            await Commit(Product.Id);
-            grid.Items.Refresh();
+            if (Product != null)
+                await CreateOrUpdateProduct(Product.Id);
         }
-        private async void IngrRemoveAsync(object commandParameter)
+        private async void IngrRemoveAsync(object e)
         {
             if (Ingredient == null)
                 return;
@@ -220,7 +206,6 @@ AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             {
                 _ = Ingredients.Remove(Ingredient);
                 Ingredient = null;
-                ResetIngredients();
             }
         }
         private void IngrSelection(object e)
@@ -230,7 +215,7 @@ AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
             Ingredient = grid.SelectedItem is IngredientDto ingredient ? ingredient : null;
             //MessageBox.Show($"Select {(Ingredient != null ? Ingredient.Id : "null")}");
         }
-        private async Task CommitIngr(int id)
+        private async Task CreateOrUpdateIngredient(int id)
         {
             //if (Ingredient != null && (string.IsNullOrEmpty(Ingredient.Name) || string.IsNullOrEmpty(Ingredient.Name.Trim())))
             //{
@@ -244,16 +229,11 @@ AllIngredients.Where(ingr => ingr.ProductId == Product.Id));
         }
         private async void IngrRowEditEndAsync(object e)
         {
-            if (Ingredient == null || e == null)// || e is not DataGrid grid)
-            {
-                return;
-            }
+            if (Ingredient == null) return;
             if (Ingredient.Id == 0 && Product != null)
-            {
+                // Create
                 Ingredient.ProductId = Product.Id;
-            }
-            await CommitIngr(Ingredient.Id);
-            //grid.Items.Refresh();
+            await CreateOrUpdateIngredient(Ingredient.Id);
         }
     }
 }

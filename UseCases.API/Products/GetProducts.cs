@@ -23,7 +23,7 @@ namespace UseCases.API.Products
 
             public async Task<IEnumerable<ProductDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var products = await _context.Products.Include(e => e.Ingredients).ToListAsync(cancellationToken);
+                var products = await _context.Products.Include(e => e.Ingredients).ToListAsync(cancellationToken);//.Include(e => e.Ingredients)
                 if (products == null)
                 {
                     throw new EntityNotFoundException("Products not found");

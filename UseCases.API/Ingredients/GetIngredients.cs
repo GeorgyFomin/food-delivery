@@ -23,7 +23,7 @@ namespace UseCases.API.Ingredients
 
             public async Task<IEnumerable<IngredientDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var ingredients = await _context.Ingredients.ToListAsync(cancellationToken);
+                var ingredients = await _context.Ingredients.ToListAsync(cancellationToken);//.Include(e => e.Products)
                 if (ingredients == null)
                 {
                     throw new EntityNotFoundException("Ingredients not found");

@@ -10,6 +10,7 @@ namespace WebASP_MVC.Controllers
     {
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         private static readonly string path = "api/Products";
+        ProductDto? productDto = null;
 
         // GET: Products
         public async Task<IActionResult> Index()
@@ -41,7 +42,7 @@ namespace WebASP_MVC.Controllers
         {
             if (id == null)
                 return NotFound();
-            ProductDto? productDto = null;
+            productDto = null;
             List<ProductDto>? productDtos = await GetProductsAsync();
             if (productDtos != null)
                 productDto = productDtos.SingleOrDefault(p => p.Id == id);
@@ -67,7 +68,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Price,Weight,Ingredients")] ProductDto product)
+        public async Task<IActionResult> Create([Bind("Name,Price,Weight,Ingredients")] Product product)
         {
             if (!ModelState.IsValid)
             {
@@ -120,10 +121,31 @@ namespace WebASP_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //List<ProductDto>? productDtos = await GetProductsAsync();
+            //if (productDtos != null)
+            //    productDto = productDtos.SingleOrDefault(p => p.Id == id);
+            //if (productDto != null && productDto.Ingredients != null)
+            //{
+            //    while (productDto.Ingredients.Count > 0)
+            //    {
+            //        Ingredient ingredient = productDto.Ingredients.ToList()[^1];
+            //        await RemoveIngredient(ingredient);
+            //    }
+            //    productDto.Ingredients.Clear();
+            //    productDto.Ingredients = null;
+            //}
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.DeleteAsync(path + $"/{id}");
             response.EnsureSuccessStatusCode();
             return RedirectToAction(nameof(Index));
         }
+        //private async Task RemoveIngredient(Ingredient ingredient)
+        //{
+        //    HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+        //    HttpResponseMessage response = await client.DeleteAsync("api/Ingredients" + $"/{ingredient.Id}");
+        //    response.EnsureSuccessStatusCode();
+        //    if (productDto != null && productDto.Ingredients != null)
+        //        productDto.Ingredients.Remove(ingredient);
+        //}
     }
 }

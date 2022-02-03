@@ -108,7 +108,7 @@ namespace WpfApp.ViewModels
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            Ingredient = grid.SelectedItem is IngredientDto dlv ? dlv : null;
+            Ingredient = grid.SelectedItem is IngredientDto ingredientDto ? ingredientDto : null;
             //MessageBox.Show($"Select {(ingredient != null ? ingredient.Id : "null")}");
         }
         private async Task Commit(int id)

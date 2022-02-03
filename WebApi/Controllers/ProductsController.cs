@@ -3,6 +3,8 @@ using MediatR;
 using UseCases.API.Products;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
+using Entities.Domain;
+using Persistence.MsSql;
 
 namespace WebApi.Controllers
 {

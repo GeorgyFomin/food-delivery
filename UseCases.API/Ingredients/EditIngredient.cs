@@ -11,6 +11,9 @@ namespace UseCases.API.Ingredients
         {
             public int Id { get; set; }
             public string? Name { get; set; }
+            //public ICollection<Product>? Products { get; set; }
+            //public Product? Product { get; set; }
+            public int? ProductId { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {
@@ -23,6 +26,9 @@ namespace UseCases.API.Ingredients
                 if (ingredient == null)
                     return default;
                 ingredient.Name = request.Name;
+                ingredient.ProductId = request.ProductId;
+                //ingredient.Product = request.Product;
+                //ingredient.Products = request.Products;
                 await _context.SaveChangesAsync(cancellationToken);
                 return ingredient.Id;
             }
