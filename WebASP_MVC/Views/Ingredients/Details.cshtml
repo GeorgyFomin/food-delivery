@@ -1,14 +1,15 @@
-﻿@*
+﻿@using WebASP_MVC.Controllers
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model UseCases.API.Dto.IngredientDto//Entities.Domain.Ingredient
+@model UseCases.API.Dto.IngredientDto
 @{
     ViewData["Title"] = "Details";
 }
 <h1>Details</h1>
 
 <div>
-    <h4>Delivery</h4>
+    <h4>Ingredient</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -17,10 +18,33 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
+        @if (Model != null && Model.ProductsIngredients != null && Model.ProductsIngredients.Count > 0)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.ProductsIngredients)
+            </dt>
+            <dd class="col-sm-10">
+                <table class="table">
+                    <tr>Product Name</tr>
+                    @if (IngredientsController.ProductsWithIngredient != null)
+                        @foreach (var item in IngredientsController.ProductsWithIngredient)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                            </tr>
+                        }
+                </table>
+            </dd>
+        }
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @if (Model != null)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    }
+    |<a asp-action="Index">Back to List</a>
 </div>
 

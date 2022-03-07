@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Compile Remove="Domain\Ided.cs" />
-    <Compile Remove="Domain\Named.cs" />
   </ItemGroup>
 
   <ItemGroup>

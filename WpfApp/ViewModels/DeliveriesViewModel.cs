@@ -95,7 +95,7 @@ namespace WpfApp.ViewModels
                 DataSource = Deliveries;
             }
         }
-        private async void ItemRemoveAsync(object e)
+        private async void ItemRemoveAsync(object? e)
         {
             if (Delivery == null)
                 return;
@@ -105,7 +105,7 @@ namespace WpfApp.ViewModels
             if (Deliveries != null)
                 _ = Deliveries.Remove(Delivery);
         }
-        private void ItemSelection(object e)
+        private void ItemSelection(object? e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
@@ -125,7 +125,7 @@ namespace WpfApp.ViewModels
             response.EnsureSuccessStatusCode();
             GetDeliveries();
         }
-        private async void ItemRowEditEndAsync(object e)
+        private async void ItemRowEditEndAsync(object? e)
         {
             if (Delivery == null || e == null || e is not DataGrid grid)
             {

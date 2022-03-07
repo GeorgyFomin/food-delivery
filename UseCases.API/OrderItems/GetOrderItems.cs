@@ -12,7 +12,7 @@ namespace UseCases.API.OrderItems
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
             public async Task<IEnumerable<OrderItem>> Handle(Query request, CancellationToken cancellationToken) =>
-                await _context.OrderItems.ToListAsync(cancellationToken);
+                _context.OrderItems == null ? Enumerable.Empty<OrderItem>() : await _context.OrderItems.ToListAsync(cancellationToken);
         }
     }
 }

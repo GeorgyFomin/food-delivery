@@ -9,11 +9,11 @@ namespace UseCases.API.Deliveries
 {
     public class GetDeliveryById
     {
-        public class Query : IRequest<DeliveryDto>
+        public class Query : IRequest<DeliveryDto?>
         {
             public int Id { get; set; }
         }
-        public class QueryHandler : IRequestHandler<Query, DeliveryDto>
+        public class QueryHandler : IRequestHandler<Query, DeliveryDto?>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -23,16 +23,18 @@ namespace UseCases.API.Deliveries
                 _mapper = mapper;
             }
 
-            public async Task<DeliveryDto> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<DeliveryDto?> Handle(Query request, CancellationToken cancellationToken)
             {
+                if (_context.Deliveries==null)
+                {
+                    return null;
+                }
                 Delivery? delivery = await _context.Deliveries.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (delivery == null)
                 {
                     throw new EntityNotFoundException("Delivery not found");
                 }
-                DeliveryDto deliveryDto = new();
-                _mapper.Map(delivery, deliveryDto);
-                return deliveryDto;
+                return _mapper.Map<DeliveryDto?>(delivery);
             }
         }
     }

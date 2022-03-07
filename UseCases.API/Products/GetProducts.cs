@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Entities.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
@@ -23,23 +24,16 @@ namespace UseCases.API.Products
 
             public async Task<IEnumerable<ProductDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var products = await _context.Products.Include(e => e.Ingredients).ToListAsync(cancellationToken);//.Include(e => e.Ingredients)
+                if (_context.Products==null)
+                {
+                    return Enumerable.Empty<ProductDto>();
+                }
+                List<Product> products = await _context.Products.Include(e => e.ProductsIngredients).ThenInclude(p => p.Ingredient).ToListAsync(cancellationToken);
                 if (products == null)
                 {
                     throw new EntityNotFoundException("Products not found");
                 }
-                List<ProductDto> productDtos = new();
-                _mapper.Map(products, productDtos);
-                return productDtos;
-
-                //return from p in products
-                //       select new ProductDto()
-                //       {
-                //           Id = p.Id,
-                //           Name = p.Name,
-                //           Price = p.Price,
-                //           Weight = p.Weight
-                //       };
+                return _mapper.Map<List<ProductDto>>(products);
             }
         }
     }

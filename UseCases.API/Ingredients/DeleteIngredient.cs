@@ -17,6 +17,10 @@ namespace UseCases.API.Ingredients
             public CommandHandler(DataContext context) => _context = context;
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
+                if (_context.Ingredients==null)
+                {
+                    return Unit.Value;
+                }
                 Ingredient? ingredient = await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (ingredient == null) return Unit.Value;
                 _context.Ingredients.Remove(ingredient);

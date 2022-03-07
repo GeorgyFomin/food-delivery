@@ -1,5 +1,4 @@
-﻿using Entities;
-using Entities.Domain;
+﻿using Entities.Domain;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 
@@ -10,23 +9,46 @@ namespace WebApi.Data
         /// <summary>
         /// Хранит ссылку на генератор случайных чисел.
         /// </summary>
-        static public readonly Random random = new();
-        //private static readonly List<Ingredient> ingredients = new()
-        //{
-        //    new() { Name = "one", ProductId = null },
-        //    new() { Name = "two", ProductId = null }
-        //}; //GetRandomIngredients(random.Next(3, 6), random);
-        private static readonly List<Product> products = GetRandomProducts(random.Next(3, 5), random);
-        //static List<Ingredient> GetIngredients()
-        //{
-        //    List<Ingredient> list = new();
-        //    for (int i = 0; i < (random.NextDouble() < .5 ? 1 : 2); i++)
-        //    {
-        //        list.Add(ingredients[i]);
-        //    }
-        //    return list;
-        //    //return new(Enumerable.Range(0, ingredients.Count).Select(index => ingredients[random.Next(0, ingredients.Count - 1)]).ToList());
-        //}
+        public static readonly Random random = new();
+        private static readonly List<Ingredient> ingredients = GetRandomIngredients(random.Next(5, 20), random);
+        private static List<Ingredient> Ingredients
+        {
+            get
+            {
+                List<Ingredient> list = new();
+                // Число ингредиентов в списке.
+                int nIngr = random.Next(2, ingredients.Count);
+                Ingredient ingr;
+                // Помещаем в список list разные случайно выбранные ингредиенты из полного списка ingredients в количестве nIngr.
+                for (int i = 0; i < nIngr; i++)
+                {
+                    do
+                    {
+                        ingr = ingredients[random.Next(ingredients.Count)];
+                    } while (list.Contains(ingr));
+                    list.Add(ingr);
+                }
+                return list;
+            }
+        }
+        private static List<Product> Products
+        {
+            get
+            {
+                List<Product> products = GetRandomProducts(random.Next(3, 5), random);
+                foreach (Product product in products)
+                {
+                    List<Ingredient> ingredients = Ingredients;
+                    List<ProductIngredient> productIngredients = new();
+                    foreach (Ingredient ingredient in ingredients)
+                    {
+                        productIngredients.Add(new ProductIngredient() { Product = product, Ingredient = ingredient });
+                    }
+                    product.ProductsIngredients = productIngredients;
+                }
+                return products;
+            }
+        }
         /// <summary>
         /// Возвращает список случайных продуктов.
         /// </summary>
@@ -38,9 +60,7 @@ namespace WebApi.Data
             {
                 Price = random.Next(1, 100),
                 Weight = random.Next(1, 100),
-                Name = GetRandomString(random.Next(1, 6), random),
-                Ingredients = //GetIngredients()
-                GetRandomIngredients(random.Next(1, 10), random)
+                Name = GetRandomString(random.Next(1, 6), random)
             }).ToList());
         /// <summary>
         /// Возвращает список случайных ингредиентов.
@@ -55,7 +75,7 @@ namespace WebApi.Data
                 }
             ).ToList());
         /// <summary>
-        /// Генерирует случайную строку из латинских букв нижнего регистра..
+        /// Генерирует случайную строку из латинских букв нижнего регистра.
         /// </summary>
         /// <param name="length">Длина строки.</param>
         /// <param name="random">Генератор случайных чисел.</param>
@@ -64,33 +84,23 @@ namespace WebApi.Data
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using var context = new DataContext(serviceProvider.GetRequiredService<DbContextOptions<DataContext>>());
-            if (context == null || context.Products == null)
-            {
-#pragma warning disable CA2208 // Instantiate argument exceptions correctly
-                throw new ArgumentNullException("Null RazorDataContext");
-#pragma warning restore CA2208 // Instantiate argument exceptions correctly
-            }
-
-            // Look for any departments.
-            //if (context.Products.Any())
-            //{
-            //    return;   // DB has been seeded
-            //}
-            foreach (Ingredient ingredient in context.Ingredients)
-            {
-                context.Ingredients.Remove(ingredient);
-            }
-            foreach (Product product in context.Products)
-            {
-                context.Products.Remove(product);
-            }
-            context.Products.AddRange(products);
-            //context.Ingredients.AddRange(ingredients);
-            //foreach (Product product in products)
-            //{
-            //    List<Ingredient> ingredients1 = new(Enumerable.Range(0, ingredients.Count).Select(index => ingredients[random.Next(0, ingredients.Count - 1)]).ToList());
-            //    product.Ingredients.AddRange(ingredients1);
-            //}
+            if (context == null) return;
+            if (context.Ingredients != null)
+                foreach (Ingredient ingredient in context.Ingredients)
+                {
+                    context.Ingredients.Remove(ingredient);
+                }
+            if (context.Products != null)
+                foreach (Product product in context.Products)
+                {
+                    context.Products.Remove(product);
+                }
+            context.SaveChanges();
+            if (context.Ingredients != null)
+                context.Ingredients.AddRange(ingredients);
+            context.SaveChanges();
+            if (context.Products != null)
+                context.Products.AddRange(Products);
             context.SaveChanges();
         }
     }

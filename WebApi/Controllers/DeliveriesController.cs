@@ -15,10 +15,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IEnumerable<DeliveryDto>> GetDeliveries() => await _mediator.Send(new GetDeliveries.Query());
         [HttpGet("{id}")]
-        public async Task<DeliveryDto> GetDelivery(int id)
-        {
-            return await _mediator.Send(new GetDeliveryById.Query() { Id = id });
-        }
+        public async Task<DeliveryDto?> GetDelivery(int id) => await _mediator.Send(new GetDeliveryById.Query() { Id = id });
 
         [HttpPost]
         public async Task<ActionResult> CreateDelivery(DeliveryDto deliveryDto) //[FromBody] AddDelivery.Command command)
@@ -30,9 +27,9 @@ namespace WebApi.Controllers
             int createDeliveryId = await _mediator.Send(new AddDelivery.Command
             {
                 Price = deliveryDto.Price,
-                ServiceName = deliveryDto.ServiceName ?? "Noname",
+                ServiceName = string.IsNullOrWhiteSpace(deliveryDto.ServiceName) ? "Noname" : deliveryDto.ServiceName,
                 TimeSpan = deliveryDto.TimeSpan
-            }); //command);
+            });
             return CreatedAtAction(nameof(GetDelivery), new { id = createDeliveryId }, null);
         }
         [HttpPut("{id}")]
@@ -46,9 +43,9 @@ namespace WebApi.Controllers
             {
                 Id = deliveryDto.Id,
                 Price = deliveryDto.Price,
-                ServiceName = deliveryDto.ServiceName ?? "Noname",
+                ServiceName = string.IsNullOrWhiteSpace(deliveryDto.ServiceName) ? "Noname" : deliveryDto.ServiceName,
                 TimeSpan = deliveryDto.TimeSpan
-            })); //command));
+            }));
         }
 
         [HttpDelete("{id}")]

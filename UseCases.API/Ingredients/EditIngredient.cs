@@ -1,6 +1,7 @@
 ﻿using Entities;
 using Entities.Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 
 namespace UseCases.API.Ingredients
@@ -10,10 +11,8 @@ namespace UseCases.API.Ingredients
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public string? Name { get; set; }
-            //public ICollection<Product>? Products { get; set; }
-            //public Product? Product { get; set; }
-            public int? ProductId { get; set; }
+            public string Name { get; set; } = "Noname";
+            public List<ProductIngredient>? ProductsIngredients { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {
@@ -22,13 +21,14 @@ namespace UseCases.API.Ingredients
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                Ingredient? ingredient = await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                if (_context.Ingredients == null)
+                    return default;
+                Ingredient? ingredient = await _context.Ingredients.Include(e => e.ProductsIngredients).
+                    FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken: cancellationToken);
                 if (ingredient == null)
                     return default;
                 ingredient.Name = request.Name;
-                ingredient.ProductId = request.ProductId;
-                //ingredient.Product = request.Product;
-                //ingredient.Products = request.Products;
+                ingredient.ProductsIngredients = request.ProductsIngredients;
                 await _context.SaveChangesAsync(cancellationToken);
                 return ingredient.Id;
             }

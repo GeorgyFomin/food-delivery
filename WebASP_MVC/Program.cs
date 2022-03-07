@@ -1,12 +1,5 @@
-using Microsoft.AspNetCore.Localization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
-//using WebASP_MVC.Data;
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddDbContext<WebASP_MVCContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("WebASP_MVCContext")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

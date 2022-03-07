@@ -15,7 +15,11 @@ namespace UseCases.API.Orders
             public CommandHandler(DataContext context) => _context = context;
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                Order order = await _context.Orders.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                if (_context.Orders == null)
+                {
+                    return Unit.Value;
+                }
+                Order? order = await _context.Orders.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (order == null) return Unit.Value;
                 _context.Orders.Remove(order);
                 await _context.SaveChangesAsync(cancellationToken);

@@ -13,24 +13,12 @@ namespace WpfApp.ViewModels
             tw.WriteLine($"{DateTime.Now}:{report}");
         }
         private ViewModelBase? viewModel;
-        public ViewModelBase? ViewModel { get => viewModel; set { viewModel = value; RaisePropertyChanged(nameof(ViewModel)); } }
         private RelayCommand? deliveriesCommand;
         private RelayCommand? ingredientsCommand;
         private RelayCommand? productsCommand;
-        public ICommand DeliveriesCommand => deliveriesCommand ??= new RelayCommand(Deliveries);
-        public ICommand IngredientsCommand => ingredientsCommand ??= new RelayCommand(Ingredients);
-        public ICommand ProductsCommand => productsCommand ??= new RelayCommand(Products);
-        private void Deliveries(object e)
-        {
-            ViewModel = new DeliveriesViewModel();
-        }
-        private void Ingredients(object e)
-        {
-            ViewModel = new IngredientsViewModel();
-        }
-        private void Products(object commandParameter)
-        {
-            ViewModel = new ProductsViewModel();
-        }
+        public ViewModelBase? ViewModel { get => viewModel; set { viewModel = value; RaisePropertyChanged(nameof(ViewModel)); } }
+        public ICommand DeliveriesCommand => deliveriesCommand ??= new RelayCommand(e => ViewModel = new DeliveriesViewModel());
+        public ICommand IngredientsCommand => ingredientsCommand ??= new RelayCommand(e => ViewModel = new IngredientsViewModel());
+        public ICommand ProductsCommand => productsCommand ??= new RelayCommand(e => ViewModel = new ProductsViewModel());
     }
 }

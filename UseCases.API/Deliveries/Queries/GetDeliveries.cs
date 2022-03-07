@@ -23,22 +23,16 @@ namespace UseCases.API.Deliveries
 
             public async Task<IEnumerable<DeliveryDto>> Handle(Query request, CancellationToken cancellationToken)
             {
+                if (_context.Deliveries==null)
+                {
+                    return Enumerable.Empty<DeliveryDto>();
+                }
                 var deliveries = await _context.Deliveries.ToListAsync(cancellationToken);
                 if (deliveries == null)
                 {
                     throw new EntityNotFoundException("Deliveries not found");
                 }
-                List<DeliveryDto> deliveryDtos = new();
-                _mapper.Map(deliveries, deliveryDtos);
-                return deliveryDtos;
-                //return from d in deliveries
-                //       select new DeliveryDto()
-                //       {
-                //           Id = d.Id,
-                //           Price = d.Price,
-                //           ServiceName = d.ServiceName,
-                //           TimeSpan = d.TimeSpan
-                //       };
+                return _mapper.Map<List<DeliveryDto>>(deliveries);
             }
         }
     }

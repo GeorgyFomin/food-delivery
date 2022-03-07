@@ -9,7 +9,7 @@ namespace UseCases.API.Deliveries
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public string? ServiceName { get; set; }
+            public string ServiceName { get; set; } = "Noname";
             public decimal Price { get; set; }
             public TimeSpan TimeSpan { get; set; }
         }
@@ -20,6 +20,10 @@ namespace UseCases.API.Deliveries
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
+                if (_context.Deliveries==null)
+                {
+                    return default; 
+                }
                 Delivery? delivery = await _context.Deliveries.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (delivery == null)
                     return default;

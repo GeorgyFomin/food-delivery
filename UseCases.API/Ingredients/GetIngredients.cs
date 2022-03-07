@@ -23,14 +23,16 @@ namespace UseCases.API.Ingredients
 
             public async Task<IEnumerable<IngredientDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var ingredients = await _context.Ingredients.ToListAsync(cancellationToken);//.Include(e => e.Products)
+                if (_context.Ingredients == null)
+                {
+                    return Enumerable.Empty<IngredientDto>();
+                }
+                var ingredients = await _context.Ingredients.Include(e => e.ProductsIngredients).ToListAsync(cancellationToken);
                 if (ingredients == null)
                 {
                     throw new EntityNotFoundException("Ingredients not found");
                 }
-                List<IngredientDto> ingredientDtos = new();
-                _mapper.Map(ingredients, ingredientDtos);
-                return ingredientDtos;
+                return _mapper.Map<List<IngredientDto>>(ingredients);
             }
         }
     }

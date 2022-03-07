@@ -40,7 +40,7 @@ namespace WebASP_MVC.Controllers
             }
             return deliveryDto == null ? NotFound() : View(deliveryDto);
         }
-        // GET: Deliveries/Details/5
+        // GET: Deliveries/Details/id
         public async Task<IActionResult> Details(int? id) => await GetDeliveryById(id);
         // GET: Deliveries/Create
         public IActionResult Create()
@@ -65,10 +65,10 @@ namespace WebASP_MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Deliveries/Edit/5
+        // GET: Deliveries/Edit/id
         public async Task<IActionResult> Edit(int? id) => await GetDeliveryById(id);
 
-        // POST: Deliveries/Edit/5
+        // POST: Deliveries/Edit/id
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -99,7 +99,7 @@ namespace WebASP_MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Deliveries/Delete/5
+        // GET: Deliveries/Delete/id
         public async Task<IActionResult> Delete(int? id) => await GetDeliveryById(id);
         // POST: Deliveries/Delete/5
         [HttpPost, ActionName("Delete")]

@@ -8,18 +8,18 @@ namespace WpfApp.Commands
         /// <summary>
         /// Хранит ссылку на делегат, содержащий код действия, определенного для данного объекта-команды.
         /// </summary>
-        private readonly Action<object> action;
+        private readonly Action<object?> action;
 
         /// <summary>
         /// Хпранит ссылку на метод, определяющий может ли команда быть выполненной.
         /// </summary>
-        private readonly Func<object, bool> canExecute;
+        private readonly Func<object?, bool?>? canExecute;
         /// <summary>
         /// Инициализирует объект-команду, запоминая ссылку на делегат, содержащий код действия.
         /// </summary>
         /// <param name="action">Делегат действия, которое предполагает выполнение команды.</param>
         /// <param name="canExecute">Метод, выполняющийся для проверки условия выполнения команды.</param>
-        public RelayCommand(Action<object> action, Func<object, bool> canExecute = null)
+        public RelayCommand(Action<object?> action, Func<object?, bool?>? canExecute = null)
         {
             this.action = action;
             this.canExecute = canExecute;
@@ -28,7 +28,7 @@ namespace WpfApp.Commands
         /// <summary>
         /// Добавляет/удаляет делегат, выполняющийся при изменении условия выполнения команды.
         /// </summary>
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
@@ -38,11 +38,11 @@ namespace WpfApp.Commands
         /// </summary>
         /// <param name="parameter">Параметр метода, определяющего условие выполнения команды.</param>
         /// <returns>true, если выполнение команды разрешено; false - в противном случае.</returns>
-        public bool CanExecute(object parameter) => canExecute == null || canExecute(parameter);
+        public bool CanExecute(object? parameter) => canExecute == null || canExecute(parameter).HasValue;
         /// <summary>
         /// Выполняет команду, вызывая делегата объекта.
         /// </summary>
         /// <param name="parameter">Параметр делегата.</param>
-        public void Execute(object parameter) => action?.Invoke(parameter);
+        public void Execute(object? parameter) => action?.Invoke(parameter);
     }
 }

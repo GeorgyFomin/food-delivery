@@ -4,6 +4,6 @@ namespace Entities.Domain
 {
     public class MenuItem : Entity<int>
     {
-        public Product Product { get; set; }
+        public Product? Product { get; set; }
     }
 }

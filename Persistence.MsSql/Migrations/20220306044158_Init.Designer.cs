@@ -12,7 +12,7 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220203160406_Init")]
+    [Migration("20220306044158_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,12 +78,7 @@ namespace Persistence.MsSql.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Ingredients");
                 });
@@ -96,10 +91,10 @@ namespace Persistence.MsSql.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("DeliveryId")
+                    b.Property<int?>("DeliveryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DiscountId")
+                    b.Property<int?>("DiscountId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -125,7 +120,7 @@ namespace Persistence.MsSql.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -163,26 +158,30 @@ namespace Persistence.MsSql.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Entities.Domain.Ingredient", b =>
+            modelBuilder.Entity("Entities.Domain.ProductIngredient", b =>
                 {
-                    b.HasOne("Entities.Domain.Product", null)
-                        .WithMany("Ingredients")
-                        .HasForeignKey("ProductId");
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("IngredientId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductIngredient");
                 });
 
             modelBuilder.Entity("Entities.Domain.Order", b =>
                 {
                     b.HasOne("Entities.Domain.Delivery", "Delivery")
                         .WithMany()
-                        .HasForeignKey("DeliveryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeliveryId");
 
                     b.HasOne("Entities.Domain.Discount", "Discount")
                         .WithMany()
-                        .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DiscountId");
 
                     b.Navigation("Delivery");
 
@@ -197,11 +196,33 @@ namespace Persistence.MsSql.Migrations
 
                     b.HasOne("Entities.Domain.Product", "Product")
                         .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Entities.Domain.ProductIngredient", b =>
+                {
+                    b.HasOne("Entities.Domain.Ingredient", "Ingredient")
+                        .WithMany("ProductsIngredients")
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entities.Domain.Product", "Product")
+                        .WithMany("ProductsIngredients")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Ingredient");
+
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Entities.Domain.Ingredient", b =>
+                {
+                    b.Navigation("ProductsIngredients");
                 });
 
             modelBuilder.Entity("Entities.Domain.Order", b =>
@@ -211,7 +232,7 @@ namespace Persistence.MsSql.Migrations
 
             modelBuilder.Entity("Entities.Domain.Product", b =>
                 {
-                    b.Navigation("Ingredients");
+                    b.Navigation("ProductsIngredients");
                 });
 #pragma warning restore 612, 618
         }

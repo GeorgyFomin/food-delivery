@@ -12,10 +12,8 @@ namespace UseCases.API.Orders
         {
             private readonly DataContext _context;
             public QueryHandler(DataContext context) => _context = context;
-            public async Task<IEnumerable<Order>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                return await _context.Orders.ToListAsync(cancellationToken);
-            }
+            public async Task<IEnumerable<Order>> Handle(Query request, CancellationToken cancellationToken) =>
+                _context.Orders == null ? Enumerable.Empty<Order>() : await _context.Orders.ToListAsync(cancellationToken);
         }
 
     }

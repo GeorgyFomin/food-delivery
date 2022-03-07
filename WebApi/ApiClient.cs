@@ -4,8 +4,12 @@ namespace WebApi
 {
     public static class ApiClient
     {
-        static readonly string baseAddress = Environment.GetEnvironmentVariable("ASPNETCORE_URLS").Split(";")[0];
-        public static readonly RestClient restClient = new(baseAddress);
-        public static readonly HttpClient api = new() { BaseAddress = new Uri(baseAddress) };
+        private static readonly string? aspNetCoreVariable = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+        static ApiClient()
+        {
+            string? baseAddress = aspNetCoreVariable?.Split(";")[0];
+            RestClient? restClient = baseAddress == null ? null : new(baseAddress);
+            HttpClient? api = baseAddress == null ? null : new() { BaseAddress = new Uri(baseAddress) };
+        }
     }
 }

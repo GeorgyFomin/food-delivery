@@ -8,9 +8,18 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:IngredientsViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="ingredientsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding DataSource}" 
-                  AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
+    <Grid Background="{StaticResource mainBckgr}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Ingredients" FontSize="20" Foreground="Yellow" HorizontalAlignment="Center"/>
+        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="ingredientsGridView" DataContext="{Binding Mode=OneWay}" 
+                  ItemsSource="{Binding Ingredients}" AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
             <!--<DataGrid.ContextMenu>
                 <ContextMenu Style="{StaticResource contextMenu}">
@@ -21,19 +30,31 @@
             <DataGrid.Columns>
                 <DataGridTextColumn IsReadOnly="True" Header="Id" Binding="{Binding Id}" />
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" EditingElementStyle="{StaticResource EditingCellTextBox}"/>
-                <DataGridTextColumn IsReadOnly="True" Header="ProductId" Binding="{Binding ProductId}" />
+                <!--<DataGridTextColumn IsReadOnly="True" Header="ProductId" Binding="{Binding ProductsIngredients.ProductId}" />-->
             </DataGrid.Columns>
             <DataGrid.InputBindings>
-                <KeyBinding Key="Delete" Command="{Binding ItemRemoveCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
+                <KeyBinding Key="Delete" Command="{Binding IngredientRemoveCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
             </DataGrid.InputBindings>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction Command="{Binding ItemSelectionCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
+                    <i:InvokeCommandAction Command="{Binding IngredientSelectionCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
                 </i:EventTrigger>
                 <i:EventTrigger EventName="RowEditEnding">
-                    <i:InvokeCommandAction Command="{Binding ItemRowEditEndCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
+                    <i:InvokeCommandAction Command="{Binding IngredientRowEditEndCommand}" CommandParameter="{Binding ElementName=ingredientsGridView}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+        </DataGrid>
+        <StackPanel Grid.Column="1" x:Name="panel" Orientation="Horizontal">
+            <TextBlock Text="Products Including Ingredient " FontSize="20" Foreground="Yellow" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding IngredientName}" FontSize="20" Margin="5,0,0,0" FontStyle="Italic" FontWeight="Medium" Foreground="#FF68B252" />
+        </StackPanel>
+        <DataGrid IsReadOnly="True" Grid.Row="1" Grid.Column="1" AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
+                  BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" 
+                  RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding ProductsIncludingIngredient}" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+            </DataGrid.Columns>
         </DataGrid>
     </Grid>
 </ContentControl>

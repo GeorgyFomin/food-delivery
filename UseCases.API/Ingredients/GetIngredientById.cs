@@ -9,11 +9,11 @@ namespace UseCases.API.Ingredients
 {
     public class GetIngredientById
     {
-        public class Query : IRequest<IngredientDto>
+        public class Query : IRequest<IngredientDto?>
         {
             public int Id { get; set; }
         }
-        public class QueryHandler : IRequestHandler<Query, IngredientDto>
+        public class QueryHandler : IRequestHandler<Query, IngredientDto?>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -23,16 +23,18 @@ namespace UseCases.API.Ingredients
                 _mapper = mapper;
             }
 
-            public async Task<IngredientDto> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<IngredientDto?> Handle(Query request, CancellationToken cancellationToken)
             {
+                if (_context.Ingredients == null)
+                {
+                    return null;
+                }
                 Ingredient? ingredient = await _context.Ingredients.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (ingredient == null)
                 {
                     throw new EntityNotFoundException("Ingredient not found");
                 }
-                IngredientDto ingredientDto = new();
-                _mapper.Map(ingredient, ingredientDto);
-                return ingredientDto;
+                return _mapper.Map<IngredientDto?>(ingredient);
             }
         }
     }

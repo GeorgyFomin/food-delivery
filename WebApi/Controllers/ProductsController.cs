@@ -4,7 +4,6 @@ using UseCases.API.Products;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
 using Entities.Domain;
-using Persistence.MsSql;
 
 namespace WebApi.Controllers
 {
@@ -17,7 +16,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IEnumerable<ProductDto>> GetProducts() => await _mediator.Send(new GetProducts.Query());
         [HttpGet("{id}")]
-        public async Task<ProductDto> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
+        public async Task<ProductDto?> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
         public async Task<ActionResult> CreateProduct(ProductDto productDto) //[FromBody] AddProduct.Command command)
         {
@@ -25,13 +24,21 @@ namespace WebApi.Controllers
             {
                 throw new EntityNotFoundException("ProductDto not found");
             }
+            List<ProductIngredient> productIngredients = new();
+            if (productDto.ProductsIngredients != null)
+            {
+                foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
+                {
+                    productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
+                }
+            }
             var createProductId = await _mediator.Send(new AddProduct.Command()
             {
-                Name = productDto.Name ?? "Noname",
-                Ingredients = productDto.Ingredients,
+                Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
+                ProductsIngredients = productIngredients,
                 Price = productDto.Price,
                 Weight = productDto.Weight
-            }); //command);
+            });
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
         [HttpPut("{id}")]
@@ -41,16 +48,23 @@ namespace WebApi.Controllers
             {
                 return BadRequest();
             }
+            List<ProductIngredient> productIngredients = new();
+            if (productDto.ProductsIngredients != null)
+            {
+                foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
+                {
+                    productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
+                }
+            }
             return Ok(await _mediator.Send(
                 new EditProduct.Command
                 {
                     Id = productDto.Id,
                     Weight = productDto.Weight,
-                    Ingredients = productDto.Ingredients,
-                    Name = productDto.Name ?? "Noname",
+                    ProductsIngredients = productIngredients,
+                    Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
                     Price = productDto.Price
                 }));
-            //command));
         }
 
         [HttpDelete("{id}")]
