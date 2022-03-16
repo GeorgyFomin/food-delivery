@@ -8,6 +8,7 @@ namespace WebASP_MVC.Controllers
 {
     public class ProductsController : Controller
     {
+        public const int idLmt = 1_000_000_000;
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         private static readonly string path = "api/Products";
         static ProductDto? curProduct = null;
@@ -147,8 +148,8 @@ namespace WebASP_MVC.Controllers
         }
 
         // GET: Products/Edit/id
-        public async Task<IActionResult> Edit(int? id) => await GetProductById(id);
-
+        public async Task<IActionResult> Edit(int? id, int? ingrId) =>
+            id == null ? NotFound() : ingrId == null ? await GetProductById(id) : ingrId < 0 ? Remove(-ingrId) : Add(ingrId);
         // POST: Products/Edit/id
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.

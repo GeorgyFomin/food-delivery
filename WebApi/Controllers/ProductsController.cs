@@ -56,15 +56,14 @@ namespace WebApi.Controllers
                     productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
                 }
             }
-            return Ok(await _mediator.Send(
-                new EditProduct.Command
-                {
-                    Id = productDto.Id,
-                    Weight = productDto.Weight,
-                    ProductsIngredients = productIngredients,
-                    Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
-                    Price = productDto.Price
-                }));
+            return Ok(await _mediator.Send(new EditProduct.Command
+            {
+                Id = productDto.Id,
+                Weight = productDto.Weight,
+                ProductsIngredients = productIngredients,
+                Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
+                Price = productDto.Price
+            }));
         }
 
         [HttpDelete("{id}")]

@@ -10,7 +10,6 @@ namespace UseCases.API.OrderItems
         {
             public Product? Product { get; set; }
             public int Quantity { get; set; }
-            public decimal Price { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {
@@ -18,7 +17,7 @@ namespace UseCases.API.OrderItems
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                OrderItem orderItem = new() { Price = request.Price, Product = request.Product, Quantity = request.Quantity };
+                OrderItem orderItem = new() { Product = request.Product, Quantity = request.Quantity };
                 if (_context.OrderItems == null)
                 {
                     return default;

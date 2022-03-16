@@ -33,6 +33,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=FoodDelivery}/{action=Index}/{id?}");
+    pattern: "{controller=FoodDelivery}/{action=Index}/{id?}/{ingrId?}");
 
 app.Run();

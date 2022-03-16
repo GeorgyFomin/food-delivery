@@ -22,7 +22,7 @@ namespace UseCases.API.Products
             public CommandHandler(DataContext context) => _context = context;
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (_context.Products==null)
+                if (_context.Products == null)
                 {
                     return default;
                 }

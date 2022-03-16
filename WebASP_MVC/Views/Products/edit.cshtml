@@ -19,12 +19,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
-                                <div class="input-group mb-3">
+                <div class="input-group mb-3">
                     <span class="input-group-text">P</span>
                     <input asp-for="Price" type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
                     <span class="input-group-text">.00</span>
-                    </div>
-                
+                </div>
+
                 @*<input asp-for="Price" class="form-control" />*@
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
@@ -49,7 +49,7 @@
                         @Html.DisplayFor(modeitem=>item.Name)
                     </td>
                     <td>
-                        <a asp-action="Remove" asp-route-id="@item.Id">Remove</a>
+                        <a asp-action="Edit" asp-route-ingrId="-@item.Id">Remove</a>
                     </td>
                 </tr>
             }
@@ -65,7 +65,7 @@
                         @Html.DisplayFor(modeitem=>item.Name)
                     </td>
                     <td>
-                        <a asp-action="Add" asp-route-id="@item.Id">Add</a>
+                        <a asp-action="Edit" asp-route-ingrId ="@item.Id">Add</a>
                     </td>
                 </tr>
             }
