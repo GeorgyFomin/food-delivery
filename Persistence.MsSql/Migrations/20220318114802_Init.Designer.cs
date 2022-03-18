@@ -12,8 +12,8 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220312153149_NewDbSetsAdded")]
-    partial class NewDbSetsAdded
+    [Migration("20220318114802_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -99,94 +99,6 @@ namespace Persistence.MsSql.Migrations
                     b.ToTable("Ingredients");
                 });
 
-            modelBuilder.Entity("Entities.Domain.Menu", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Menus");
-                });
-
-            modelBuilder.Entity("Entities.Domain.MenuItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("MenuId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("MenuItems");
-                });
-
-            modelBuilder.Entity("Entities.Domain.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("DeliveryId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DiscountId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeliveryId");
-
-                    b.HasIndex("DiscountId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("Entities.Domain.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("OrderItems");
-                });
-
             modelBuilder.Entity("Entities.Domain.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -225,47 +137,6 @@ namespace Persistence.MsSql.Migrations
                     b.ToTable("ProductIngredient");
                 });
 
-            modelBuilder.Entity("Entities.Domain.MenuItem", b =>
-                {
-                    b.HasOne("Entities.Domain.Menu", null)
-                        .WithMany("MenuItems")
-                        .HasForeignKey("MenuId");
-
-                    b.HasOne("Entities.Domain.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Entities.Domain.Order", b =>
-                {
-                    b.HasOne("Entities.Domain.Delivery", "Delivery")
-                        .WithMany()
-                        .HasForeignKey("DeliveryId");
-
-                    b.HasOne("Entities.Domain.Discount", "Discount")
-                        .WithMany()
-                        .HasForeignKey("DiscountId");
-
-                    b.Navigation("Delivery");
-
-                    b.Navigation("Discount");
-                });
-
-            modelBuilder.Entity("Entities.Domain.OrderItem", b =>
-                {
-                    b.HasOne("Entities.Domain.Order", null)
-                        .WithMany("OrderElements")
-                        .HasForeignKey("OrderId");
-
-                    b.HasOne("Entities.Domain.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Entities.Domain.ProductIngredient", b =>
                 {
                     b.HasOne("Entities.Domain.Ingredient", "Ingredient")
@@ -288,16 +159,6 @@ namespace Persistence.MsSql.Migrations
             modelBuilder.Entity("Entities.Domain.Ingredient", b =>
                 {
                     b.Navigation("ProductsIngredients");
-                });
-
-            modelBuilder.Entity("Entities.Domain.Menu", b =>
-                {
-                    b.Navigation("MenuItems");
-                });
-
-            modelBuilder.Entity("Entities.Domain.Order", b =>
-                {
-                    b.Navigation("OrderElements");
                 });
 
             modelBuilder.Entity("Entities.Domain.Product", b =>

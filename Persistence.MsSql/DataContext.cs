@@ -6,15 +6,15 @@ namespace Persistence.MsSql
 {
     public class DataContext : DbContext
     {
-        public DbSet<Discount>? Discounts { get; set; }
-        public DbSet<Menu>? Menus { get; set; }
-        public DbSet<MenuItem>? MenuItems { get; set; }
-        public DbSet<Employee>? Employees { get; set; }
-        public DbSet<Order>? Orders { get; set; }
-        public DbSet<OrderItem>? OrderItems { get; set; }
-        public DbSet<Product>? Products { get; set; }
-        public DbSet<Ingredient>? Ingredients { get; set; }
-        public DbSet<Delivery>? Deliveries { get; set; }
+        //public DbSet<Menu> Menus => Set<Menu>();//{ get; set; } = null!;
+        //public DbSet<MenuItem> MenuItems => Set<MenuItem>();// { get; set; } = null!;
+        //public DbSet<Order> Orders => Set<Order>();//{ get; set; } = null!;
+        //public DbSet<OrderItem> OrderItems => Set<OrderItem>();//{ get; set; } = null!;
+        public DbSet<Discount> Discounts => Set<Discount>();//{ get; set; } = null!;
+        public DbSet<Employee> Employees => Set<Employee>();//{ get; set; } = null!;
+        public DbSet<Product> Products => Set<Product>();// {get; set; } = null!; 
+        public DbSet<Ingredient> Ingredients => Set<Ingredient>();// { get; set; } = null!;
+        public DbSet<Delivery> Deliveries => Set<Delivery>();//{ get; set; } = null!;
         public DataContext() { }
         public DataContext(DbContextOptions options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

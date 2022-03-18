@@ -8,7 +8,6 @@ namespace WebASP_MVC.Controllers
 {
     public class ProductsController : Controller
     {
-        public const int idLmt = 1_000_000_000;
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         private static readonly string path = "api/Products";
         static ProductDto? curProduct = null;

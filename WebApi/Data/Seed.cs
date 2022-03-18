@@ -17,6 +17,10 @@ namespace WebApi.Data
         }
         public static void ClearSave<T>(this DbSet<T> dbSet, DataContext dataContext) where T : class
         {
+            //if (dbSet==null)
+            //{
+            //    return;
+            //}
             dbSet.Clear();
             dataContext.SaveChanges();
         }
@@ -194,82 +198,27 @@ namespace WebApi.Data
         {
             using var context = new DataContext(serviceProvider.GetRequiredService<DbContextOptions<DataContext>>());
             if (context == null) return;
-
-            if (context.Employees != null)
-            {
-                context.Employees.ClearSave(context);
-            }
-            if (context.Ingredients != null)
-            {
-                context.Ingredients.ClearSave(context);
-            }
-            if (context.MenuItems != null)
-            {
-                context.MenuItems.ClearSave(context);
-            }
-            if (context.Menus != null)
-            {
-                context.Menus.ClearSave(context);
-            }
-            if (context.OrderItems != null)
-            {
-                context.OrderItems.ClearSave(context);
-            }
-            if (context.Orders != null)
-            {
-                context.Orders.ClearSave(context);
-            }
-            if (context.Deliveries != null)
-            {
-                context.Deliveries.ClearSave(context);
-            }
-            if (context.Discounts != null)
-            {
-                context.Discounts.ClearSave(context);
-            }
-            if (context.Products != null)
-            {
-                context.Products.ClearSave(context);
-            }
-
-            if (context.Ingredients != null)
-            {
-                context.Ingredients.AddRange(ingredients);
-            }
-            if (context.Products != null)
-            {
-                context.Products.AddRange(products);
-            }
-            if (context.OrderItems != null)
-            {
-                context.OrderItems.AddRange(orderItems);
-            }
-            if (context.MenuItems != null)
-            {
-                context.MenuItems.AddRange(menuItems);
-            }
-            context.SaveChanges();
-            if (context.Menus != null)
-            {
-                context.Menus.AddRange(menus);
-            }
-            context.SaveChanges();
-            if (context.Deliveries != null)
-            {
-                context.Deliveries.AddRange(deliveries);
-            }
-            if (context.Discounts != null)
-            {
-                context.Discounts.AddRange(discounts);
-            }
-            if (context.Orders != null)
-            {
-                context.Orders.AddRange(orders);
-            }
-            if (context.Employees != null)
-            {
-                context.Employees.AddRange(GetRandomEmployees(random.Next(3, 7)));
-            }
+            // Чистим таблицы.
+            context.Employees.ClearSave(context);
+            context.Ingredients.ClearSave(context);
+            //context.MenuItems.ClearSave(context);
+            //context.Menus.ClearSave(context);
+            //context.OrderItems.ClearSave(context);
+            //context.Orders.ClearSave(context);
+            context.Deliveries.ClearSave(context);
+            context.Discounts.ClearSave(context);
+            context.Products.ClearSave(context);
+            // Заполняем таблицы случайными полями.
+            context.Ingredients.AddRange(ingredients);
+            context.Products.AddRange(products);
+            //context.OrderItems.AddRange(orderItems);
+            //context.MenuItems.AddRange(menuItems);
+            //context.Menus.AddRange(menus);
+            context.Deliveries.AddRange(deliveries);
+            context.Discounts.AddRange(discounts);
+            //context.Orders.AddRange(orders);
+            context.Employees.AddRange(GetRandomEmployees(random.Next(3, 7)));
+            // Сохраняем таблицы в базе.
             context.SaveChanges();
         }
 

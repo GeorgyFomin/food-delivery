@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="OrderItems\**" />
+    <Compile Remove="Orders\**" />
+    <EmbeddedResource Remove="OrderItems\**" />
+    <EmbeddedResource Remove="Orders\**" />
+    <None Remove="OrderItems\**" />
+    <None Remove="Orders\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="FluentValidator" Version="2.0.4" />
