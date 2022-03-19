@@ -8,6 +8,11 @@ namespace UseCases.API.Core
     {
         public MappingProfiles()
         {
+            CreateMap<MenuItem, MenuItemDto>();
+            CreateMap<Menu, MenuDto>();
+            CreateMap<OrderItem, OrderItemDto>();
+            CreateMap<Order, OrderDto>();
+            CreateMap<Discount, DiscountDto>();
             CreateMap<ProductIngredient, ProductIngredientDto>();
             CreateMap<Ingredient, IngredientDto>();
             CreateMap<Delivery, DeliveryDto>();

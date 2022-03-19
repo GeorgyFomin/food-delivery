@@ -1,31 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Entities.Domain;
 using MediatR;
-using Entities;
-using UseCases.API.OrderItems;
+using Microsoft.AspNetCore.Mvc;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
-using Entities.Domain;
+using UseCases.API.MenuItems;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderItemsController : ControllerBase
+    public class MenuItemsController : Controller
     {
         private readonly IMediator _mediator;
-        public OrderItemsController(IMediator mediator) => _mediator = mediator;
+        public MenuItemsController(IMediator mediator) => _mediator = mediator;
         [HttpGet]
-        public async Task<IEnumerable<OrderItemDto>> GetOrderItems() => await _mediator.Send(new GetOrderItems.Query());
+        public async Task<IEnumerable<MenuItemDto>> GetMenuItems() => await _mediator.Send(new GetMenuItems.Query());
         [HttpGet("{id}")]
-        public async Task<OrderItemDto?> GetOrderItem(int id) => await _mediator.Send(new GetOrderItemById.Query() { Id = id });
+        public async Task<MenuItemDto?> GetMenuItem(int id) => await _mediator.Send(new GetMenuItemById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateOrderItem(OrderItemDto orderItemDto)
+        public async Task<ActionResult> CreateMenuItem(MenuItemDto MenuItemDto)
         {
-            if (orderItemDto == null)
+            if (MenuItemDto == null)
             {
-                throw new EntityNotFoundException("OrderItemDto not found");
+                throw new EntityNotFoundException("MenuItemDto not found");
             }
-            ProductDto? productDto = orderItemDto.Product;
+            ProductDto? productDto = MenuItemDto.Product;
             Product? product;
             if (productDto == null) product = null;
             else
@@ -40,17 +39,16 @@ namespace WebApi.Controllers
                 }
                 product = new() { Name = productDto.Name, Price = productDto.Price, Weight = productDto.Weight, ProductsIngredients = productIngredients };
             }
-            int createOrderItemId = await _mediator.Send(new AddOrderItem.Command
+            int createMenuItemId = await _mediator.Send(new AddMenuItem.Command
             {
-                Product = product,
-                Quantity = orderItemDto.Quantity
+                Product = product
             });
-            return CreatedAtAction(nameof(GetOrderItem), new { id = createOrderItemId }, null);
+            return CreatedAtAction(nameof(GetMenuItem), new { id = createMenuItemId }, null);
         }
         [HttpDelete]
-        public async Task<ActionResult> DeleteOrderItem(int id)
+        public async Task<ActionResult> DeleteMenuItem(int id)
         {
-            await _mediator.Send(new DeleteOrderItem.Command { Id = id });
+            await _mediator.Send(new DeleteMenuItem.Command { Id = id });
             return NoContent();
         }
     }

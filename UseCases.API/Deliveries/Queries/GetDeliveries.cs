@@ -23,7 +23,7 @@ namespace UseCases.API.Deliveries
 
             public async Task<IEnumerable<DeliveryDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                if (_context.Deliveries==null)
+                if (_context.Deliveries == null)
                 {
                     return Enumerable.Empty<DeliveryDto>();
                 }

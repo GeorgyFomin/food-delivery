@@ -8,21 +8,13 @@ namespace WebApi.Data
 {
     public static class DbSetExtension
     {
-        public static void Clear<T>(this DbSet<T> dbSet) where T : class
+        public static void ClearSave<T>(this DbSet<T> dbSet, DataContext dataContext) where T : class
         {
             if (dbSet.Any())
             {
                 dbSet.RemoveRange(dbSet.ToList());
+                dataContext.SaveChanges();
             }
-        }
-        public static void ClearSave<T>(this DbSet<T> dbSet, DataContext dataContext) where T : class
-        {
-            //if (dbSet==null)
-            //{
-            //    return;
-            //}
-            dbSet.Clear();
-            dataContext.SaveChanges();
         }
     }
     public static class Seed
@@ -201,22 +193,22 @@ namespace WebApi.Data
             // Чистим таблицы.
             context.Employees.ClearSave(context);
             context.Ingredients.ClearSave(context);
-            //context.MenuItems.ClearSave(context);
-            //context.Menus.ClearSave(context);
-            //context.OrderItems.ClearSave(context);
-            //context.Orders.ClearSave(context);
+            context.MenuItems.ClearSave(context);
+            context.Menus.ClearSave(context);
+            context.OrderItems.ClearSave(context);
+            context.Orders.ClearSave(context);
             context.Deliveries.ClearSave(context);
             context.Discounts.ClearSave(context);
             context.Products.ClearSave(context);
             // Заполняем таблицы случайными полями.
             context.Ingredients.AddRange(ingredients);
             context.Products.AddRange(products);
-            //context.OrderItems.AddRange(orderItems);
-            //context.MenuItems.AddRange(menuItems);
-            //context.Menus.AddRange(menus);
+            context.OrderItems.AddRange(orderItems);
+            context.MenuItems.AddRange(menuItems);
+            context.Menus.AddRange(menus);
             context.Deliveries.AddRange(deliveries);
             context.Discounts.AddRange(discounts);
-            //context.Orders.AddRange(orders);
+            context.Orders.AddRange(orders);
             context.Employees.AddRange(GetRandomEmployees(random.Next(3, 7)));
             // Сохраняем таблицы в базе.
             context.SaveChanges();
