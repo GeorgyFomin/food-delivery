@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
+using Entities.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
 
@@ -31,12 +27,25 @@ namespace UseCases.API.MenuItems
                 {
                     return Enumerable.Empty<MenuItemDto>();
                 }
-                var menuItems = await _context.MenuItems.ToListAsync(cancellationToken);
+                //var menuItems = await _context.MenuItems.ToListAsync(cancellationToken);
+                var menuItems = await _context.MenuItems.Include(e => e.Product).ThenInclude(p => p != null ? p.ProductsIngredients : null).ToListAsync(cancellationToken);
                 if (menuItems == null)
                 {
                     throw new EntityNotFoundException("MenuItems not found");
                 }
-                return _mapper.Map<List<MenuItemDto>>(menuItems);
+                List<MenuItem>? nullItems = new(), allItems = new();
+                foreach (var menu in _context.Menus)
+                    allItems.AddRange(menu.MenuItems);
+                foreach (var menuItem in menuItems)
+                {
+                    if (allItems.Find(mi => mi.Id == menuItem.Id) == null)
+                    {
+                        nullItems.Add(menuItem);
+                    }
+                }
+                _context.MenuItems.RemoveRange(nullItems);
+                await _context.SaveChangesAsync();
+                return _mapper.Map<List<MenuItemDto>>(await _context.MenuItems.ToListAsync(cancellationToken));
             }
         }
     }

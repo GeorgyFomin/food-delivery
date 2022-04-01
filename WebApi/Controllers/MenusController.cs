@@ -7,6 +7,8 @@ using UseCases.API.Menus;
 
 namespace WebApi.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class MenusController : Controller
     {
         private readonly IMediator _mediator;
@@ -31,12 +33,13 @@ namespace WebApi.Controllers
                 else
                 {
                     List<ProductIngredient> productIngredients = new();
-                    if (productDto.ProductsIngredients != null)
+                    foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
                     {
-                        foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
+                        productIngredients.Add(new ProductIngredient()
                         {
-                            productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-                        }
+                            IngredientId = productIngredientDto.IngredientId,
+                            ProductId = productIngredientDto.ProductId
+                        });
                     }
                     product = new Product()
                     {
@@ -54,6 +57,45 @@ namespace WebApi.Controllers
                 MenuItems = menuItems
             });
             return CreatedAtAction(nameof(GetMenu), new { id = createMenuId }, null);
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMenu(int id, MenuDto menuDto)
+        {
+            if (id != menuDto.Id)
+            {
+                return BadRequest();
+            }
+            List<MenuItem> menuItems = new();
+            foreach (MenuItemDto menuItemDto in menuDto.MenuItems)
+            {
+                ProductDto? productDto = menuItemDto.Product;
+                Product? product = null;
+                if (productDto != null)
+                {
+                    List<ProductIngredient> productIngredients = new();
+                    foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
+                    {
+                        productIngredients.Add(new ProductIngredient()
+                        {
+                            IngredientId = productIngredientDto.IngredientId,
+                            ProductId = productIngredientDto.ProductId
+                        });
+                    }
+                    product = new()
+                    {
+                        Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
+                        Price = productDto.Price,
+                        Weight = productDto.Weight,
+                        ProductsIngredients = productIngredients
+                    };
+                }
+                menuItems.Add(new MenuItem { Product = product });
+            }
+            return Ok(await _mediator.Send(new EditMenu.Command()
+            {
+                Id = menuDto.Id,
+                MenuItems = menuItems
+            }));
         }
         [HttpDelete]
         public async Task<ActionResult> DeleteMenu(int id)

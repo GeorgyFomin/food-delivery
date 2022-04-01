@@ -1,5 +1,4 @@
-﻿using Entities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using WpfApp.Commands;
 using System.Linq;
-using Entities.Domain;
 using UseCases.API.Dto;
 
 namespace WpfApp.ViewModels
@@ -330,7 +328,7 @@ namespace WpfApp.ViewModels
             UploadProducts();
         }
         #endregion
-        #region IncludedIngredients Handlers
+        #region IncomingIngredients Handlers
         /// <summary>
         /// Удаляет из списка ингредиентов текущего продукта выбранный ингредиент.
         /// </summary>

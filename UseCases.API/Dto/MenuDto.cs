@@ -2,6 +2,7 @@
 {
     public class MenuDto
     {
-        public ICollection<MenuItemDto> MenuItems { get; set; } = new HashSet<MenuItemDto>();
+        public int Id { get; set; }
+        public List<MenuItemDto> MenuItems { get; set; } = new();
     }
 }

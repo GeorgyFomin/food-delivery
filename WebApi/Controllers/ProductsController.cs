@@ -25,12 +25,9 @@ namespace WebApi.Controllers
                 throw new EntityNotFoundException("ProductDto not found");
             }
             List<ProductIngredient> productIngredients = new();
-            if (productDto.ProductsIngredients != null)
+            foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
             {
-                foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
-                {
-                    productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-                }
+                productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
             }
             var createProductId = await _mediator.Send(new AddProduct.Command()
             {
@@ -49,12 +46,9 @@ namespace WebApi.Controllers
                 return BadRequest();
             }
             List<ProductIngredient> productIngredients = new();
-            if (productDto.ProductsIngredients != null)
+            foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
             {
-                foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
-                {
-                    productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-                }
+                productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
             }
             return Ok(await _mediator.Send(new EditProduct.Command
             {

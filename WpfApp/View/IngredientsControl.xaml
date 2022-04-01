@@ -17,7 +17,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock Text="Ingredients" FontSize="20" Foreground="Yellow" HorizontalAlignment="Center"/>
+        <TextBlock Text="Ingredients" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="ingredientsGridView" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding Ingredients}" AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
@@ -44,9 +44,9 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <StackPanel Grid.Column="1" x:Name="panel" Orientation="Horizontal">
-            <TextBlock Text="Products Including Ingredient " FontSize="20" Foreground="Yellow" HorizontalAlignment="Center"/>
-            <TextBlock Text="{Binding IngredientName}" FontSize="20" Margin="5,0,0,0" FontStyle="Italic" FontWeight="Medium" Foreground="#FF68B252" />
+        <StackPanel Grid.Column="1" x:Name="panel" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Text="Products Including Ingredient " FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding IngredientName}" FontSize="15" Margin="5,0,0,0" FontStyle="Italic" FontWeight="Medium" Foreground="#FF68B252" />
         </StackPanel>
         <DataGrid IsReadOnly="True" Grid.Row="1" Grid.Column="1" AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" 

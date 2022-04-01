@@ -139,12 +139,7 @@ namespace WebApi.Data
                 }
                 return list;
             }
-            List<Menu> list = new(Enumerable.Range(0, v).Select(Index => new Menu()).ToList());
-            for (int i = 0; i < list.Count; i++)
-            {
-                List<MenuItem> menuItems = GetMenuItems();
-                list[i].MenuItems = menuItems;
-            }
+            List<Menu> list = new(Enumerable.Range(0, v).Select(Index => new Menu() { MenuItems = GetMenuItems() }).ToList());
             return list;
         }
         private static readonly List<Menu> menus = GetRandomMenus(random.Next(2, 5));
@@ -211,6 +206,10 @@ namespace WebApi.Data
             context.Orders.AddRange(orders);
             context.Employees.AddRange(GetRandomEmployees(random.Next(3, 7)));
             // Сохраняем таблицы в базе.
+            context.SaveChanges();
+            context.MenuItems.RemoveRange(context.MenuItems.Where(mi => mi.Product == null));
+            context.SaveChanges();
+            context.Menus.RemoveRange(context.Menus.Where(m => m.MenuItems.Count == 0));
             context.SaveChanges();
         }
 

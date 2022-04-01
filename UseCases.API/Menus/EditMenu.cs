@@ -10,7 +10,7 @@ namespace UseCases.API.Menus
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public ICollection<MenuItem> MenuItems { get; set; } = new HashSet<MenuItem>();
+            public List<MenuItem> MenuItems { get; set; } = new();
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {

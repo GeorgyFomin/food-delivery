@@ -17,6 +17,9 @@
                     <MenuItem Header="Deliveries"  Command="{Binding DeliveriesCommand}"/>
                     <MenuItem Header="Ingredients"  Command="{Binding IngredientsCommand}"/>
                     <MenuItem Header="Products"  Command="{Binding ProductsCommand}"/>
+                    <MenuItem Header="Discounts" Command="{Binding DiscountsCommand}"/>
+                    <!--<MenuItem Header="Menu Items" Command="{Binding MenuItemsCommand}"/>-->
+                    <MenuItem Header="Menus" Command="{Binding MenusCommand}"/>
                 </Menu>
             </DockPanel>
         </Grid>
@@ -31,6 +34,15 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodels:ProductsViewModel }">
                         <local1:ProductsControl/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:DiscountsViewModel }">
+                        <local1:DiscountsControl/>
+                    </DataTemplate>
+                    <!--<DataTemplate DataType="{x:Type viewmodels:MenuItemsViewModel }">
+                        <local1:MenuItemsControl/>
+                    </DataTemplate>-->
+                    <DataTemplate DataType="{x:Type viewmodels:MenusViewModel }">
+                        <local1:MenusControl/>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

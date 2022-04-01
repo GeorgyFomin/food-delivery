@@ -19,11 +19,7 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <TextBlock Text="Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-        <StackPanel Grid.Column="1" x:Name="panel" Orientation="Horizontal">
-            <TextBlock Text="Incoming Ingredients" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-            <!--<TextBlock Text="{Binding ProductName}" FontSize="20" Margin="5,0,0,0" FontStyle="Italic" FontWeight="Medium" 
-                     Foreground="#FF68B252" />-->
-        </StackPanel>
+        <TextBlock Grid.Column="1" Text="Incoming Ingredients" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="2" Text="Non-Incoming Ingredients" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Products}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
