@@ -204,8 +204,39 @@ namespace WpfApp.ViewModels
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
             SelectedMenu = grid.SelectedItem is MenuDto menu ? menu : null;
+            if (SelectedMenu == null && NonIncomingProducts.Count > 0)
+            {
+                CreateMenu();
+                return;
+            }
             Menus = menus;
         }
+
+        private async void CreateMenu()
+        {
+            MenuDto menu = new();
+            // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage? response;
+            foreach (ProductDto productDto in NonIncomingProducts)
+            {
+                // Добавляем к элементам меню ссылку на не использованный продуктй
+                menu.MenuItems.Add(new MenuItemDto { Product = productDto });
+                // Убираем этот продукт из базы Products.
+                response = await client.DeleteAsync(productControllerPath + $"/{productDto.Id}");
+                response.EnsureSuccessStatusCode();
+            }
+            // Убираем список не использованных продуктов из представления.
+            NonIncomingProducts.Clear();
+            // Обновляем выделеное меню.
+            response = await client.PostAsJsonAsync(controllerPath, menu);
+            response.EnsureSuccessStatusCode();
+            Menus.Add(menu);
+            Upload();
+            //SelectedMenu = menu;
+            //await UploadProducts();
+        }
+
         private async void RemoveSelectedMenu(object? e)
         {
             if (SelectedMenu == null)
@@ -306,5 +337,6 @@ namespace WpfApp.ViewModels
             // Подгружаем новую версию элементов меню.
             Upload();
         }
+
     }
 }
