@@ -1,8 +1,7 @@
-﻿using Entities;
-using Entities.Domain;
+﻿using Entities.Domain;
 using MediatR;
 using Persistence.MsSql;
-
+using UseCases.API.Dto;
 
 namespace UseCases.API.Products
 {
@@ -13,8 +12,18 @@ namespace UseCases.API.Products
             public string Name { get; set; } = "Noname";
             public decimal Price { get; set; }
             public double Weight { get; set; }
-            public ICollection<ProductIngredient> ProductsIngredients { get; set; } = new List<ProductIngredient>();
+            public ICollection<ProductIngredientDto> ProductsIngredients { get; set; } = new List<ProductIngredientDto>();
         }
+        static List<ProductIngredient> GetProductIngredients(List<ProductIngredientDto> productIngredientDtos)
+        {
+            List<ProductIngredient> productIngredients = new();
+            foreach (ProductIngredientDto productIngredientDto in productIngredientDtos)
+            {
+                productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
+            }
+            return productIngredients;
+        }
+
         public class CommandHandler : IRequestHandler<Command, int>
         {
             private readonly DataContext _context;
@@ -27,7 +36,7 @@ namespace UseCases.API.Products
                     Name = request.Name,
                     Price = request.Price,
                     Weight = request.Weight,
-                    ProductsIngredients = request.ProductsIngredients
+                    ProductsIngredients = GetProductIngredients(new List<ProductIngredientDto>(request.ProductsIngredients)) 
                 };
                 if (_context.Products == null)
                     return default;

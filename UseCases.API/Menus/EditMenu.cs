@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
+using UseCases.API.Dto;
 
 namespace UseCases.API.Menus
 {
@@ -10,7 +11,7 @@ namespace UseCases.API.Menus
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public List<MenuItem> MenuItems { get; set; } = new();
+            public List<MenuItemDto> MenuItems { get; set; } = new();
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {
@@ -28,7 +29,22 @@ namespace UseCases.API.Menus
                 {
                     return default;
                 }
-                menu.MenuItems = request.MenuItems;
+                List<MenuItem> menuItems = menu.MenuItems.ToList();
+                MenuItemDto? item = request.MenuItems.ToList().Find(oi => oi.Id == 0);
+                if (item != null && item.Product != null)
+                {
+                    Product? product = await _context.Products.Include(e => e.ProductsIngredients).
+                        FirstOrDefaultAsync(p => p.Id == item.Product.Id, cancellationToken: cancellationToken);
+                    MenuItem menuItem = new() { Product = product };
+                    if (_context.OrderItems == null)
+                    {
+                        return default;
+                    }
+                    await _context.MenuItems.AddAsync(menuItem, cancellationToken);
+                    await _context.SaveChangesAsync(cancellationToken);
+                    menuItems.Add(menuItem);
+                }
+                menu.MenuItems = menuItems;
                 await _context.SaveChangesAsync(cancellationToken);
                 return menu.Id;
             }

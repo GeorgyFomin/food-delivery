@@ -33,6 +33,7 @@ namespace UseCases.API.OrderItems
                     throw new EntityNotFoundException("OrderItem not found");
                 }
                 return _mapper.Map<OrderItemDto?>(orderItem);
+
             }
         }
     }

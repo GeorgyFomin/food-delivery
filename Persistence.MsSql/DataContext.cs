@@ -21,6 +21,7 @@ namespace Persistence.MsSql
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ProductIngredient>().HasKey(k => new { k.IngredientId, k.ProductId });
+            modelBuilder.Entity<Order>().OwnsOne(p => p.PhoneNumder);
         }
     }
 }

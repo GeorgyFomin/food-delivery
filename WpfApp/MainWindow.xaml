@@ -6,8 +6,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:WpfApp"
         xmlns:local1="clr-namespace:WpfApp.View"
-        xmlns:viewmodels="clr-namespace:WpfApp.ViewModels"
-        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
+        xmlns:viewmodels="clr-namespace:WpfApp.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
@@ -20,6 +19,7 @@
                     <MenuItem Header="Discounts" Command="{Binding DiscountsCommand}"/>
                     <!--<MenuItem Header="Menu Items" Command="{Binding MenuItemsCommand}"/>-->
                     <MenuItem Header="Menus" Command="{Binding MenusCommand}"/>
+                    <MenuItem Header="Orders" Command="{Binding OrdersCommand}"/>
                 </Menu>
             </DockPanel>
         </Grid>
@@ -43,6 +43,9 @@
                     </DataTemplate>-->
                     <DataTemplate DataType="{x:Type viewmodels:MenusViewModel }">
                         <local1:MenusControl/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:OrdersViewModel }">
+                        <local1:OrdersControl/>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

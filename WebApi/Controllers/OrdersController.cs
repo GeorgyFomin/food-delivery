@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Entities;
 using UseCases.API.Orders;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
-using Entities.Domain;
 
 namespace WebApi.Controllers
 {
@@ -25,55 +23,32 @@ namespace WebApi.Controllers
             {
                 throw new EntityNotFoundException("OrderDto not found");
             }
-            DeliveryDto? deliveryDto = orderDto.Delivery;
-            Delivery? delivery;
-            if (deliveryDto == null) delivery = null;
-            else delivery = new()
-            {
-                Price = deliveryDto.Price,
-                ServiceName = string.IsNullOrWhiteSpace(deliveryDto.ServiceName) ? "Noname" : deliveryDto.ServiceName,
-                TimeSpan = deliveryDto.TimeSpan
-            };
-            DiscountDto? discountDto = orderDto.Discount;
-            Discount? discount;
-            if (discountDto == null) discount = null;
-            else discount = new() { Size = discountDto.Size, Type = discountDto.Type };
-            List<OrderItem> orderItems = new();
-            foreach (OrderItemDto orderItemDto in orderDto.OrderElements)
-            {
-                ProductDto? productDto = orderItemDto.Product;
-                Product? product;
-                if (productDto == null) product = null;
-                else
-                {
-                    List<ProductIngredient> productIngredients = new();
-                    if (productDto.ProductsIngredients != null)
-                    {
-                        foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
-                        {
-                            productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-                        }
-                    }
-                    product = new Product()
-                    {
-                        ProductsIngredients = productIngredients,
-                        Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
-                        Price = productDto.Price,
-                        Weight = productDto.Weight
-                    };
-                }
-                orderItems.Add(new OrderItem() { Product = product, Quantity = orderItemDto.Quantity });
-            }
-
             int createOrderId = await _mediator.Send(new AddOrder.Command
             {
-                Delivery = delivery,
-                Discount = discount,
-                OrderElements = orderItems
+                Delivery = orderDto.Delivery,
+                Discount = orderDto.Discount,
+                OrderElements = orderDto.OrderElements,
+                PhoneNumber = orderDto.PhoneNumber < 10 ? 10 : orderDto.PhoneNumber
             });
             return CreatedAtAction(nameof(GetOrder), new { id = createOrderId }, null);
         }
-        [HttpDelete]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, OrderDto orderDto)
+        {
+            if (id != orderDto.Id)
+            {
+                return BadRequest();
+            }
+            return Ok(await _mediator.Send(new EditOrder.Command()
+            {
+                Id = orderDto.Id,
+                OrderElements = orderDto.OrderElements,
+                PhoneNumber = orderDto.PhoneNumber < 10 ? 10 : orderDto.PhoneNumber,
+                Delivery = orderDto.Delivery,
+                Discount = orderDto.Discount
+            }));
+        }
+        [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteOrder(int id)
         {
             await _mediator.Send(new DeleteOrder.Command { Id = id });

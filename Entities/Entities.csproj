@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.24.4" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.12.46" />
   </ItemGroup>
 
 </Project>

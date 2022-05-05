@@ -16,13 +16,17 @@ namespace WpfApp.ViewModels
     {
         #region Fields
         /// <summary>
+        /// Хранит флаг создания объекта.
+        /// </summary>
+        private bool isStart = true;
+        /// <summary>
         /// Хранит базовый адрес службы API, используемой для разделения запросов и команд при доступе к базе данных.
         /// </summary>
         private static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
         /// <summary>
         /// Хранит маршрут к контроллеру Menus.
         /// </summary>
-        private readonly string controllerPath = "api/Menus";
+        private readonly string menusControllerPath = "api/Menus";
         /// <summary>
         /// Хранит маршрут к контроллеру MenuItems.
         /// </summary>
@@ -32,17 +36,9 @@ namespace WpfApp.ViewModels
         /// </summary>
         private readonly string productControllerPath = "api/Products";
         /// <summary>
-        /// Хранит ссылку на текущий выделенный объект модели.
-        /// </summary>
-        private ProductDto? addedProduct;
-        /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
         private ObservableCollection<ProductDto> nonIncomingProducts = new();
-        /// <summary>
-        /// Хранит ссылку на текущий выделенный объект модели.
-        /// </summary>
-        private MenuItemDto? removedMenuItem;
         /// <summary>
         /// Хранит ссылку на коллекцию объектов модели.
         /// </summary>
@@ -56,79 +52,64 @@ namespace WpfApp.ViewModels
         /// </summary>
         private ObservableCollection<MenuDto> menus = new();
         /// <summary>
+        /// Хранит ссылку на таблицу с меню.
+        /// </summary>
+        private DataGrid? menuGrid;
+        /// <summary>
         /// Хранит ссылку на команду выделения строки в таблице UI.
         /// </summary>
-        private RelayCommand? itemSelectionCommand;
+        private RelayCommand? menuSelectionCommand;
         /// <summary>
         /// Хранит ссылку на команду стирания записи.
         /// </summary>
-        private RelayCommand? itemRemoveCommand;
+        private RelayCommand? menuRemoveCommand;
         private RelayCommand? menuItemSelectionCommand;
         private RelayCommand? productSelectionCommand;
+        private RelayCommand? menuGridLoadingRowCommand;
         #endregion
         #region Properties
         /// <summary>
         /// Устанавливает и возвращает ссылку на коллекцию продуктов.
         /// </summary>
-        public ObservableCollection<ProductDto> NonIncomingProducts
+        public ObservableCollection<ProductDto> Products
         {
             get => nonIncomingProducts;
-            set { nonIncomingProducts = value; RaisePropertyChanged(nameof(NonIncomingProducts)); }
+            set { nonIncomingProducts = value; RaisePropertyChanged(nameof(Products)); }
         }
         /// <summary>
-        /// Устанавливает и возвращает ссылку на выделенный продукт.
+        /// Устанавливает и возвращает ссылку на коллекцию элементов меню.
         /// </summary>
-        public ProductDto? AddedProduct
-        {
-            get => addedProduct;
-            set
-            {
-                addedProduct = value;
-                RaisePropertyChanged(nameof(AddedProduct));
-            }
-        }
         public ObservableCollection<MenuItemDto> MenuItems { get => menuItems; set { menuItems = value; RaisePropertyChanged(nameof(MenuItems)); } }
-        /// <summary>
-        /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
-        /// </summary>
-        public MenuItemDto? RemovedMenuItem { get => removedMenuItem; set { removedMenuItem = value; RaisePropertyChanged(nameof(RemovedMenuItem)); } }
         /// <summary>
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
         public ObservableCollection<MenuDto> Menus { get => menus; set { menus = value; RaisePropertyChanged(nameof(Menus)); } }
         /// <summary>
-        /// Устанавливает и возвращает ссылку на текущий выделенный объект модели.
+        /// Устанавливает и возвращает ссылку на команду загрузки строки таблицы меню.
         /// </summary>
-        public MenuDto? SelectedMenu
+        public ICommand MenuGridLoadingRowCommand => menuGridLoadingRowCommand ??= new RelayCommand(e =>
         {
-            get => selectedMenu; set
+            if (isStart && e is not null && e is DataGrid dataGrid)
             {
-                selectedMenu = value; RaisePropertyChanged(nameof(SelectedMenu));
-                //if (Menu != null)
-                if (SelectedMenu == null || SelectedMenu.MenuItems.Count == 0)
-                {
-                    // Очищаем таблицу.
-                    MenuItems.Clear();
-                    if (SelectedMenu == null)
-                    {
-                        Menus = menus;
-                    }
-                }
-                else
-                {
-                    MenuItems = new ObservableCollection<MenuItemDto>(SelectedMenu.MenuItems);
-                }
+                dataGrid.SelectedIndex = 0;
+                isStart = false;
             }
-        }
+        });
         /// <summary>
-        /// Устанавливает и возвращает ссылку на команду выделения строки в таблице UI.
+        /// Устанавливает и возвращает ссылку на команду выделения строки в таблице меню.
         /// </summary>
-        public ICommand ItemSelectionCommand => itemSelectionCommand ??= new RelayCommand(MenuSelection);
+        public ICommand MenuSelectionCommand => menuSelectionCommand ??= new RelayCommand(MenuSelection);
         /// <summary>
-        /// Устанавливает и возвращает ссылку на команду стирания записи в таблице UI.
+        /// Устанавливает и возвращает ссылку на команду стирания записи в таблице меню.
         /// </summary>
-        public ICommand ItemRemoveCommand => itemRemoveCommand ??= new RelayCommand(RemoveSelectedMenu);
+        public ICommand MenuRemoveCommand => menuRemoveCommand ??= new RelayCommand(RemoveSelectedMenu);
+        /// <summary>
+        /// Устанавливает и возвращает ссылку на команду выделения записи в таблице элементов меню.
+        /// </summary>
         public ICommand MenuItemSelectionCommand => menuItemSelectionCommand ??= new RelayCommand(MenuItemSelection);
+        /// <summary>
+        /// Устанавливает и возвращает ссылку на команду выделения записи в таблице продуктов.
+        /// </summary>
         public ICommand ProductSelectionCommand => productSelectionCommand ??= new RelayCommand(ProductSelection);
         #endregion
         public MenusViewModel()
@@ -137,206 +118,185 @@ namespace WpfApp.ViewModels
         }
         async void Upload()
         {
-            await UploadMenus();
+            // Получаем из базы список меню или null.
+            List<MenuDto>? menuDtos = await GetMenus();
+            // Создаем коллекцию меню, если список существует.
+            Menus = menuDtos != null ? new ObservableCollection<MenuDto>(menuDtos) : new();
             // Подгружаем продукты из базы в память.
-            await UploadProducts();
+            Products = await GetProducts();
         }
-        public async Task UploadMenus()
-        {
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(controllerPath);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                List<MenuDto>? menuDtos = JsonConvert.DeserializeObject<List<MenuDto>>(result);
-                if (menuDtos == null)
-                    return;
-                menus = new ObservableCollection<MenuDto>(menuDtos);
-
-                if (SelectedMenu != null)
-                {
-                    SelectedMenu = menuDtos.Find(m => m.Id == SelectedMenu.Id);
-                }
-                else
-                    Menus = menus;//.SkipWhile(m => m.MenuItems.Count == 0));
-            }
-        }
-        /// <summary>
-        /// Обновляет список продуктов в памяти, загружая их из базы данных.
-        /// </summary>
-        public async Task UploadProducts()
+        async Task<List<MenuDto>?> GetMenus()
         {
             // Создаем клиента для посылки запроса по адресу службы.
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response;
-            string result;
-            // Запрашиваем полный список элементов меню.
-            response = await client.GetAsync(itemControllerPath);
-
-            List<MenuItemDto>? allMenuItems = null;
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                result = response.Content.ReadAsStringAsync().Result;
-                allMenuItems = JsonConvert.DeserializeObject<List<MenuItemDto>>(result);
-            }
-            if (allMenuItems == null)
-            {
-                return;
-            }
+            // Посылаем клиенту запрос о меню.
+            HttpResponseMessage response = await client.GetAsync(menusControllerPath);
+            //Возвращаем полученый из базы данных список меню либо null.
+            return response.IsSuccessStatusCode ? JsonConvert.DeserializeObject<List<MenuDto>>(response.Content.ReadAsStringAsync().Result) : null;
+        }
+        async Task<ObservableCollection<ProductDto>> GetProducts()
+        {
+            // Создаем клиента для посылки запроса по адресу службы.
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             // Посылаем клиенту запрос о продуктах.
-            response = await client.GetAsync(productControllerPath);
-            if (!response.IsSuccessStatusCode) return;
-            // Сохраняем результата запроса.
-            result = response.Content.ReadAsStringAsync().Result;
+            HttpResponseMessage? response = await client.GetAsync(productControllerPath);
+            // Если ответ не получен, возвращаем пустую коллекцию. 
+            if (!response.IsSuccessStatusCode) return new();
             // Получаем полный список продуктов.
-            List<ProductDto>? products = JsonConvert.DeserializeObject<List<ProductDto>>(result);
-            if (products == null) return;
-            // Выделяем продукты, которые не входят в элементы меню.
-            foreach (var item in allMenuItems)
+            List<ProductDto>? products = JsonConvert.DeserializeObject<List<ProductDto>>(response.Content.ReadAsStringAsync().Result);
+            //Возвращаем полученую из базы данных коллекцию продуктов.
+            return products == null ? new() : new ObservableCollection<ProductDto>(products);
+        }
+        public async Task UploadMenus()
+        {
+            // Загружаем список меню из базы, если он там есть и доступен.
+            List<MenuDto>? menuDtos = await GetMenus();
+            // Уходим при отсутствии списка.
+            if (menuDtos == null) return;
+            // Формируем коллекцию меню для размещения в GUI.
+            menus = new ObservableCollection<MenuDto>(menuDtos);
+            // Если выделенного меню нет, то уходим.
+            if (selectedMenu == null) return;
+            // Определяем выделенный элемент в новой версии списка меню.
+            selectedMenu = menuDtos.Find(m => m.Id == selectedMenu.Id);
+            // Если в новой версии списка нет прежнего выделенного меню или список элементов меню выделенного меню пустой.
+            if (selectedMenu == null || selectedMenu.MenuItems.Count == 0)
             {
-                products.RemoveAll(p => item.Product != null && p.Id == item.Product.Id);
+                // Очищаем таблицу списка элементов меню выделенного элемента.
+                MenuItems.Clear();
+                // Если в новой версии списка нет прежнего выделенного меню.
+                if (selectedMenu == null)
+                {
+                    // Обновляем GUI таблицы меню.
+                    Menus = menus;
+                }
             }
-            //Сохраняем полученые из базы данных ссылки на продукты в памяти.
-            NonIncomingProducts = new ObservableCollection<ProductDto>(products);
+            else
+            {
+                // Если в новой версии списка есть выделенное меню, то обновляем список его элементов.
+                MenuItems = new ObservableCollection<MenuItemDto>(selectedMenu.MenuItems);
+            }
         }
         private void MenuSelection(object? e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
-            SelectedMenu = grid.SelectedItem is MenuDto menu ? menu : null;
-            if (SelectedMenu == null && NonIncomingProducts.Count > 0)
+            // Фиксируем индекс выделенной строки таблицы меню для дальнейшего возвращения фокуса.
+            int indx = grid.SelectedIndex;
+            // Запоминаем ссылку на таблицу меню.
+            menuGrid = grid;
+            // Фиксируем меню, которое отвечает выделенной строке.
+            selectedMenu = grid.SelectedItem is MenuDto menu ? menu : null;
+            // Создаем новое меню, если выделенная строка пустая.
+            if (selectedMenu == null)
             {
-                CreateMenu();
+                // Добавляем новое меню в строке с индексом indx таблицы меню.
+                CreateMenu(indx);
                 return;
             }
-            Menus = menus;
+            // Обновляем таблицу элементов выделенного меню.
+            MenuItems = new ObservableCollection<MenuItemDto>(selectedMenu.MenuItems);
         }
-
-        private async void CreateMenu()
+        private async void CreateMenu(int newRowIndex)
         {
+            // Если база продуктов пуста, то не из чего создавать меню.
+            if (Products.Count == 0) return;
+            // Создаем новый экземпляр меню.
             MenuDto menu = new();
+            // Заполняем его элементы меню всеми продуктами из базы.
+            foreach (ProductDto productDto in Products)
+            {
+                // Добавляем к элементам меню ссылку на продукт.
+                menu.MenuItems.Add(new MenuItemDto { Product = productDto });
+            }
+            // Посылаем запрос на редактирование меню.
             // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response;
-            foreach (ProductDto productDto in NonIncomingProducts)
-            {
-                // Добавляем к элементам меню ссылку на не использованный продуктй
-                menu.MenuItems.Add(new MenuItemDto { Product = productDto });
-                // Убираем этот продукт из базы Products.
-                response = await client.DeleteAsync(productControllerPath + $"/{productDto.Id}");
-                response.EnsureSuccessStatusCode();
-            }
-            // Убираем список не использованных продуктов из представления.
-            NonIncomingProducts.Clear();
-            // Обновляем выделеное меню.
-            response = await client.PostAsJsonAsync(controllerPath, menu);
+            // Посылаем запрос на создание нового меню.
+            HttpResponseMessage? response = await client.PostAsJsonAsync(menusControllerPath, menu);
             response.EnsureSuccessStatusCode();
-            Menus.Add(menu);
-            Upload();
-            //SelectedMenu = menu;
-            //await UploadProducts();
+            // Посылаем запрос на получение новой версии меню.
+            response = await client.GetAsync(menusControllerPath);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                // Получаем новую версию меню.
+                List<MenuDto>? menuDtos = JsonConvert.DeserializeObject<List<MenuDto>>(response.Content.ReadAsStringAsync().Result);
+                if (menuDtos == null)
+                    return;
+                // Создаем коллекцию для воспроизведения в таблице.
+                Menus = new ObservableCollection<MenuDto>(menuDtos);
+            }
+            if (menuGrid == null) return;
+            // Возвращаем фокус на вновь созданную строку таблицы меню, если таблица доступна.
+            menuGrid.SelectedIndex = newRowIndex;
         }
-
         private async void RemoveSelectedMenu(object? e)
         {
-            if (SelectedMenu == null)
+            if (selectedMenu == null)
                 return;
+            // Посылаем запрос на редактирование меню.
+            // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            foreach (MenuItemDto menuItemDto in SelectedMenu.MenuItems)
-            {
-                if (menuItemDto == null || menuItemDto.Product == null)
-                    continue;
-                ProductDto product = menuItemDto.Product;
-                // Убираем продукт из базы Products.
-                HttpResponseMessage response = await client.DeleteAsync(productControllerPath + $"/{product.Id}");
-                response.EnsureSuccessStatusCode();
-                // Добавляем продукт в базу.
-                response = await client.PostAsJsonAsync(productControllerPath, product);
-                response.EnsureSuccessStatusCode();
-            }
-            Menus.Remove(SelectedMenu);
-            // Очищаем таблицу.
-            MenuItems.Clear();
-            Upload();
-        }
-        private async Task RemoveMenuItem()
-        {
-            if (SelectedMenu == null || RemovedMenuItem == null)
-            {
-                return;
-            }
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response;
-            // Удаляем из базы Products продукты, входящие в выделенное меню.
-            // Автоматически удаляются все элементы меню.
-            foreach (MenuItemDto menuItemDto in SelectedMenu.MenuItems)
-            {
-                ProductDto? productDto = menuItemDto.Product;
-                if (productDto == null)
-                {
-                    continue;
-                }
-                // Убираем продукт из базы Products.
-                response = await client.DeleteAsync(productControllerPath + $"/{productDto.Id}");
-                response.EnsureSuccessStatusCode();
-            }
-            // Добавляем продукт выделенного элемента в базу Products.
-            response = await client.PostAsJsonAsync(productControllerPath, RemovedMenuItem.Product);
+            // Посылаем запрос на удаление меню.
+            HttpResponseMessage response = await client.DeleteAsync(menusControllerPath + $"/{selectedMenu.Id}");
             response.EnsureSuccessStatusCode();
-            // Удаляем из меню выделенный элемент
-            SelectedMenu.MenuItems.Remove(RemovedMenuItem);
-            // Обновляем выделеное меню.
-            // При этом восстанавливаются все элементы меню Menu, кроме удаленного MenuItem, с продуктами, ссылки на которые они содержат.
-            response = await client.PutAsJsonAsync(controllerPath + $"/{SelectedMenu.Id}", SelectedMenu);
-            response.EnsureSuccessStatusCode();
+            // Убираем выделенное меню из списка всех меню.
+            Menus.Remove(selectedMenu);
+            // Переводим фокус на первое меню.
+            if (e != null && e is DataGrid dataGrid)
+            {
+                dataGrid.SelectedIndex = 0;
+            }
         }
         private async void MenuItemSelection(object? e)
         {
-            if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
+            if (e == null
+                || e is not DataGrid grid
+                || grid.SelectedItem == null
+                || grid.SelectedItem is not MenuItemDto menuItem)
                 return;
-            RemovedMenuItem = grid.SelectedItem is MenuItemDto menuItem ? menuItem : null;
-            await RemoveMenuItem();
-            Upload();
-        }
-        async Task AddMenuItem()
-        {
-            if (SelectedMenu == null || AddedProduct == null)
-            {
-                return;
-            }
+            // Посылаем запрос на редактирование меню.
             // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage? response;
-            // 
-            foreach (MenuItemDto menuItem in SelectedMenu.MenuItems)
+            // Посылаем запрос на удаление элемента меню.
+            HttpResponseMessage? response = await client.DeleteAsync(itemControllerPath + $"/{menuItem.Id}");
+            response.EnsureSuccessStatusCode();
+            // Удаляем элемент меню из спика элементов выделенного меню.
+            MenuItems.Remove(menuItem);
+            // Обновляем GUI
+            await UploadMenus();
+            // Переводим фокус на первое меню, если текущее меню удалено.
+            if (menuGrid != null && MenuItems.Count == 0)
             {
-                ProductDto? productDto = menuItem.Product;
-                if (productDto == null)
-                {
-                    continue;
-                }
-                // Убираем продукт из базы Products.
-                response = await client.DeleteAsync(productControllerPath + $"/{productDto.Id}");
-                response.EnsureSuccessStatusCode();
+                menuGrid.SelectedIndex = 0;
             }
-            // Убираем из таблицы Products базы выделенный продукт.
-            response = await client.DeleteAsync(productControllerPath + $"/{AddedProduct.Id}");
-            response.EnsureSuccessStatusCode();
-            // Добавляем новый элемент меню в список элементов выделенного меню.
-            SelectedMenu.MenuItems.Add(new() { Product = AddedProduct });
-            // Обновляем выделеное меню.
-            response = await client.PutAsJsonAsync(controllerPath + $"/{SelectedMenu.Id}", SelectedMenu);
-            response.EnsureSuccessStatusCode();
         }
         private async void ProductSelection(object? e)
         {
-            if (SelectedMenu == null || Menus.Count == 0 || MenuItems.Count == 0 || e == null || e is not DataGrid grid || grid.SelectedItem == null)
+            if (selectedMenu == null
+                || Menus.Count == 0
+                || MenuItems.Count == 0
+                || e == null
+                || e is not DataGrid grid
+                || grid.SelectedItem == null
+                || grid.SelectedItem is not ProductDto addedProduct
+                // Если среди элементов меню уже есть выдленный продукт, то он не используется в качестве нового элемента меню.
+                || selectedMenu.MenuItems.Find(mi => mi.Product != null && mi.Product.Id == addedProduct.Id) != null)
                 return;
-            AddedProduct = grid.SelectedItem is ProductDto ? grid.SelectedItem as ProductDto : null;
-            await AddMenuItem();
-            // Подгружаем новую версию элементов меню.
-            Upload();
+            // Создаем новый элемент меню.
+            MenuItemDto newMenuItem = new() { Product = addedProduct };
+            // Добавляем новый элемент меню в список элементов выделенного меню.
+            selectedMenu.MenuItems.Add(newMenuItem);
+            // Посылаем запрос на редактирование меню.
+            // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            // Посылаем запрос на редактирование меню.
+            HttpResponseMessage? response = await client.PutAsJsonAsync(menusControllerPath + $"/{selectedMenu.Id}", selectedMenu);
+            response.EnsureSuccessStatusCode();
+            // Обновляем GUI.
+            await UploadMenus();
+            // Убираем фокус с таблицы продуктов.
+            grid.SelectedIndex = -1;
         }
-
     }
 }

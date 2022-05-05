@@ -1,5 +1,4 @@
-﻿using Entities.Domain;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
@@ -18,47 +17,31 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IngredientDto?> GetIngredient(int id) => await _mediator.Send(new GetIngredientById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult?> CreateIngredient(IngredientDto ingredientDto) //[FromBody] AddIngredient.Command command)
+        public async Task<ActionResult?> CreateIngredient(IngredientDto ingredientDto)
         {
             if (ingredientDto == null)
             {
                 throw new EntityNotFoundException("IngredientDto not found");
             }
-            List<ProductIngredient> productIngredients = new();
-            if (ingredientDto.ProductsIngredients != null)
-            {
-                foreach (ProductIngredientDto productIngredientDto in ingredientDto.ProductsIngredients)
-                {
-                    productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-                }
-            }
             var createIngredientId = await _mediator.Send(new AddIngredient.Command()
             {
                 Name = string.IsNullOrWhiteSpace(ingredientDto.Name) ? "Noname" : ingredientDto.Name,
-                ProductsIngredients = productIngredients
+                ProductsIngredients = ingredientDto.ProductsIngredients
             });
             return CreatedAtAction(nameof(GetIngredient), new { id = createIngredientId }, null);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult?> UpdateIngredient(int id, IngredientDto ingredientDto) //[FromBody] EditIngredient.Command command)
+        public async Task<IActionResult?> UpdateIngredient(int id, IngredientDto ingredientDto)
         {
             if (id != ingredientDto.Id)
             {
                 return BadRequest();
             }
-            List<ProductIngredient> productIngredients = new();
-            if (ingredientDto.ProductsIngredients != null)
-            {
-                foreach (ProductIngredientDto productIngredientDto in ingredientDto.ProductsIngredients)
-                {
-                    productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-                }
-            }
             return Ok(await _mediator.Send(new EditIngredient.Command()
             {
                 Id = ingredientDto.Id,
                 Name = string.IsNullOrWhiteSpace(ingredientDto.Name) ? "Noname" : ingredientDto.Name,
-                ProductsIngredients = productIngredients
+                ProductsIngredients = ingredientDto.ProductsIngredients
             }));
         }
 

@@ -11,7 +11,7 @@ namespace UseCases.API.Core
             CreateMap<MenuItem, MenuItemDto>();
             CreateMap<Menu, MenuDto>();
             CreateMap<OrderItem, OrderItemDto>();
-            CreateMap<Order, OrderDto>();
+            CreateMap<Order, OrderDto>().ForMember("PhoneNumber", opt => opt.MapFrom(c => c.PhoneNumder == null ? 0 : c.PhoneNumder.NationalNumber));
             CreateMap<Discount, DiscountDto>();
             CreateMap<ProductIngredient, ProductIngredientDto>();
             CreateMap<Ingredient, IngredientDto>();

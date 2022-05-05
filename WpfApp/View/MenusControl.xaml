@@ -1,4 +1,4 @@
-﻿<ContentControl x:Class="WpfApp.View.MenusControl"
+﻿<ContentControl x:Name="menusControl" x:Class="WpfApp.View.MenusControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
         <TextBlock Text="Menus" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="Incoming Menu Items" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Column="2" Text="Non-Incoming Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="2" Text="Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="menusGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Menus}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
@@ -28,11 +28,14 @@
                 <DataGridTextColumn IsReadOnly="True" Header="Id" Binding="{Binding Id}" />
             </DataGrid.Columns>
             <DataGrid.InputBindings>
-                <KeyBinding Key="Delete" Command="{Binding ItemRemoveCommand}" CommandParameter="{Binding ElementName=menusGridView}"/>
+                <KeyBinding Key="Delete" Command="{Binding MenuRemoveCommand}" CommandParameter="{Binding ElementName=menusGridView}"/>
             </DataGrid.InputBindings>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction Command="{Binding ItemSelectionCommand }" CommandParameter="{Binding ElementName=menusGridView}"/>
+                    <i:InvokeCommandAction Command="{Binding MenuSelectionCommand}" CommandParameter="{Binding ElementName=menusGridView}"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="LoadingRow">
+                    <i:InvokeCommandAction Command="{Binding MenuGridLoadingRowCommand}" CommandParameter="{Binding ElementName=menusGridView}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
@@ -40,28 +43,19 @@
                   ItemsSource="{Binding MenuItems}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
-            <!--<DataGrid.ContextMenu>
-                <ContextMenu Style="{StaticResource contextMenu}">
-                    <MenuItem Header="Add Ingredient" Command="{Binding IngredientAddCommand}" 
-                              CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"/>
-                </ContextMenu>
-            </DataGrid.ContextMenu>-->
             <DataGrid.Columns>
                 <DataGridTextColumn IsReadOnly="True" Header="Id" Binding="{Binding Id}" />
                 <DataGridTextColumn IsReadOnly="True" Header="Product Id" Binding="{Binding Product.Id}"/>
                 <DataGridTextColumn IsReadOnly="True" Header="Product Name" Binding="{Binding Product.Name}"/>
             </DataGrid.Columns>
-            <!--<DataGrid.InputBindings>
-                <KeyBinding Key="Delete" Command="{Binding MenuItemRemoveCommand}" CommandParameter="{Binding ElementName=menuItemsGridView}"/>
-            </DataGrid.InputBindings>-->
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction Command="{Binding MenuItemSelectionCommand}" CommandParameter="{Binding ElementName=menuItemsGridView}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Grid.Row="1" Grid.Column="2" x:Name="nonIncomingProducts" RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" 
-                  ItemsSource="{Binding NonIncomingProducts}" IsReadOnly="True"
+        <DataGrid Grid.Row="1" Grid.Column="2" x:Name="productsGridView" RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" 
+                  ItemsSource="{Binding Products}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" >
             <DataGrid.Columns>
@@ -70,7 +64,7 @@
             </DataGrid.Columns>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction Command="{Binding ProductSelectionCommand}" CommandParameter="{Binding ElementName=nonIncomingProducts}"/>
+                    <i:InvokeCommandAction Command="{Binding ProductSelectionCommand}" CommandParameter="{Binding ElementName=productsGridView}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>

@@ -25,12 +25,27 @@ namespace UseCases.API.Orders
                 {
                     return Enumerable.Empty<OrderDto>();
                 }
-                var order = await _context.Orders.ToListAsync(cancellationToken);
-                if (order == null)
+                var orders = await _context.Orders
+                    .Include(o => o.Delivery)
+                    .Include(o => o.Discount)
+                    .Include(o => o.OrderElements)
+                    .ThenInclude(oi => oi.Product)
+                    //.ThenInclude(p => p.ProductsIngredients)
+                    .ToListAsync(cancellationToken);
+                if (orders == null)
                 {
                     throw new EntityNotFoundException("Order not found");
                 }
-                return _mapper.Map<List<OrderDto>>(order);
+                foreach (var item in _context.Orders)
+                {
+                    if (item.OrderElements.Count == 0)
+                    {
+                        _context.Orders.Remove(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+                return _mapper.Map<List<OrderDto>>(//orders);
+                await _context.Orders.ToListAsync());
             }
         }
 

@@ -19,6 +19,7 @@ namespace WpfApp.ViewModels
         private RelayCommand? discountsCommand;
         private RelayCommand? menuItemsCommand;
         private RelayCommand? menusCommand;
+        private RelayCommand? ordersCommand;
         public ViewModelBase? ViewModel { get => viewModel; set { viewModel = value; RaisePropertyChanged(nameof(ViewModel)); } }
         public ICommand DeliveriesCommand => deliveriesCommand ??= new RelayCommand(e => ViewModel = new DeliveriesViewModel());
         public ICommand IngredientsCommand => ingredientsCommand ??= new RelayCommand(e => ViewModel = new IngredientsViewModel());
@@ -26,5 +27,7 @@ namespace WpfApp.ViewModels
         public ICommand DiscountsCommand => discountsCommand ??= new RelayCommand(e => ViewModel = new DiscountsViewModel());
         public ICommand MenuItemsCommand => menuItemsCommand ??= new RelayCommand(e => ViewModel = new MenuItemsViewModel());
         public ICommand MenusCommand => menusCommand ??= new RelayCommand(e => ViewModel = new MenusViewModel());
+
+        public ICommand OrdersCommand => ordersCommand ??= new RelayCommand(e=>ViewModel=new OrdersViewModel());
     }
 }

@@ -3,6 +3,7 @@ using Entities.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Persistence.MsSql;
+using PhoneNumbers;
 
 namespace WebApi.Data
 {
@@ -24,6 +25,7 @@ namespace WebApi.Data
         /// </summary>
         public static readonly Random random = new();
         private static readonly List<Ingredient> ingredients = GetRandomIngredients(random.Next(5, 10));
+        private static readonly PhoneNumberUtil phoneUtil = PhoneNumberUtil.GetInstance();
         /// <summary>
         /// Возвращает список случайных ингредиентов.
         /// </summary>
@@ -166,13 +168,15 @@ namespace WebApi.Data
             List<Order> list = new(Enumerable.Range(0, v).Select(Index => new Order()).ToList());
             for (int i = 0; i < list.Count; i++)
             {
-                List<OrderItem> orderItems = GetOrderItems();
-                list[i].OrderElements = orderItems;
+                list[i].OrderElements = GetOrderItems();
                 list[i].Delivery = deliveries[random.Next(deliveries.Count)];
                 list[i].Discount = discounts[random.Next(discounts.Count)];
+                list[i].PhoneNumder = GetRandomPhoneNumber();
             }
             return list;
         }
+        private static PhoneNumber? GetRandomPhoneNumber() =>
+            phoneUtil.Parse("+7" + new string(Enumerable.Range(2, random.Next(2, 11)).Select(x => (char)random.Next('0', '9' + 1)).ToArray()), "ru");
         private static readonly List<Order> orders = GetRandomOrders(random.Next(2, 5));
         /// <summary>
         /// Генерирует случайную строку из латинских букв нижнего регистра.

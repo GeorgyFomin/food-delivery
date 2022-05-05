@@ -1,4 +1,6 @@
-﻿namespace UseCases.API.Dto
+﻿using Entities.Domain;
+
+namespace UseCases.API.Dto
 {
     public class OrderItemDto
     {

@@ -1,6 +1,8 @@
 ﻿using Entities.Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
+using UseCases.API.Dto;
 
 namespace UseCases.API.OrderItems
 {
@@ -9,7 +11,7 @@ namespace UseCases.API.OrderItems
         public class Command : IRequest<int>
         {
             public int Id { get; set; }
-            public Product? Product { get; set; }
+            public ProductDto? Product { get; set; }
             public int Quantity { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
@@ -24,11 +26,17 @@ namespace UseCases.API.OrderItems
                     return default;
                 }
                 OrderItem? orderItem = await _context.OrderItems.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
-                if (orderItem == null)
+                if (orderItem == null || request.Product == null)
                 {
                     return default;
                 }
-                orderItem.Product = request.Product;
+                Product? product = await _context.Products.Include(e => e.ProductsIngredients).
+                    FirstOrDefaultAsync(p => p.Id == request.Product.Id, cancellationToken: cancellationToken);
+                if (product == null)
+                {
+                    return default;
+                }
+                orderItem.Product = product;
                 orderItem.Quantity = request.Quantity;
                 await _context.SaveChangesAsync(cancellationToken);
                 return orderItem.Id;

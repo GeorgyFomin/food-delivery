@@ -3,7 +3,6 @@ using MediatR;
 using UseCases.API.Products;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
-using Entities.Domain;
 
 namespace WebApi.Controllers
 {
@@ -18,43 +17,33 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ProductDto?> GetProduct(int id) => await _mediator.Send(new GetProductById.Query() { Id = id });
         [HttpPost]
-        public async Task<ActionResult> CreateProduct(ProductDto productDto) //[FromBody] AddProduct.Command command)
+        public async Task<ActionResult> CreateProduct(ProductDto productDto)
         {
             if (productDto == null)
             {
                 throw new EntityNotFoundException("ProductDto not found");
             }
-            List<ProductIngredient> productIngredients = new();
-            foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
-            {
-                productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-            }
             var createProductId = await _mediator.Send(new AddProduct.Command()
             {
                 Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
-                ProductsIngredients = productIngredients,
+                ProductsIngredients = productDto.ProductsIngredients,
                 Price = productDto.Price,
                 Weight = productDto.Weight
             });
             return CreatedAtAction(nameof(GetProduct), new { id = createProductId }, null);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, ProductDto productDto) //[FromBody] EditProduct.Command command)
+        public async Task<IActionResult> UpdateProduct(int id, ProductDto productDto)
         {
             if (id != productDto.Id)
             {
                 return BadRequest();
             }
-            List<ProductIngredient> productIngredients = new();
-            foreach (ProductIngredientDto productIngredientDto in productDto.ProductsIngredients)
-            {
-                productIngredients.Add(new ProductIngredient() { IngredientId = productIngredientDto.IngredientId, ProductId = productIngredientDto.ProductId });
-            }
             return Ok(await _mediator.Send(new EditProduct.Command
             {
                 Id = productDto.Id,
                 Weight = productDto.Weight,
-                ProductsIngredients = productIngredients,
+                ProductsIngredients = productDto.ProductsIngredients,
                 Name = string.IsNullOrWhiteSpace(productDto.Name) ? "Noname" : productDto.Name,
                 Price = productDto.Price
             }));

@@ -27,7 +27,6 @@ namespace UseCases.API.MenuItems
                 {
                     return Enumerable.Empty<MenuItemDto>();
                 }
-                //var menuItems = await _context.MenuItems.ToListAsync(cancellationToken);
                 var menuItems = await _context.MenuItems.Include(e => e.Product).ThenInclude(p => p != null ? p.ProductsIngredients : null).ToListAsync(cancellationToken);
                 if (menuItems == null)
                 {
