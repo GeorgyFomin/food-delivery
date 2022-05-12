@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,12 @@ namespace UseCases.API.Menus
                 {
                     return null;
                 }
-                var menu = await _context.Menus.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                var menu = await _context
+                    .Menus
+                    .Include(m => m.MenuItems)
+                    .ThenInclude(mi => mi.Product)
+                    .ThenInclude(p => p == null ? null : p.ProductsIngredients)
+                    .FirstOrDefaultAsync(mi => mi.Id == request.Id, cancellationToken);
                 if (menu == null)
                 {
                     throw new EntityNotFoundException("Menu not found");

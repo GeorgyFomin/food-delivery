@@ -105,12 +105,12 @@ namespace WebApi.Data
             {
                 if (random.NextDouble() < .9)
                 {
-                    items.Add(new OrderItem { Product = products[i], Quantity = random.Next(1, 10) });
+                    items.Add(new OrderItem { Product = products[i], Quantity = (uint)random.Next(1, 10) });
                 }
             }
             if (items.Count == 0)
             {
-                items.Add(new OrderItem { Product = products[random.Next(products.Count)], Quantity = random.Next(1, 10) });
+                items.Add(new OrderItem { Product = products[random.Next(products.Count)], Quantity = (uint)random.Next(1, 10) });
             }
             return items;
         }

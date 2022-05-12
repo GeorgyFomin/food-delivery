@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="deliveriesGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding DataSource}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="deliveriesGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding DataSource}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
             <!--<DataGrid.ContextMenu>

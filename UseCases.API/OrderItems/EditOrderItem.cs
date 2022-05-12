@@ -12,7 +12,7 @@ namespace UseCases.API.OrderItems
         {
             public int Id { get; set; }
             public ProductDto? Product { get; set; }
-            public int Quantity { get; set; }
+            public uint Quantity { get; set; }
         }
         public class CommandHandler : IRequestHandler<Command, int>
         {

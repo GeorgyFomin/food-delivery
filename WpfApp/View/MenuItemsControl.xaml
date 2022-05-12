@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
         <TextBlock Text="Menu Items" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="Non-Incoming Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="menuItemsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding MenuItems}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="menuItemsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding MenuItems}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" CanUserAddRows="False">
             <!--<DataGrid.ContextMenu>
@@ -46,7 +46,7 @@
                 </i:EventTrigger>-->
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Grid.Column="1" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" Grid.Column="1" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding NonIncomingProducts}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entities.Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
@@ -26,11 +27,16 @@ namespace UseCases.API.Products
 
             public async Task<ProductDto?> Handle(Query request, CancellationToken cancellationToken)
             {
-                if (_context.Products==null)
+                if (_context.Products == null)
                 {
                     return null;
                 }
-                Product? product = await _context.Products.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                Product? product = await _context
+                    .Products
+                    .Include(e => e.ProductsIngredients)
+                    .ThenInclude(p => p.Ingredient)
+                    .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+                //.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
                 if (product == null)
                 {
                     throw new EntityNotFoundException("Product not found");

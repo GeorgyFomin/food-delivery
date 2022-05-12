@@ -21,7 +21,7 @@
         <TextBlock Text="Menus" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="Incoming Menu Items" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="2" Text="Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="menusGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Menus}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="menusGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Menus}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
             <DataGrid.Columns>
@@ -39,7 +39,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Grid.Column="1" x:Name="menuItemsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" Grid.Column="1" x:Name="menuItemsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding MenuItems}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
@@ -54,7 +54,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Grid.Row="1" Grid.Column="2" x:Name="productsGridView" RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" Grid.Row="1" Grid.Column="2" x:Name="productsGridView" RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding Products}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" >

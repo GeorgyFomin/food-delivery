@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 using UseCases.API.Dto;
 using UseCases.API.Exceptions;
@@ -27,7 +28,14 @@ namespace UseCases.API.Orders
                 {
                     return null;
                 }
-                var order = await _context.Orders.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken);
+                var order = await _context
+                    .Orders
+                    .Include(o => o.Delivery)
+                    .Include(o => o.Discount)
+                    .Include(o => o.OrderElements)
+                    .ThenInclude(oi => oi.Product)
+                    //.ThenInclude(p => p.ProductsIngredients)
+                    .FirstOrDefaultAsync(o => o.Id == request.Id, cancellationToken);
                 if (order == null)
                 {
                     throw new EntityNotFoundException("Order not found");

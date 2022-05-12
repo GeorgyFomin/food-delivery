@@ -1,0 +1,70 @@
+﻿@using WebASP_MVC.Controllers
+@model UseCases.API.Dto.OrderDto
+@{
+    ViewData["Title"] = "Details";
+}
+<h1>Details</h1>
+
+<div>
+    <h4>Order</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Delivery)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Delivery)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Discount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Discount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PhoneNumber)
+        </dd>
+        @if (Model != null && Model.OrderElements.Count > 0 && OrdersController.IncomingItems != null)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.OrderElements)
+            </dt>
+            <dd class="col-sm-10">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.Raw("Products")
+                            </th>
+                            <th>
+                                @Html.Raw("Quantities")
+                            </th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in OrdersController.IncomingItems)
+                    {
+                        if (item == null || item.Product == null) continue;
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Product.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modeitem=>item.Quantity)
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </dd>
+        }
+    </dl>
+</div>
+<div>
+    @if (Model != null)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    }
+    <a asp-action="Index">Back to List</a>
+</div>

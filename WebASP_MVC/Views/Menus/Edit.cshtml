@@ -1,0 +1,70 @@
+﻿@using WebASP_MVC.Controllers
+@model UseCases.API.Dto.MenuDto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+<h1>Menu</h1>
+
+<h4>Menu</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <table class="table">
+            <tr>Menu Items</tr>
+            @foreach (var item in MenusController.IncomingProducts)
+            {
+                @if (item == null) continue;
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modeitem=>item.Name)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-itemId="-@item.Id">Remove</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="col-md-4">
+        <table class="table">
+            <tr>Non-Incoming MenuItems</tr>
+            @foreach (var item in MenusController.NonIncomingProducts)
+            {
+                @if (item == null) continue;
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modeitem=>item.Name)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-itemId="@item.Id">Add</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

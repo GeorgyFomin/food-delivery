@@ -25,7 +25,12 @@ namespace UseCases.API.Menus
                 {
                     return Enumerable.Empty<MenuDto>();
                 }
-                var menus = await _context.Menus.Include(m => m.MenuItems).ThenInclude(mi => mi.Product).ToListAsync(cancellationToken);
+                var menus = await _context
+                    .Menus
+                    .Include(m => m.MenuItems)
+                    .ThenInclude(mi => mi.Product)
+                    .ThenInclude(p => p == null ? null : p.ProductsIngredients)
+                    .ToListAsync(cancellationToken);
                 if (menus == null)
                 {
                     throw new EntityNotFoundException("Menu not found");

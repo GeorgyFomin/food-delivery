@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Entities.Domain;
 using UseCases.API.Dto;
 
 namespace WebASP_MVC.Controllers
@@ -90,10 +89,19 @@ namespace WebASP_MVC.Controllers
             if (id == null)
                 return NotFound();
             curProduct = null;
-            List<ProductDto>? products = await GetProductsAsync();
-            if (products == null)
-                return NotFound();
-            curProduct = products.SingleOrDefault(p => p.Id == id);
+
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            HttpResponseMessage response = await client.GetAsync(path + $"/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                curProduct = JsonConvert.DeserializeObject<ProductDto>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            //List<ProductDto>? products = await GetProductsAsync();
+            //if (products == null)
+            //    return NotFound();
+            //curProduct = products.SingleOrDefault(p => p.Id == id);
+
             if (curProduct == null)
             {
                 return NotFound();

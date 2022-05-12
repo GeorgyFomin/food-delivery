@@ -21,7 +21,7 @@
         <TextBlock Text="Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="Incoming Ingredients" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="2" Text="Non-Incoming Ingredients" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-        <DataGrid RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Products}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="productsGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Products}" 
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
             <DataGrid.Columns>
@@ -42,7 +42,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Grid.Column="1" x:Name="ingredientsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" Grid.Column="1" x:Name="ingredientsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding IncomingIngredients}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" IsEnabled="{Binding IngrEnabled}">
@@ -65,7 +65,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Grid.Row="1" Grid.Column="2" x:Name="nonIncomingIngrGrid" RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" Grid.Row="1" Grid.Column="2" x:Name="nonIncomingIngrGrid" RowHeaderStyle="{StaticResource BlackNavy}" DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding NonIncomingIngredients}" IsReadOnly="True"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   BorderThickness="0" CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" IsEnabled="{Binding IngrEnabled}">
