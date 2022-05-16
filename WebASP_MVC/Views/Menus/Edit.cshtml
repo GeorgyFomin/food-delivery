@@ -26,12 +26,12 @@
     <div class="col-md-4">
         <table class="table">
             <tr>Menu Items</tr>
-            @foreach (var item in MenusController.IncomingProducts)
+            @foreach (var item in @Model.MenuItems)
             {
-                @if (item == null) continue;
+                @if (item == null || item.Product == null) continue;
                 <tr>
                     <td>
-                        @Html.DisplayFor(modeitem=>item.Name)
+                        @Html.DisplayFor(modeitem=>item.Product.Name)
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-itemId="-@item.Id">Remove</a>
@@ -65,6 +65,6 @@
 
 @section Scripts {
     @{
-    await Html.RenderPartialAsync("_ValidationScriptsPartial");
-}
-}
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

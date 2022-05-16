@@ -30,6 +30,11 @@ namespace UseCases.API.Menus
                     {
                         Product? product = await _context.Products.Include(e => e.ProductsIngredients).
                             FirstOrDefaultAsync(p => p.Id == item.Product.Id, cancellationToken: cancellationToken);
+                        if (product == null)
+                        {
+                            await _context.Products.AddAsync(product = new Product(), cancellationToken);
+                            await _context.SaveChangesAsync(cancellationToken);
+                        }
                         MenuItem menuItem = new() { Product = product };
                         await _context.MenuItems.AddAsync(menuItem, cancellationToken);
                         await _context.SaveChangesAsync(cancellationToken);

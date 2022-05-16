@@ -12,7 +12,7 @@ namespace WebASP_MVC.Controllers
         private static readonly string itemsPath = "api/MenuItems";
         private static readonly string productsPath = "api/Products";
         static MenuDto? curMenu = null;
-        public static List<ProductDto> IncomingProducts { private set; get; } = new List<ProductDto>();
+        //public static List<ProductDto> IncomingProducts { private set; get; } = new List<ProductDto>();
         public static List<ProductDto> NonIncomingProducts { private set; get; } = new List<ProductDto>();
         static async Task<List<ProductDto>?> GetProductsAsync()
         {
@@ -26,33 +26,45 @@ namespace WebASP_MVC.Controllers
             }
             return products;
         }
-        public IActionResult Add(int? id)
+        public async Task<IActionResult> AddAsync(int? id)
         {
             if (id == null || curMenu == null) return NotFound();
             ProductDto? product = NonIncomingProducts.SingleOrDefault(p => p.Id == id);
             if (product == null) return NotFound();
             MenuItemDto menuItemDto = new() { Product = product };
-            IncomingProducts.Add(product);
             curMenu.MenuItems.Add(menuItemDto);
+            // Создаем клиента для посылки запроса по адресу службы.
+            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
+            // Обновляем текущее меню.
+            HttpResponseMessage? response = await client.PutAsJsonAsync(menusPath + $"/{curMenu.Id}", curMenu);
+            response.EnsureSuccessStatusCode();
+            // Посылаем клиенту запрос о меню.
+            response = await client.GetAsync(menusPath);
+            //Возвращаем полученый из базы данных список меню либо null.
+            List<MenuDto>? menuDtos = response.IsSuccessStatusCode ? JsonConvert.DeserializeObject<List<MenuDto>>(response.Content.ReadAsStringAsync().Result) : null;
+            if (menuDtos == null)
+                return NotFound();
+            // Определяем выделенный элемент в новой версии списка меню.
+            curMenu = menuDtos.Find(m => m.Id == curMenu.Id);
+            if (curMenu == null)
+            {
+                return NotFound();
+            }
             NonIncomingProducts.Remove(product);
             return View(curMenu);
         }
         public async Task<IActionResult> RemoveAsync(int? id)
         {
             if (id == null || curMenu == null) return NotFound();
-            ProductDto? product = IncomingProducts.SingleOrDefault(p => p.Id == id);
-            if (product == null) return NotFound();
-            MenuItemDto? menuItemDto = curMenu.MenuItems.Find(i => i.Product != null && i.Product.Id == id);
-            if (menuItemDto == null) return NotFound();
-            // Посылаем запрос на редактирование меню.
+            MenuItemDto? menuItemDto = curMenu.MenuItems.FirstOrDefault(i => i.Id == id);
+            if (menuItemDto == null || menuItemDto.Product == null) return NotFound();
             // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            // Посылаем запрос на удаление элемента меню.
+            // Удаляем элемент заказа из базы.
             HttpResponseMessage? response = await client.DeleteAsync(itemsPath + $"/{menuItemDto.Id}");
             response.EnsureSuccessStatusCode();
-            //curMenu.MenuItems.Remove(menuItemDto);
-            IncomingProducts.Remove(product);
-            NonIncomingProducts.Add(product);
+            curMenu.MenuItems.Remove(menuItemDto);
+            NonIncomingProducts.Add(menuItemDto.Product);
             return View(curMenu);
         }
         private static async Task SaveMenuChange(MenuDto menuDto)
@@ -88,17 +100,11 @@ namespace WebASP_MVC.Controllers
             }
             if (curMenu == null)
                 return NotFound();
-            IncomingProducts = new();
-            foreach (MenuItemDto menuItemDto in curMenu.MenuItems)
-            {
-                if (menuItemDto.Product == null) continue;
-                IncomingProducts.Add(menuItemDto.Product);
-            }
             List<ProductDto>? productDtos = await GetProductsAsync();
             NonIncomingProducts = new();
             if (productDtos != null)
                 foreach (ProductDto productDto in productDtos)
-                    if (IncomingProducts.Find(p => p.Id == productDto.Id) == null)
+                    if (curMenu.MenuItems.FirstOrDefault(p => p.Product != null && p.Product.Id == productDto.Id) == null)
                         NonIncomingProducts.Add(productDto);
             return View(curMenu);
         }
@@ -121,16 +127,16 @@ namespace WebASP_MVC.Controllers
             {
                 return View(menuDto);
             }
-            List<ProductDto>? products = await GetProductsAsync();
-            if (products == null)
-                return BadRequest();
-            menuDto.MenuItems = new List<MenuItemDto>();
-            // Заполняем его элементы меню всеми продуктами из базы.
-            foreach (ProductDto productDto in products)
-            {
-                // Добавляем к элементам меню ссылку на продукт.
-                menuDto.MenuItems.Add(new MenuItemDto { Product = productDto });
-            }
+            //List<ProductDto>? products = await GetProductsAsync();
+            //if (products == null)
+            //    return BadRequest();
+            menuDto.MenuItems = new List<MenuItemDto>() { new MenuItemDto() };
+            //// Заполняем его элементы меню всеми продуктами из базы.
+            //foreach (ProductDto productDto in products)
+            //{
+            //    // Добавляем к элементам меню ссылку на продукт.
+            //    menuDto.MenuItems.Add(new MenuItemDto { Product = productDto });
+            //}
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.PostAsJsonAsync(menusPath, menuDto);
             response.EnsureSuccessStatusCode();
@@ -139,39 +145,39 @@ namespace WebASP_MVC.Controllers
 
         // GET: Menus/Edit/id
         public async Task<IActionResult> Edit(int? id, int? itemId) =>
-            id == null ? NotFound() : itemId == null ? await GetMenuById(id) : itemId < 0 ? await RemoveAsync(-itemId) : Add(itemId);
+            id == null ? NotFound() : itemId == null ? await GetMenuById(id) : itemId < 0 ? await RemoveAsync(-itemId) : await AddAsync(itemId);
 
         // POST: Menus/Edit/id
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("MenuItems,Id")] MenuDto menuDto)
+        public IActionResult Edit([Bind("MenuItems,Id")] MenuDto menuDto)
         {
             if (!ModelState.IsValid)
             {
                 return View(menuDto);
             }
-            try
-            {
-                if (curMenu != null)
-                {
-                    menuDto.MenuItems = curMenu.MenuItems;
-                    menuDto.Id = curMenu.Id;
-                }
-                await SaveMenuChange(menuDto);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (GetMenuById(menuDto.Id).IsFaulted)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //try
+            //{
+            //    //if (curMenu != null)
+            //    //{
+            //    //    menuDto.MenuItems = curMenu.MenuItems;
+            //    //    menuDto.Id = curMenu.Id;
+            //    //}
+            //    //await SaveMenuChange(menuDto);
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (GetMenuById(menuDto.Id).IsFaulted)
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
             return RedirectToAction(nameof(Index));
         }
 

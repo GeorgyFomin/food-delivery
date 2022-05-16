@@ -8,14 +8,11 @@ namespace WebASP_MVC.Controllers
     public class OrdersController : Controller
     {
         static readonly string apiAddress = "https://localhost:7234/";//Или http://localhost:5234/
-        private static readonly string discountsPath = "api/Discounts";
-        private static readonly string deliveriesPath = "api/Deliveries";
         private static readonly string itemsPath = "api/OrderItems";
         private static readonly string ordersPath = "api/Orders";
         private static readonly string productsPath = "api/Products";
         private static OrderDto? curOrder;
         private static readonly Random random = new();
-        public static List<OrderItemDto> IncomingItems { set; get; } = new List<OrderItemDto>();
         public static List<ProductDto> NonIncomingProducts { private set; get; } = new List<ProductDto>();
         static async Task<List<ProductDto>?> GetProductsAsync()
         {
@@ -29,28 +26,47 @@ namespace WebASP_MVC.Controllers
             }
             return products;
         }
-        public IActionResult Add(int? id)
+        public async Task<IActionResult> AddAsync(int? id)
         {
             if (id == null || curOrder == null) return NotFound();
+            // Определяем продукт, из которого готовим новый элемент заказа.
             ProductDto? product = NonIncomingProducts.SingleOrDefault(p => p.Id == id);
             if (product == null) return NotFound();
+            // Готовим новый элемент заказа с продуктом в количестве 1.
             OrderItemDto orderItemDto = new() { Product = product, Quantity = 1 };
-            IncomingItems.Add(orderItemDto);
+            // Добавляем в список элементов заказа.
             curOrder.OrderElements.Add(orderItemDto);
+            // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
+            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            // Обновляем текущий заказ.
+            HttpResponseMessage? response = await client.PutAsJsonAsync(ordersPath + $"/{curOrder.Id}", curOrder);
+            response.EnsureSuccessStatusCode();
+            // Запрос формирует обновленный список заказов. У добавленного заказа появляется Id.
+            // Посылаем клиенту запрос о заказах.
+            response = await client.GetAsync(ordersPath);
+            //Возвращаем полученый из базы данных список заказов либо null.
+            List<OrderDto>? orderDtos = response.IsSuccessStatusCode ? JsonConvert.DeserializeObject<List<OrderDto>>(response.Content.ReadAsStringAsync().Result) : null;
+            if (orderDtos == null)
+                return NotFound();
+            // Определяем выделенный элемент в обновленной версии списка заказов.
+            curOrder = orderDtos.Find(o => o.Id == curOrder.Id);
+            if (curOrder == null) return NotFound();
+            // Обновляем список продуктов, удаляя из него использованный.
             NonIncomingProducts.Remove(product);
+            // Возвращаемся к обновленной версии страницы редактирования.
             return View(curOrder);
         }
         public async Task<IActionResult> RemoveAsync(int? id)
         {
             if (id == null || curOrder == null) return NotFound();
-            OrderItemDto? orderItem = IncomingItems.FirstOrDefault(i => i.Id == id);
+            OrderItemDto? orderItem = curOrder.OrderElements.FirstOrDefault(i => i.Id == id);
             if (orderItem == null) return NotFound();
             // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
             // Удаляем элемент заказа из базы.
             HttpResponseMessage? response = await client.DeleteAsync(itemsPath + $"/{orderItem.Id}");
             response.EnsureSuccessStatusCode();
-            IncomingItems.Remove(orderItem);
+            curOrder.OrderElements.Remove(orderItem);
             if (orderItem.Product != null)
             {
                 NonIncomingProducts.Add(orderItem.Product);
@@ -63,7 +79,6 @@ namespace WebASP_MVC.Controllers
             HttpResponseMessage response = await client.PutAsJsonAsync(ordersPath + $"/{orderDto.Id}", orderDto);
             response.EnsureSuccessStatusCode();
         }
-
         // GET: Orders
         public async Task<IActionResult> Index()
         {
@@ -91,12 +106,11 @@ namespace WebASP_MVC.Controllers
             }
             if (curOrder == null)
                 return NotFound();
-            IncomingItems = new List<OrderItemDto>(curOrder.OrderElements);
             List<ProductDto>? productDtos = await GetProductsAsync();
             NonIncomingProducts = new();
             if (productDtos != null)
                 foreach (ProductDto productDto in productDtos)
-                    if (IncomingItems.Find(i => i.Product != null && i.Product.Id == productDto.Id) == null)
+                    if (curOrder.OrderElements.FirstOrDefault(i => i.Product != null && i.Product.Id == productDto.Id) == null)
                         NonIncomingProducts.Add(productDto);
             return View(curOrder);
         }
@@ -107,51 +121,6 @@ namespace WebASP_MVC.Controllers
         {
             return View();
         }
-        private async Task<DeliveryDto?> GetRandomDelivery()
-        {
-            List<DeliveryDto>? deliveryDtos = new();
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(deliveriesPath);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                deliveryDtos = JsonConvert.DeserializeObject<List<DeliveryDto>>(result);
-            }
-            return deliveryDtos?[random.Next(deliveryDtos.Count)];
-        }
-        private async Task<DiscountDto?> GetRandomDiscount()
-        {
-            List<DiscountDto>? discountDtos = new();
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(discountsPath);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                discountDtos = JsonConvert.DeserializeObject<List<DiscountDto>>(result);
-            }
-            return discountDtos?[random.Next(discountDtos.Count)];
-        }
-        private static async Task<List<OrderItemDto>?> GetRandomOrderItems()
-        {
-            List<OrderItemDto>? orderItemDtos = new();
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(itemsPath);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                orderItemDtos = JsonConvert.DeserializeObject<List<OrderItemDto>>(result);
-            }
-            //if (orderItemDtos == null || orderItemDtos.Count == 0)
-            //{
-            //    return new List<OrderItemDto>() { new OrderItemDto() { Product = Products[0], Quantity = 1 } };
-            //}
-            //int amount = random.Next(1, 9);
-            //while (orderItemDtos.Count > amount)
-            //    // Убираем случайный элемент из всего списка элементов заказов, если в списке больше одного элемента. 
-            //    orderItemDtos.Remove(orderItemDtos[random.Next(orderItemDtos.Count)]);
-            return orderItemDtos;
-        }
-
         // POST: Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -163,11 +132,10 @@ namespace WebASP_MVC.Controllers
             {
                 return View(orderDto);
             }
-            orderDto.Discount = await GetRandomDiscount();
-            orderDto.Delivery = await GetRandomDelivery();
-            List<OrderItemDto>? orderItemDtos = await GetRandomOrderItems();
-            if (orderItemDtos != null)
-                orderDto.OrderElements = orderItemDtos;
+            orderDto.OrderElements = new List<OrderItemDto>
+            {
+                new OrderItemDto()
+            };
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.PostAsJsonAsync(ordersPath, orderDto);
             response.EnsureSuccessStatusCode();
@@ -176,14 +144,14 @@ namespace WebASP_MVC.Controllers
 
         // GET: Orders/Edit/id
         public async Task<IActionResult> Edit(int? id, int? itemId) =>
-            id == null ? NotFound() : itemId == null ? await GetOrderById(id) : itemId < 0 ? await RemoveAsync(-itemId) : Add(itemId);
-
+            id == null ? NotFound() : itemId == null ? await GetOrderById(id) : itemId < 0 ? await RemoveAsync(-itemId) :
+            await AddAsync(itemId);
         // POST: Orders/Edit/id
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("Discount, Delivery, PhoneNumber, OrderItems,Id")] OrderDto orderDto)
+        public async Task<IActionResult> Edit([Bind("Discount, Delivery, PhoneNumber, OrderItems, Id")] OrderDto orderDto)
         {
             if (!ModelState.IsValid)
             {
@@ -191,7 +159,7 @@ namespace WebASP_MVC.Controllers
             }
             try
             {
-                orderDto.OrderElements = IncomingItems;
+                //orderDto.OrderElements = curOrder.OrderElements;
                 await SaveOrderChange(orderDto);
             }
             catch (DbUpdateConcurrencyException)

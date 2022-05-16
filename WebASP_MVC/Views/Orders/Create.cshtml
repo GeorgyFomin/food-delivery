@@ -1,4 +1,5 @@
-﻿@model UseCases.API.Dto.OrderDto
+﻿@using WebASP_MVC.Controllers
+@model UseCases.API.Dto.OrderDto
 @{
     ViewData["Title"] = "Create";
 }
@@ -7,50 +8,10 @@
 <h4>Order</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-@*            @if (Model.Delivery != null)
-            {
-                <label asp-for="Delivery" class="control-label"></label>
-                <div class="form-group">
-                    <label asp-for="@Model.Delivery.ServiceName" class="control-label"></label>
-                    <input asp-for="@Model.Delivery.ServiceName" class="form-control" />
-                    <span asp-validation-for="@Model.Delivery.ServiceName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="@Model.Delivery.Price" class="control-label"></label>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">P</span>
-                        <input asp-for="@Model.Delivery.Price" type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
-                        <span class="input-group-text">.00</span>
-                    </div>
-                    <span asp-validation-for="@Model.Delivery.Price" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="@Model.Delivery.TimeSpan" class="control-label"></label>
-                    <input asp-for="@Model.Delivery.TimeSpan" class="form-control" />
-                    <span asp-validation-for="@Model.Delivery.TimeSpan" class="text-danger"></span>
-                </div>
-            }
-            @if (Model.Discount != null)
-            {
-                <label asp-for="Discount" class="control-label"></label>
-
-                <div class="form-group">
-                    <label asp-for="@Model.Discount.Type" class="control-label"></label>
-                    <input asp-for="@Model.Discount.Type" class="form-control" />
-                    <span asp-validation-for="@Model.Discount.Type" class="text-danger"></span>
-
-                </div>
-                <div class="form-group">
-                    <label asp-for="@Model.Discount.Size" class="control-label"></label>
-                    <input asp-for="@Model.Discount.Size" class="form-control" />
-                    <span asp-validation-for="@Model.Discount.Size" class="text-danger"></span>
-
-                </div>
-            }
-*@            <div class="form-group">
+            <div class="form-group">
                 <label asp-for="PhoneNumber" class="control-label"></label>
                 <div class="input-group mb-3">
                     <span class="input-group-text">+7</span>
@@ -71,6 +32,6 @@
 
 @section Scripts {
     @{
-    await Html.RenderPartialAsync("_ValidationScriptsPartial");
-}
-}
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

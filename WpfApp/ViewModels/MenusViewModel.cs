@@ -15,10 +15,10 @@ namespace WpfApp.ViewModels
     internal class MenusViewModel : ViewModelBase
     {
         #region Fields
-        /// <summary>
-        /// Хранит флаг создания объекта.
-        /// </summary>
-        private bool isStart = true;
+        ///// <summary>
+        ///// Хранит флаг создания объекта.
+        ///// </summary>
+        //private bool isStart = true;
         /// <summary>
         /// Хранит базовый адрес службы API, используемой для разделения запросов и команд при доступе к базе данных.
         /// </summary>
@@ -65,7 +65,7 @@ namespace WpfApp.ViewModels
         private RelayCommand? menuRemoveCommand;
         private RelayCommand? menuItemSelectionCommand;
         private RelayCommand? productSelectionCommand;
-        private RelayCommand? menuGridLoadingRowCommand;
+        //private RelayCommand? menuGridLoadingRowCommand;
         #endregion
         #region Properties
         /// <summary>
@@ -84,17 +84,17 @@ namespace WpfApp.ViewModels
         /// Устанавливает и возвращает коллекцию объектов модели.
         /// </summary>
         public ObservableCollection<MenuDto> Menus { get => menus; set { menus = value; RaisePropertyChanged(nameof(Menus)); } }
-        /// <summary>
-        /// Устанавливает и возвращает ссылку на команду загрузки строки таблицы меню.
-        /// </summary>
-        public ICommand MenuGridLoadingRowCommand => menuGridLoadingRowCommand ??= new RelayCommand(e =>
-        {
-            if (isStart && e is not null && e is DataGrid dataGrid)
-            {
-                dataGrid.SelectedIndex = 0;
-                isStart = false;
-            }
-        });
+        ///// <summary>
+        ///// Устанавливает и возвращает ссылку на команду загрузки строки таблицы меню.
+        ///// </summary>
+        //public ICommand MenuGridLoadingRowCommand => menuGridLoadingRowCommand ??= new RelayCommand(e =>
+        //{
+        //    if (isStart && e is not null && e is DataGrid dataGrid)
+        //    {
+        //        dataGrid.SelectedIndex = 0;
+        //        isStart = false;
+        //    }
+        //});
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду выделения строки в таблице меню.
         /// </summary>
@@ -199,16 +199,11 @@ namespace WpfApp.ViewModels
         }
         private async void CreateMenu(int newRowIndex)
         {
-            // Если база продуктов пуста, то не из чего создавать меню.
-            if (Products.Count == 0) return;
             // Создаем новый экземпляр меню.
-            MenuDto menu = new();
-            // Заполняем его элементы меню всеми продуктами из базы.
-            foreach (ProductDto productDto in Products)
+            MenuDto menu = new()
             {
-                // Добавляем к элементам меню ссылку на продукт.
-                menu.MenuItems.Add(new MenuItemDto { Product = productDto });
-            }
+                MenuItems = new List<MenuItemDto> { new MenuItemDto() }
+            };
             // Посылаем запрос на редактирование меню.
             // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
             HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };

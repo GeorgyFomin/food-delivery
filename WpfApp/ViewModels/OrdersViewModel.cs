@@ -17,7 +17,6 @@ namespace WpfApp.ViewModels
     internal class OrdersViewModel : ViewModelBase
     {
         #region Fields
-        private readonly Random random = new();
         /// <summary>
         /// Хранит индекс последней выделенной строки в таблице заказов.
         /// </summary>
@@ -26,10 +25,6 @@ namespace WpfApp.ViewModels
         /// Хранит индекс вновь образованной строки в таблице заказов.
         /// </summary>
         int newRowIndex;
-        /// <summary>
-        /// Хранит флаг создания объекта.
-        /// </summary>
-        private bool isStart = true;
         /// <summary>
         /// Хранит базовый адрес службы API, используемой для разделения запросов и команд при доступе к базе данных.
         /// </summary>
@@ -42,14 +37,6 @@ namespace WpfApp.ViewModels
         /// Хранит маршрут к контроллеру OrderItems.
         /// </summary>
         private readonly string orderItemsControllerPath = "api/OrderItems";
-        /// <summary>
-        /// Хранит маршрут к контроллеру Discounts.
-        /// </summary>
-        private readonly string discountControllerPath = "api/Discounts";
-        /// <summary>
-        /// Хранит маршрут к контроллеру Discounts.
-        /// </summary>
-        private readonly string deliveryControllerPath = "api/Deliveries";
         /// <summary>
         /// Хранит маршрут к контроллеру Products.
         /// </summary>
@@ -82,7 +69,6 @@ namespace WpfApp.ViewModels
         /// Хранит ссылку на команду выделения строки в таблице UI.
         /// </summary>
         private RelayCommand? orderSelectionCommand;
-        private RelayCommand? orderGridLoadingRowCommand;
         /// <summary>
         /// Хранит ссылку на команду стирания записи.
         /// </summary>
@@ -107,17 +93,6 @@ namespace WpfApp.ViewModels
         /// Устанавливает и возвращает коллекцию заказов.
         /// </summary>
         public ObservableCollection<OrderDto> Orders { get => orders; set { orders = value; RaisePropertyChanged(nameof(Orders)); } }
-        /// <summary>
-        /// Устанавливает и возвращает ссылку на команду загрузки строки таблицы заказов.
-        /// </summary>
-        public ICommand OrderGridLoadingRowCommand => orderGridLoadingRowCommand ??= new RelayCommand(e =>
-        {
-            if (isStart && e is not null && e is DataGrid dataGrid)
-            {
-                dataGrid.SelectedIndex = 0;
-                isStart = false;
-            }
-        });
         /// <summary>
         /// Устанавливает и возвращает ссылку на команду выделения строки в таблице заказов.
         /// </summary>
@@ -202,30 +177,7 @@ namespace WpfApp.ViewModels
             }
         }
         #region Order Grid Manipulations
-        private async void CreateOrder(int newRowIndex)
-        {
-            // Посылаем запрос на редактирование меню.
-            // Создаем клиента для посылки сообщений по адресу службы, обрабатывающей сообщения.
-            HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
-            // Создаем новый экземпляр меню.
-            // Вновь создаваемый заказ включает в себя случайные Discount, Delivery и OrderElements, выбранные из таблиц базы данных.
-            OrderDto newOrder = new()
-            {
-                Delivery = await GetRandomDelivery(),
-                Discount = await GetRandomDiscount(),
-                OrderElements = await GetRandomOrderItems(),
-                PhoneNumber = 10
-            };
-            // Посылаем запрос на создание нового меню.
-            HttpResponseMessage? response = await client.PostAsJsonAsync(ordersControllerPath, newOrder);
-            response.EnsureSuccessStatusCode();
-            // Обновляем таблицу заказов.
-            await ResetOrders();
-            if (orderGrid == null) return;
-            // Возвращаем фокус на вновь созданную строку таблицы меню, если таблица доступна.
-            orderGrid.SelectedIndex = newRowIndex;
-        }
-        private async void OrderSelection(object? e)
+        private void OrderSelection(object? e)
         {
             if (e == null || e is not DataGrid grid || grid.SelectedItem == null)
                 return;
@@ -244,59 +196,13 @@ namespace WpfApp.ViewModels
             if (selectedOrder.Id == 0)
             {
                 newRowIndex = lastSelectedOrderRowIndx;
-                selectedOrder.Delivery = await GetRandomDelivery();
-                selectedOrder.Discount = await GetRandomDiscount();
-                selectedOrder.OrderElements = await GetRandomOrderItems();
+                selectedOrder.OrderElements = new List<OrderItemDto> { new OrderItemDto() };
             }
             else
             {
                 // Обновляем таблицу элементов выделенного заказа.
                 OrderItems = new ObservableCollection<OrderItemDto>(selectedOrder.OrderElements);
             }
-        }
-        private async Task<DeliveryDto?> GetRandomDelivery()
-        {
-            List<DeliveryDto>? deliveryDtos = new();
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(deliveryControllerPath);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                deliveryDtos = JsonConvert.DeserializeObject<List<DeliveryDto>>(result);
-            }
-            return deliveryDtos?[random.Next(deliveryDtos.Count)];
-        }
-        private async Task<DiscountDto?> GetRandomDiscount()
-        {
-            List<DiscountDto>? discountDtos = new();
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(discountControllerPath);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                discountDtos = JsonConvert.DeserializeObject<List<DiscountDto>>(result);
-            }
-            return discountDtos?[random.Next(discountDtos.Count)];
-        }
-        private async Task<List<OrderItemDto>> GetRandomOrderItems()
-        {
-            List<OrderItemDto>? orderItemDtos = new();
-            HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
-            HttpResponseMessage response = await client.GetAsync(orderItemsControllerPath);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().Result;
-                orderItemDtos = JsonConvert.DeserializeObject<List<OrderItemDto>>(result);
-            }
-            if (orderItemDtos == null || orderItemDtos.Count == 0)
-            {
-                return new List<OrderItemDto>() { new OrderItemDto() { Product = Products[0], Quantity = 1 } };
-            }
-            int amount = random.Next(1, 9);
-            while (orderItemDtos.Count > amount)
-                // Убираем случайный элемент из всего списка элементов заказов, если в списке больше одного элемента. 
-                orderItemDtos.Remove(orderItemDtos[random.Next(orderItemDtos.Count)]);
-            return orderItemDtos;
         }
         private async void RemoveSelectedOrder(object? e)
         {

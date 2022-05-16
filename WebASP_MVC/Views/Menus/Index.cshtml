@@ -1,4 +1,5 @@
-﻿@model IEnumerable<UseCases.API.Dto.MenuDto>
+﻿@using UseCases.API.Dto
+@model IEnumerable<UseCases.API.Dto.MenuDto>
 
 @{
     ViewData["Title"] = "Menus";
@@ -15,6 +16,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Id)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MenuItems)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -24,6 +28,28 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.Raw("Products")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (MenuItemDto menuItem in item.MenuItems)
+                            {
+                                @if (menuItem.Product == null) continue;
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modeitem=>menuItem.Product.Name)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

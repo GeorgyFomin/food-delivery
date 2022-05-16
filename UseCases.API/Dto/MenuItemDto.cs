@@ -3,6 +3,6 @@
     public class MenuItemDto
     {
         public int Id { get; set; }
-        public ProductDto? Product { get; set; }
+        public ProductDto? Product { get; set; } = new ProductDto();
     }
 }

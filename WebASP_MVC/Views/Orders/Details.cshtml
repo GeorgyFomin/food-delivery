@@ -27,7 +27,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.PhoneNumber)
         </dd>
-        @if (Model != null && Model.OrderElements.Count > 0 && OrdersController.IncomingItems != null)
+        @if (Model != null && Model.OrderElements.Count > 0 )@*&& OrdersController.IncomingItems != null)*@
         {
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.OrderElements)
@@ -44,7 +44,7 @@
                             </th>
                         </tr>
                     </thead>
-                    @foreach (var item in OrdersController.IncomingItems)
+                    @foreach (var item in @Model.OrderElements)@* OrdersController.IncomingItems)*@
                     {
                         if (item == null || item.Product == null) continue;
                         <tr>

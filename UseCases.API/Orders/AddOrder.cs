@@ -54,6 +54,11 @@ namespace UseCases.API.Orders
                     {
                         Product? product = await _context.Products.Include(e => e.ProductsIngredients).
                             FirstOrDefaultAsync(p => p.Id == item.Product.Id, cancellationToken: cancellationToken);
+                        if (product == null)
+                        {
+                            await _context.Products.AddAsync(product = new Product(), cancellationToken);
+                            await _context.SaveChangesAsync(cancellationToken);
+                        }
                         OrderItem orderItem = new() { Product = product, Quantity = item.Quantity };
                         await _context.OrderItems.AddAsync(orderItem, cancellationToken);
                         await _context.SaveChangesAsync(cancellationToken);

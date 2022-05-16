@@ -23,12 +23,12 @@
             <dd class="col-sm-10">
                 <table class="table">
                     <tr>Menu Items</tr>
-                    @foreach (var item in MenusController.IncomingProducts)
+                    @foreach (var item in @Model.MenuItems)
                     {
-                        if (item == null) continue;
+                        if (item == null || item.Product == null) continue;
                         <tr>
                             <td>
-                                @Html.DisplayFor(modelItem => item.Name)
+                                @Html.DisplayFor(modelItem => item.Product.Name)
                             </td>
                         </tr>
                     }

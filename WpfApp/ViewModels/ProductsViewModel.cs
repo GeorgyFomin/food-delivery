@@ -10,6 +10,7 @@ using System.Windows.Input;
 using WpfApp.Commands;
 using System.Linq;
 using UseCases.API.Dto;
+using WpfApp.View;
 
 namespace WpfApp.ViewModels
 {
