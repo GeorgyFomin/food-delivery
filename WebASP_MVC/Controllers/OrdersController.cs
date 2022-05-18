@@ -26,6 +26,7 @@ namespace WebASP_MVC.Controllers
             }
             return products;
         }
+
         public async Task<IActionResult> AddAsync(int? id)
         {
             if (id == null || curOrder == null) return NotFound();
@@ -126,7 +127,7 @@ namespace WebASP_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Discount, Delivery, PhoneNumber, OrderItems,Id")] OrderDto orderDto)
+        public async Task<IActionResult> Create([Bind("Discount, Delivery, PhoneNumber, OrderItems, Id")] OrderDto orderDto)
         {
             if (!ModelState.IsValid)
             {
@@ -146,6 +147,7 @@ namespace WebASP_MVC.Controllers
         public async Task<IActionResult> Edit(int? id, int? itemId) =>
             id == null ? NotFound() : itemId == null ? await GetOrderById(id) : itemId < 0 ? await RemoveAsync(-itemId) :
             await AddAsync(itemId);
+
         // POST: Orders/Edit/id
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -159,7 +161,6 @@ namespace WebASP_MVC.Controllers
             }
             try
             {
-                //orderDto.OrderElements = curOrder.OrderElements;
                 await SaveOrderChange(orderDto);
             }
             catch (DbUpdateConcurrencyException)
