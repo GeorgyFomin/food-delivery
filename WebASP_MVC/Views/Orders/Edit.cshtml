@@ -9,7 +9,7 @@
 <h4>Order</h4>
 <hr />
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @if (Model.Delivery != null)
@@ -59,98 +59,138 @@
                 </div>
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
+            @*
             @if (Model.OrderElements != null)
             {
-                <label asp-for="OrderElements" class="control-label"></label>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                @Html.Raw("Products")
-                            </th>
-                            <th>
-                                @Html.Raw("Quantities")
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in @Model.OrderElements)
-                        {
-                            <tr>
-                                <td>
-                                    @if (item.Product != null)
-                                    {
-                                        @Html.DisplayFor(modeitem=>item.Product.Name)
-                                    }
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <label asp-for="@item.Quantity" class="control-label"></label>
-                                        <input asp-for="@item.Quantity" class="form-control" />
-                                        <span asp-validation-for="@item.Quantity" class="text-danger"></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-itemId="-@item.Id">Remove</a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <label asp-for="OrderElements" class="control-label"></label>
+            <table class="table">
+            <thead>
+            <tr>
+            <th>
+            @Html.Raw("Products")
+            </th>
+            <th>
+            @Html.Raw("Quantities")
+            </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in @Model.OrderElements)
+            {
+            <tr>
+            <td>
+            @if (item.Product != null)
+            {
+            @Html.DisplayFor(modeitem=>item.Product.Name)
             }
+            </td>
+            <td>
+            <div class="form-group">
+            <label asp-for="@item.Quantity" class="control-label"></label>
+            <input asp-for="@item.Quantity" class="form-control" />
+            <span asp-validation-for="@item.Quantity" class="text-danger"></span>
+            </div>
+            </td>
+            <td>
+            <a asp-action="Edit" asp-route-itemId="-@item.Id">Remove</a>
+            </td>
+            </tr>
+            }
+            </tbody>
+            </table>
+            }
+            *@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
-
-    @*    <div class="col-md-4">
-    <table class="table">
-    <thead>
-    <tr>
-    <th>
-    @Html.Raw("Products")
-    </th>
-    <th>
-    @Html.Raw("Quantities")
-    </th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in @Model.OrderElements)
-    {
-    @if (item.Product == null) continue;
-    <tr>
-    <td>
-    @Html.DisplayFor(modeitem=>item.Product.Name)
-    </td>
-    <td>
-    <div class="form-group">
-    <label asp-for="@item.Quantity" class="control-label"></label>
-    <input asp-for="@item.Quantity" value="@item.Quantity" class="form-control" />
-    <span asp-validation-for="@item.Quantity" class="text-danger"></span>
-    </div>
-    </td>
-    <td>
-    <a asp-action="Edit" asp-route-itemId="-@item.Id">Remove</a>
-    </td>
-    </tr>
-    }
-    </tbody>
-    </table>
-    </div>
-    *@
-    <div class="col-md-6">
+    <div class="col-md-4">
         <table class="table">
             <thead>
                 <tr>
                     <th>
-                        @Html.Raw("Non-Incoming Products")
+                        @Html.Raw("Incoming Order Items")
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.Raw("Products")
+                    </th>
+                    <th>
+                        @Html.Raw("Quantities")
                     </th>
                 </tr>
             </thead>
             <tbody>
+                @foreach (var item in @Model.OrderElements)
+                {
+                    @if (item.Product == null) continue;
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modeitem=>item.Product.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modeitem=>item.Quantity)
+
+                            @*
+                        <form asp-action="Edit" asp-route-itemId="@item.Id" asp-route-quantity="@item.Quantity">
+
+                        <div class="form-group">
+                        <label asp-for="@item.Quantity" class="control-label"></label>
+                        <input asp-for="@item.Quantity" value="@item.Quantity" class="form-control" />
+                        <span asp-validation-for="@item.Quantity" class="text-danger"></span>
+                        </div>
+                        <a asp-action="Edit" asp-route-itemId="@item.Id" asp-route-quantity="@item.Quantity">Save Quantity</a>
+
+                        <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                        </div>
+
+                        </form>
+                        *@
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-itemId="-@item.Id">Remove</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.Raw("Non-Incoming")
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.Raw("Products")
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @*
+                @foreach (var item in OrdersController.NonIncomingOrderItems)
+                {
+                <tr>
+                <td>
+                @Html.DisplayFor(modeitem=>item.Product)
+                </td>
+                <td>
+                @Html.DisplayFor(modeitem=>item.Quantity)
+                </td>
+                <td>
+                <a asp-action="Edit" asp-route-itemId="@item.Id">Add</a>
+                </td>
+                </tr>
+                }
+                *@
+
                 @foreach (var item in OrdersController.NonIncomingProducts)
                 {
                     <tr>
@@ -162,6 +202,7 @@
                         </td>
                     </tr>
                 }
+
             </tbody>
         </table>
     </div>

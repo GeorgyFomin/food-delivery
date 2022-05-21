@@ -12,7 +12,6 @@ namespace WebASP_MVC.Controllers
         private static readonly string itemsPath = "api/MenuItems";
         private static readonly string productsPath = "api/Products";
         static MenuDto? curMenu = null;
-        //public static List<ProductDto> IncomingProducts { private set; get; } = new List<ProductDto>();
         public static List<ProductDto> NonIncomingProducts { private set; get; } = new List<ProductDto>();
         static async Task<List<ProductDto>?> GetProductsAsync()
         {
@@ -127,16 +126,7 @@ namespace WebASP_MVC.Controllers
             {
                 return View(menuDto);
             }
-            //List<ProductDto>? products = await GetProductsAsync();
-            //if (products == null)
-            //    return BadRequest();
             menuDto.MenuItems = new List<MenuItemDto>() { new MenuItemDto() };
-            //// Заполняем его элементы меню всеми продуктами из базы.
-            //foreach (ProductDto productDto in products)
-            //{
-            //    // Добавляем к элементам меню ссылку на продукт.
-            //    menuDto.MenuItems.Add(new MenuItemDto { Product = productDto });
-            //}
             HttpClient client = new() { BaseAddress = new Uri(apiAddress) };
             HttpResponseMessage response = await client.PostAsJsonAsync(menusPath, menuDto);
             response.EnsureSuccessStatusCode();

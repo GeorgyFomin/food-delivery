@@ -53,7 +53,7 @@ namespace WebASP_MVC.Controllers
             {
                 return NotFound();
             }
-            IncomingIngredients.Add(ingredientDto);
+            //IncomingIngredients.Add(ingredientDto);
             curProduct.ProductsIngredients.Add(new ProductIngredientDto() { IngredientId = ingredientDto.Id, ProductId = curProduct.Id });
             NonIncomingIngredients.Remove(ingredientDto);
             return View(curProduct);
@@ -64,6 +64,31 @@ namespace WebASP_MVC.Controllers
             {
                 return NotFound();
             }
+            //// New version
+            //// Находим ссылку на выбранный ингредиент в списке ингредиентов, входящих в состав продукта.
+            //ProductIngredientDto? productIngredientDto = curProduct.ProductsIngredients.FirstOrDefault(pi => pi.IngredientId == id);
+            //if (productIngredientDto != null)
+            //{
+            //    List<IngredientDto>? ingredients = await GetIngredientsAsync();
+            //    if (ingredients != null)
+            //    {
+            //        IngredientDto? ingredientDto = ingredients.FirstOrDefault(i => i.Id == id);
+            //        if (ingredientDto != null)
+            //        {
+            //            NonIncomingIngredients.Add(ingredientDto);
+            //        }
+            //    }
+            //    // Удаляем из списка ингредиентов, входящих в состав текущего продукта, выбранный ингредиент.
+            //    curProduct.ProductsIngredients.Remove(productIngredientDto);
+            //    // Сохраняем новую редакцию продукта в базе.
+            //    // Создаем клиента для посылки команд по адресу службы, обрабатывающей сообщения.
+            //    HttpClient? client = new() { BaseAddress = new Uri(apiAddress) };
+            //    // Посылаем клиенту команду
+            //    // либо на редактирование элемента базы Product.
+            //    HttpResponseMessage? response = await client.PutAsJsonAsync(path + $"/{curProduct.Id}", curProduct);
+            //    response.EnsureSuccessStatusCode();
+            //}
+
             IngredientDto? ingredientDto = IncomingIngredients.SingleOrDefault(i => i.Id == id);
             if (ingredientDto == null)
             {
@@ -76,6 +101,7 @@ namespace WebASP_MVC.Controllers
                 curProduct.ProductsIngredients.Remove(productIngredient);
             }
             NonIncomingIngredients.Add(ingredientDto);
+
             return View(curProduct);
         }
         private static async Task SaveProductChange(ProductDto productDto)
@@ -96,12 +122,6 @@ namespace WebASP_MVC.Controllers
             {
                 curProduct = JsonConvert.DeserializeObject<ProductDto>(response.Content.ReadAsStringAsync().Result);
             }
-
-            //List<ProductDto>? products = await GetProductsAsync();
-            //if (products == null)
-            //    return NotFound();
-            //curProduct = products.SingleOrDefault(p => p.Id == id);
-
             if (curProduct == null)
             {
                 return NotFound();
