@@ -7,7 +7,6 @@ using WebApi.Data;
 using UseCases.API.Core;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddMediatR(typeof(UseCases.API.Deliveries.GetDeliveries).Assembly);
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
@@ -34,7 +33,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

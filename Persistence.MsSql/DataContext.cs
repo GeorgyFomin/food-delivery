@@ -1,10 +1,12 @@
 ﻿using Entities.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Persistence.MsSql
 {
-    public class DataContext : DbContext
+    public class DataContext : DbContext //IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         //Известно, что ссылка на описанные ниже DbSet никогда не будет null. Поэтому можно эти свойства описать как { get; set; } = null!;
         public DbSet<Menu> Menus => Set<Menu>();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WebASP_MVC.Models;
 
@@ -12,6 +13,12 @@ namespace WebASP_MVC.Controllers
         {
             _logger = logger;
         }
+        //[Authorize]
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //    //return Content(User == null || User.Identity == null || User.Identity.Name == null ? string.Empty : User.Identity.Name);
+        //}
 
         public IActionResult Index()
         {
