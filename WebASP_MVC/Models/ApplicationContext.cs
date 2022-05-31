@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿#if role
+using Microsoft.EntityFrameworkCore;
 
 namespace WebASP_MVC.Models
 {
@@ -30,3 +31,4 @@ namespace WebASP_MVC.Models
         }
     }
 }
+#endif

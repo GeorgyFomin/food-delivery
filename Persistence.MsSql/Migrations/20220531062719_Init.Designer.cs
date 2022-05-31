@@ -12,8 +12,8 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220415195256_PhoneNmb")]
-    partial class PhoneNmb
+    [Migration("20220531062719_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -172,8 +172,8 @@ namespace Persistence.MsSql.Migrations
                     b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -245,9 +245,72 @@ namespace Persistence.MsSql.Migrations
                         .WithMany()
                         .HasForeignKey("DiscountId");
 
+                    b.OwnsOne("PhoneNumbers.PhoneNumber", "PhoneNumder", b1 =>
+                        {
+                            b1.Property<int>("OrderId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("CountryCode")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("CountryCodeSource")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Extension")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("HasCountryCode")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasCountryCodeSource")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasExtension")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasItalianLeadingZero")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasNationalNumber")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasNumberOfLeadingZeros")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasPreferredDomesticCarrierCode")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("HasRawInput")
+                                .HasColumnType("bit");
+
+                            b1.Property<bool>("ItalianLeadingZero")
+                                .HasColumnType("bit");
+
+                            b1.Property<decimal>("NationalNumber")
+                                .HasColumnType("decimal(20,0)");
+
+                            b1.Property<int>("NumberOfLeadingZeros")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("PreferredDomesticCarrierCode")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("RawInput")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
                     b.Navigation("Delivery");
 
                     b.Navigation("Discount");
+
+                    b.Navigation("PhoneNumder");
                 });
 
             modelBuilder.Entity("Entities.Domain.OrderItem", b =>

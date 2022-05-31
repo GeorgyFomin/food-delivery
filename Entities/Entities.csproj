@@ -15,6 +15,7 @@
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.24.4" />
     <PackageReference Include="libphonenumber-csharp" Version="8.12.46" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.0" />
   </ItemGroup>
 
 </Project>

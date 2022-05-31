@@ -65,6 +65,18 @@ namespace Persistence.MsSql.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Menus",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Menus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -86,7 +98,23 @@ namespace Persistence.MsSql.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DiscountId = table.Column<int>(type: "int", nullable: true),
-                    DeliveryId = table.Column<int>(type: "int", nullable: true)
+                    DeliveryId = table.Column<int>(type: "int", nullable: true),
+                    PhoneNumder_HasCountryCode = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_CountryCode = table.Column<int>(type: "int", nullable: true),
+                    PhoneNumder_HasNationalNumber = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_NationalNumber = table.Column<decimal>(type: "decimal(20,0)", nullable: true),
+                    PhoneNumder_HasExtension = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_Extension = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumder_HasItalianLeadingZero = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_ItalianLeadingZero = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_HasNumberOfLeadingZeros = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_NumberOfLeadingZeros = table.Column<int>(type: "int", nullable: true),
+                    PhoneNumder_HasRawInput = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_RawInput = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumder_HasCountryCodeSource = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_CountryCodeSource = table.Column<int>(type: "int", nullable: true),
+                    PhoneNumder_HasPreferredDomesticCarrierCode = table.Column<bool>(type: "bit", nullable: true),
+                    PhoneNumder_PreferredDomesticCarrierCode = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -100,6 +128,30 @@ namespace Persistence.MsSql.Migrations
                         name: "FK_Orders_Discounts_DiscountId",
                         column: x => x.DiscountId,
                         principalTable: "Discounts",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MenuItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: true),
+                    MenuId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MenuItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MenuItems_Menus_MenuId",
+                        column: x => x.MenuId,
+                        principalTable: "Menus",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_MenuItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
                         principalColumn: "Id");
                 });
 
@@ -134,7 +186,7 @@ namespace Persistence.MsSql.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductId = table.Column<int>(type: "int", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<long>(type: "bigint", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -151,6 +203,16 @@ namespace Persistence.MsSql.Migrations
                         principalTable: "Products",
                         principalColumn: "Id");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MenuItems_MenuId",
+                table: "MenuItems",
+                column: "MenuId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MenuItems_ProductId",
+                table: "MenuItems",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
@@ -184,10 +246,16 @@ namespace Persistence.MsSql.Migrations
                 name: "Employees");
 
             migrationBuilder.DropTable(
+                name: "MenuItems");
+
+            migrationBuilder.DropTable(
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
                 name: "ProductIngredient");
+
+            migrationBuilder.DropTable(
+                name: "Menus");
 
             migrationBuilder.DropTable(
                 name: "Orders");

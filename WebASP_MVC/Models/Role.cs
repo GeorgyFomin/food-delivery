@@ -1,4 +1,5 @@
-﻿namespace WebASP_MVC.Models
+﻿#if role
+namespace WebASP_MVC.Models
 {
     public class Role
     {
@@ -11,3 +12,4 @@
         }
     }
 }
+#endif
