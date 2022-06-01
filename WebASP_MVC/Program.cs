@@ -1,13 +1,7 @@
-#if cookies
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using WebASP_MVC.Models;
-#endif
-#if role
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
-using WebASP_MVC.Models;
-#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,18 +12,32 @@ builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer("Serv
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options => //CookieAuthenticationOptions
     {
-        options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+        options.LoginPath = new PathString("/Account/Login");
     });
-#endif
-#if role
+
+#elif role
 builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=rolesappdb;Trusted_Connection=True;"));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
-                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.LoginPath = new PathString("/Account/Login");
+                    options.AccessDeniedPath = new PathString("/Account/Login");
                 });
+#else
+// установка конфигурации подключения
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        // Cookie settings
+        options.Cookie.HttpOnly = true;
+        //options.Cookie.Expiration 
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.SlidingExpiration = true;
+    });
 #endif
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -59,9 +67,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-#if cookies || role
+//#if cookies || role
 app.UseAuthentication();
-#endif
+//#endif
 app.UseAuthorization();
 
 app.MapControllerRoute(
