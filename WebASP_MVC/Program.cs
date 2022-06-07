@@ -26,18 +26,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 });
 #else
 // установка конфигурации подключения
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        // Cookie settings
-        options.Cookie.HttpOnly = true;
-        //options.Cookie.Expiration 
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.SlidingExpiration = true;
-    });
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        // Cookie settings
+//        options.Cookie.HttpOnly = true;
+//        //options.Cookie.Expiration 
+//        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+//        options.LoginPath = "/Account/Login";
+//        options.LogoutPath = "/Account/Logout";
+//        options.AccessDeniedPath = "/Account/AccessDenied";
+//        options.SlidingExpiration = true;
+//    });
 #endif
 // Add services to the container.
 builder.Services.AddControllersWithViews();

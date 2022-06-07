@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 #if role || cookies
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 #endif
 
 namespace WebASP_MVC.Controllers

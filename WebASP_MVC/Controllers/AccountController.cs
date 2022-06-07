@@ -1,16 +1,19 @@
-﻿#if cookies || role
+﻿using Microsoft.AspNetCore.Mvc;
+using WebASP_MVC.Models;
+#if cookies || role
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using WebASP_MVC.Models;
-
+#else
+using Microsoft.AspNetCore.Identity;
+using Entities.Domain;
+#endif
 namespace WebASP_MVC.Controllers
 {
     public class AccountController : Controller
     {
-#if cookies 
+#if cookies
         private readonly UserContext db;
         public AccountController(UserContext context)
         {
@@ -84,8 +87,7 @@ namespace WebASP_MVC.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
         }
-#endif
-#if role
+#elif role
         private ApplicationContext _context;
         public AccountController(ApplicationContext context)
         {
@@ -161,7 +163,44 @@ namespace WebASP_MVC.Controllers
             // установка аутентификационных куки
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
+#else
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser? user = new() { Email = model.Email, UserName = model.Email, Alias = model.Alias };
+                // добавляем пользователя
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    // установка куки
+                    await _signInManager.SignInAsync(user, false);
+                    return RedirectToAction("Index", "FoodDelivery");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+            }
+            return View(model);
+        }
 #endif
     }
 }
-#endif
