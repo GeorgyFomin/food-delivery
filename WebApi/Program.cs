@@ -18,6 +18,7 @@ builder.Services.AddDbContext<DataContext>(opt => opt.UseSqlServer(@"Server=(loc
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+#if Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>
     (
     options =>
@@ -26,6 +27,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>
         //Other options go here
     }
     ).AddEntityFrameworkStores<DataContext>();
+#endif
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

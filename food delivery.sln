@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebASP_MVC", "WebASP_MVC\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApp", "WpfApp\WpfApp.csproj", "{53E6BAA7-2F01-433D-8D23-6EE1E9D48BA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{6454DB29-9996-42FC-AF20-465628D943C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{53E6BAA7-2F01-433D-8D23-6EE1E9D48BA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53E6BAA7-2F01-433D-8D23-6EE1E9D48BA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53E6BAA7-2F01-433D-8D23-6EE1E9D48BA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6454DB29-9996-42FC-AF20-465628D943C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6454DB29-9996-42FC-AF20-465628D943C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6454DB29-9996-42FC-AF20-465628D943C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6454DB29-9996-42FC-AF20-465628D943C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +74,7 @@ Global
 		{939947E8-2B59-4EBB-BBDB-C9A9BC92814E} = {ECF182ED-60C5-4DEB-800D-7B26A37B8A75}
 		{D4DF9D0C-0141-45EE-9167-96385139F135} = {393A7B80-669D-4770-BBF6-6F6C24B3FEE8}
 		{53E6BAA7-2F01-433D-8D23-6EE1E9D48BA6} = {393A7B80-669D-4770-BBF6-6F6C24B3FEE8}
+		{6454DB29-9996-42FC-AF20-465628D943C3} = {2831D606-5020-499D-9080-96EF37E4E954}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FE2990C4-FACE-4F7F-B571-7F680E5D9C97}
