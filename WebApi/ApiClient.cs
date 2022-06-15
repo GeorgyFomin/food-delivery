@@ -1,4 +1,6 @@
-﻿using RestSharp;
+﻿using Entities.Domain;
+using RestSharp;
+using WebApi.Data;
 
 namespace WebApi
 {

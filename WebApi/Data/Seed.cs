@@ -1,9 +1,14 @@
 ﻿using Entities.Domain;
 using Entities.Enums;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Persistence.MsSql;
 using PhoneNumbers;
+using System.Reflection;
+using System.Security.Claims;
 
 namespace WebApi.Data
 {
@@ -36,7 +41,7 @@ namespace WebApi.Data
                 {
                     Name = GetRandomString(random.Next(3, 6))
                 }
-            ).ToList());
+            ));
         private static readonly List<Product> products = GetProducts();
         private static List<Product> GetProducts()
         {
@@ -81,7 +86,7 @@ namespace WebApi.Data
                 Price = random.Next(1, 100),
                 Weight = random.Next(1, 100),
                 Name = GetRandomString(random.Next(1, 6))
-            }).ToList());
+            }));
         private static List<MenuItem> GetRandomMenuItems(List<Product> products)
         {
             List<MenuItem> items = new();
@@ -185,11 +190,148 @@ namespace WebApi.Data
         /// <returns></returns>
         private static string GetRandomString(int length) => new(Enumerable.Range(0, length).Select(x => (char)random.Next('a', 'z' + 1)).ToArray());
         private static List<Employee> GetRandomEmployees(int v) => new(Enumerable.Range(0, v).Select(index => new Employee { Name = GetRandomString(random.Next(2, 5)) }));
+        private static List<ApplicationUser> GetRandomUsers(int v)
+        {
+            return new(Enumerable.Range(0, v).Select(index =>
+            {
+                string
+                    userName = GetRandomString(random.Next(2, 5)),
+                    eMail = GetRandomString(random.Next(2, 5)) + "@" + GetRandomString(random.Next(2, 5)) + ".com";
+                return new ApplicationUser
+                {
+                    UserName = userName,
+                    NormalizedUserName = userName.ToUpper(),
+                    Alias = GetRandomString(random.Next(2, 5)),
+                    PhoneNumber = "+7" + (string)new(Enumerable.Range(2, random.Next(2, 11)).Select(x => (char)random.Next('0', '9' + 1)).ToArray()),
+                    PhoneNumberConfirmed = true,
+                    Email = eMail,
+                    NormalizedEmail = eMail.ToUpper(),
+                    EmailConfirmed = true
+                };
+            }));
+        }
+        private static List<IdentityRole> GetRandomRoles(int v)
+        {
+            return new(Enumerable.Range(0, v).Select(index =>
+            {
+                string name = GetRandomString(random.Next(2, 5));
+                return new IdentityRole
+                {
+                    Name = name,
+                    NormalizedName = name.ToUpper(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                };
+            }));
+        }
+        private static readonly List<IdentityRole> roles = GetRandomRoles(random.Next(5, 10));
+        private static readonly List<ApplicationUser> users = GetRandomUsers(random.Next(3, 10));
+
+        //private static readonly List<ApplicationUser> users = GetUsers();
+        private static List<ApplicationUser> GetUsers()
+        {
+            static List<IdentityRole> GetRoles()
+            {
+                List<IdentityRole> list = new();
+                // Число ролей в списке.
+                int nRole = random.Next(2, roles.Count);
+                IdentityRole role;
+                // Помещаем в список list разные случайно выбранные роли из полного списка roles в количестве nRole.
+                for (int i = 0; i < nRole; i++)
+                {
+                    do
+                    {
+                        role = roles[random.Next(roles.Count)];
+                    } while (list.Contains(role));
+                    list.Add(role);
+                }
+                return list;
+            }
+            List<ApplicationUser> users = GetRandomUsers(random.Next(3, 10));
+            foreach (ApplicationUser user in users)
+            {
+                List<IdentityRole> roles = GetRoles();
+                List<IdentityUserRole<string>> userRoles = new();
+                foreach (IdentityRole role in roles)
+                {
+                    userRoles.Add(new IdentityUserRole<string>() { UserId = user.Id, RoleId = role.Id });
+                }
+            }
+            return users;
+        }
+        private static List<IdentityUserRole<string>> GetUserRoles()
+        {
+            List<IdentityUserRole<string>> userRoles = new();
+            foreach (ApplicationUser user in users)
+            {
+                userRoles.Add(new IdentityUserRole<string> { RoleId = roles[random.Next(roles.Count)].Id, UserId = user.Id });
+            }
+            return userRoles;
+        }
+        private static string GetRandomClaim(out string? value)
+        {
+            FieldInfo[] claimTypesFields = typeof(ClaimTypes).GetFields();
+            FieldInfo rndField = claimTypesFields[random.Next(claimTypesFields.Length)];
+            value = rndField.GetValue(rndField)?.ToString();
+            return rndField.Name;
+        }
+        private static List<IdentityUserClaim<string>> GetRandomUserClaims()
+        {
+            List<IdentityUserClaim<string>> userClaims = new();
+            foreach (ApplicationUser applicationUser in users)
+                userClaims.Add(new IdentityUserClaim<string> { ClaimType = GetRandomClaim(out string? value), ClaimValue = value, UserId = applicationUser.Id });
+            return userClaims;
+        }
+        private static List<IdentityRoleClaim<string>> GetRandomRoleClaims()
+        {
+            List<IdentityRoleClaim<string>> roleClaims = new();
+            foreach (var role in roles)
+            {
+                roleClaims.Add(new IdentityRoleClaim<string> { RoleId = role.Id, ClaimType = GetRandomClaim(out string? value), ClaimValue = value });
+            }
+            return roleClaims;
+        }
+        private static List<IdentityUserLogin<string>> GetRandomIdentityUserLogins()
+        {
+            List<IdentityUserLogin<string>> identityUserLogins = new();
+            foreach (var user in users)
+            {
+                identityUserLogins.Add(new IdentityUserLogin<string>
+                {
+                    UserId = user.Id,
+                    LoginProvider = GetRandomString(4),
+                    ProviderDisplayName = GetRandomString(5),
+                    ProviderKey = Guid.NewGuid().ToString()
+                });
+            }
+            return identityUserLogins;
+        }
+        private static List<IdentityUserToken<string>> GetRandomIdentityUserTokens()
+        {
+            List<IdentityUserToken<string>> identityUserTokens = new();
+            foreach (ApplicationUser applicationUser in users)
+            {
+                identityUserTokens.Add(new()
+                {
+                    UserId = applicationUser.Id,
+                    Name = GetRandomString(4),
+                    Value = GetRandomString(5),
+                    LoginProvider = GetRandomString(4)
+                });
+            }
+            return identityUserTokens;
+        }
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using var context = new DataContext(serviceProvider.GetRequiredService<DbContextOptions<DataContext>>());
             if (context == null) return;
             // Чистим таблицы.
+            context.Roles.ClearSave(context);
+            context.Users.ClearSave(context);
+            context.UserRoles.ClearSave(context);
+            context.UserClaims.ClearSave(context);
+            context.UserLogins.ClearSave(context);
+            context.UserTokens.ClearSave(context);
+            context.RoleClaims.ClearSave(context);
             context.Employees.ClearSave(context);
             context.Ingredients.ClearSave(context);
             context.MenuItems.ClearSave(context);
@@ -209,8 +351,15 @@ namespace WebApi.Data
             context.Discounts.AddRange(discounts);
             context.Orders.AddRange(orders);
             context.Employees.AddRange(GetRandomEmployees(random.Next(3, 7)));
+            context.Roles.AddRange(roles);
+            context.Users.AddRange(users);
             // Сохраняем таблицы в базе.
             context.SaveChanges();
+            context.UserRoles.AddRange(GetUserRoles());
+            context.UserClaims.AddRange(GetRandomUserClaims());
+            context.RoleClaims.AddRange(GetRandomRoleClaims());
+            context.UserLogins.AddRange(GetRandomIdentityUserLogins());
+            context.UserTokens.AddRange(GetRandomIdentityUserTokens());
             context.MenuItems.RemoveRange(context.MenuItems.Where(mi => mi.Product == null));
             context.SaveChanges();
             context.Menus.RemoveRange(context.Menus.Where(m => m.MenuItems.Count == 0));

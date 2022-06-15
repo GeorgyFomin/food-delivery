@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Users\" />
     <Folder Include="OrderItems\" />
     <Folder Include="Orders\" />
   </ItemGroup>

@@ -15,7 +15,7 @@ namespace Infrastructure
             {
                 new Claim(JwtRegisteredClaimNames.NameId, applicationUser.UserName)
             };
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("key"));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersecret_secretkey!123"));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512Signature);
             var descriptor = new SecurityTokenDescriptor
             {

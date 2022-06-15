@@ -1,12 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence.MsSql;
 using MediatR;
-using System.Reflection;
-using Microsoft.OpenApi.Models;
 using WebApi.Data;
 using UseCases.API.Core;
-using Entities.Domain;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,16 +14,6 @@ builder.Services.AddDbContext<DataContext>(opt => opt.UseSqlServer(@"Server=(loc
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-#if Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>
-    (
-    options =>
-    {
-        options.SignIn.RequireConfirmedAccount = false;
-        //Other options go here
-    }
-    ).AddEntityFrameworkStores<DataContext>();
-#endif
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -36,7 +22,6 @@ using (var scope = app.Services.CreateScope())
 
     Seed.Initialize(services);
 }
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -49,6 +34,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

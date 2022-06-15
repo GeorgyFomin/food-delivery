@@ -1,4 +1,5 @@
 
+using Entities.Domain;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,11 +9,21 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using WebApi;
+using WebApi.Data;
 using WebASP_MVC.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-#if cookies
+#if Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>
+    (
+    options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        //Other options go here
+    }
+    ).AddEntityFrameworkStores<DataContext>();
+#elif cookies
 builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = userstoredb; Trusted_Connection = True;"));
 
 // установка конфигурации подключения
@@ -33,7 +44,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 });
 #else
 // JWT
-////.............
+//.............
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 //{
 //    options.TokenValidationParameters = new TokenValidationParameters
@@ -54,8 +65,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 //        ValidateIssuerSigningKey = true,
 //    };
 //});
-////.......................
-// установка конфигурации подключения
+//.......................
+//установка конфигурации подключения
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 //    .AddCookie(options =>
 //    {
@@ -93,6 +104,10 @@ else
     app.UseDeveloperExceptionPage();
 
 app.UseHttpsRedirection();
+
+//Jwt.........
+//app.UseDefaultFiles();
+//...........
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -120,17 +135,34 @@ app.UseAuthorization();
 
 //app.Map("/data", [Authorize] () => new { message = "Hello World!" });
 ///.....................................
-
+// Jwt.............
+//app.MapPost("/login", (ApplicationUser loginData) =>
+//{
+//    // находим пользователя 
+//    ApplicationUser? user = //ApiClient.users.FirstOrDefault(p => p.Email == loginData.Email);
+//    //// если пользователь не найден, отправляем статусный код 401
+//    if (user is null) return Results.Unauthorized();
+//    return Results.Json(new
+//    {
+//        access_token = new JwtService().CreateToken(user),
+//        //encodedJwt,
+//        username = user.UserName
+//    });
+//});
+//app.Map("/data", [Authorize] () => new { message = "Hello World!" });
+//...................
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=FoodDelivery}/{action=Index}/{id?}/{ingrId?}");
 
 app.Run();
-public class AuthOptions
-{
-    public const string ISSUER = "MyAuthServer"; // издатель токена
-    public const string AUDIENCE = "MyAuthClient"; // потребитель токена
-    const string KEY = "mysupersecret_secretkey!123";   // ключ для шифрации
-    public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
-}
+//Jwt..........
+//public class AuthOptions
+//{
+//    public const string ISSUER = "MyAuthServer"; // издатель токена
+//    public const string AUDIENCE = "MyAuthClient"; // потребитель токена
+//    const string KEY = "mysupersecret_secretkey!123";   // ключ для шифрации
+//    public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
+//        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
+//}
+//...............

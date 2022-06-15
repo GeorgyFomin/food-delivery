@@ -12,8 +12,8 @@ using Persistence.MsSql;
 namespace Persistence.MsSql.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220601050944_AuthentificationNew")]
-    partial class AuthentificationNew
+    [Migration("20220615084408_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -343,6 +343,9 @@ namespace Persistence.MsSql.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(max)");
 
@@ -352,8 +355,7 @@ namespace Persistence.MsSql.Migrations
                     b.Property<string>("ProviderKey")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("UserId");
 
                     b.ToTable("UserLogins");
                 });
@@ -361,27 +363,31 @@ namespace Persistence.MsSql.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("RoleId", "UserId");
 
                     b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
 
                     b.ToTable("UserTokens");
                 });

@@ -27,6 +27,7 @@ namespace WebASP_MVC.Controllers
             return View();
         }
 #else
+        //[Authorize]
         public IActionResult Index()
         {
             return View();
