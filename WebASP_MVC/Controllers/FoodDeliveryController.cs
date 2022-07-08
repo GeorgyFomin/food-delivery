@@ -20,14 +20,9 @@ namespace WebASP_MVC.Controllers
         {
             return Content("Вход только для администратора");
         }
-#elif cookies
-[Authorize]
-        public IActionResult Index()
-        {
-            return View();
-        }
+#elif cookies || Identity
+        [Authorize]
 #else
-        //[Authorize]
         public IActionResult Index()
         {
             return View();

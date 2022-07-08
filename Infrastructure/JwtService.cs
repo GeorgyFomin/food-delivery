@@ -1,4 +1,5 @@
 ﻿using Entities.Domain;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,13 +10,19 @@ namespace Infrastructure
 {
     public class JwtService : IJwtService
     {
+        private readonly SymmetricSecurityKey securityKey;
+
+        public JwtService(IConfiguration config)
+        {
+            securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+        }
         public string CreateToken(ApplicationUser applicationUser)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.NameId, applicationUser.UserName)
             };
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersecret_secretkey!123"));
+            //var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersecret_secretkey!123"));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512Signature);
             var descriptor = new SecurityTokenDescriptor
             {
