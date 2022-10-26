@@ -22,7 +22,8 @@
         <TextBlock Text="Orders" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="Order Items" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="2" Text="Products" FontSize="15" Foreground="Yellow" HorizontalAlignment="Center"/>
-        <DataGrid Template="{StaticResource DataGridTemplateNew}" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="ordersGridView" DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Orders}" 
+        <DataGrid Template="{StaticResource DataGridTemplateNew}" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" x:Name="ordersGridView" 
+                  DataContext="{Binding Mode=OneWay}" ItemsSource="{Binding Orders}" 
                   AutoGenerateColumns="False" Style="{StaticResource BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}">
             <DataGrid.Columns>
@@ -50,7 +51,8 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </DataGrid>
-        <DataGrid Template="{DynamicResource DataGridTemplateNew}" Grid.Column="1" x:Name="orderItemsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" DataContext="{Binding Mode=OneWay}" 
+        <DataGrid Template="{DynamicResource DataGridTemplateNew}" Grid.Column="1" x:Name="orderItemsGridView" RowHeaderStyle="{StaticResource BlackNavy}" Grid.Row="1" 
+                  DataContext="{Binding Mode=OneWay}" 
                   ItemsSource="{Binding OrderItems}"
                   AutoGenerateColumns="False" Style="{StaticResource ResourceKey=BlackNavy}" RowStyle="{StaticResource RowStyle}" 
                   CellStyle="{StaticResource CellStyle}" ColumnHeaderStyle="{StaticResource ResourceKey=BlackNavy}" CanUserAddRows="False">

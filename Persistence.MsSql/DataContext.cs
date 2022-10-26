@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.MsSql
 {
-    public class DataContext : IdentityDbContext<ApplicationUser> //DbContext
+    public class DataContext : DbContext// IdentityDbContext<ApplicationUser> //
     {
         //Известно, что ссылка на описанные ниже DbSet никогда не будет null. Поэтому можно эти свойства описать как { get; set; } = null!;
         public DbSet<Menu> Menus => Set<Menu>();
@@ -27,9 +27,9 @@ namespace Persistence.MsSql
             //modelBuilder.Entity<IdentityUserLogin<string>>(o => o.HasNoKey());
             //modelBuilder.Entity<IdentityUserToken<string>>(o => o.HasNoKey());
             //modelBuilder.Entity<IdentityUserRole<string>>(o => o.HasNoKey());
-            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(k => new { k.RoleId, k.UserId });
-            modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(k => new { k.UserId });
-            modelBuilder.Entity<IdentityUserToken<string>>().HasKey(k => new { k.UserId });
+            //modelBuilder.Entity<IdentityUserRole<string>>().HasKey(k => new { k.RoleId, k.UserId });
+            //modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(k => new { k.UserId });
+            //modelBuilder.Entity<IdentityUserToken<string>>().HasKey(k => new { k.UserId });
         }
     }
 }

@@ -27,7 +27,6 @@ namespace WpfApp.ViewModels
         public ICommand DiscountsCommand => discountsCommand ??= new RelayCommand(e => ViewModel = new DiscountsViewModel());
         public ICommand MenuItemsCommand => menuItemsCommand ??= new RelayCommand(e => ViewModel = new MenuItemsViewModel());
         public ICommand MenusCommand => menusCommand ??= new RelayCommand(e => ViewModel = new MenusViewModel());
-
-        public ICommand OrdersCommand => ordersCommand ??= new RelayCommand(e=>ViewModel=new OrdersViewModel());
+        public ICommand OrdersCommand => ordersCommand ??= new RelayCommand(e => ViewModel = new OrdersViewModel());
     }
 }

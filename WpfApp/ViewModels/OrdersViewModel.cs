@@ -80,6 +80,7 @@ namespace WpfApp.ViewModels
         private RelayCommand? orderItemRowEditEndCommand;
         #endregion
         #region Properties
+        public OrderDto? SelectedOrder { get => selectedOrder; set { selectedOrder = value; RaisePropertyChanged(nameof(selectedOrder)); } }
         /// <summary>
         /// Устанавливает и возвращает ссылку на коллекцию продуктов.
         /// </summary>
@@ -185,7 +186,7 @@ namespace WpfApp.ViewModels
             lastSelectedOrderRowIndx = grid.SelectedIndex;
             // Запоминаем ссылку на таблицу заказов.
             orderGrid = grid;
-            // Фиксируем меню, которое отвечает выделенной строке.
+            // Фиксируем заказ, который отвечает выделенной строке.
             selectedOrder = grid.SelectedItem is OrderDto order ? order : null;
             if (selectedOrder == null)
             {
